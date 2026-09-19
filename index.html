@@ -42,7 +42,6 @@
 
         input[type=range].horizontal-slider { accent-color: #FF8C42; height: 16px; cursor: pointer; }
 
-        /* Yazdırma sayfası ekranda görünmez ama ölçülebilsin diye ekran dışında durur */
         .print-show {
             position: fixed;
             top: 0;
@@ -87,7 +86,6 @@
                 margin: 0 !important;
                 overflow: visible !important;
             }
-            /* tek sayfa garantisi: ikinci boş sayfa oluşmasın */
             .print-page {
                 width: 100%;
                 height: 258mm;
@@ -99,7 +97,118 @@
                 page-break-after: auto;
             }
         }
+
+        /* DİNAMİK MOTİVE ÖZEL STİLLERİ */
+        .dm-student-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1.2rem;
+            max-width: 1600px;
+            width: 95%;
+            margin: 10px auto 40px auto;
+        }
+        @media (max-width: 1200px) { .dm-student-grid { grid-template-columns: repeat(5, 1fr); } }
+        @media (max-width: 768px) { .dm-student-grid { grid-template-columns: repeat(4, 1fr); } }
+        @media (max-width: 600px) { .dm-student-grid { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 400px) { .dm-student-grid { grid-template-columns: repeat(2, 1fr); } }
+
+        .dm-student-card {
+            background: linear-gradient(135deg, #9ca3af, #6b7280); 
+            color: white;
+            padding: 20px 10px;
+            border-radius: 16px; 
+            text-align: center;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255,255,255,0.2); 
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 120px; 
+        }
+        .dm-student-card:hover { transform: translateY(-4px); box-shadow: 0 10px 15px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255,255,255,0.3); }
+        .dm-pos-active { background: linear-gradient(135deg, #3b82f6, #2563eb) !important; }
+        .dm-neg-active { background: linear-gradient(135deg, #ef4444, #dc2626) !important; }
+
+        .dm-crown-icon {
+            position: absolute;
+            top: -15px;
+            right: -12px;
+            font-size: 2.2rem;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+            animation: floatCrown 2s ease-in-out infinite;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        @keyframes floatCrown {
+            0% { transform: translateY(0px) rotate(15deg); }
+            50% { transform: translateY(-6px) rotate(-5deg) scale(1.15); }
+            100% { transform: translateY(0px) rotate(15deg); }
+        }
+        @keyframes shakeEf {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px) rotate(-2deg); }
+            40%, 80% { transform: translateX(6px) rotate(2deg); }
+        }
+        .dm-shake-anim { animation: shakeEf 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+        
+        .dm-modal-content::-webkit-scrollbar { width: 8px; }
+        .dm-modal-content::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 8px; }
+        .dm-modal-content::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+        .dm-modal-content::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     </style>
+    
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendEmailVerification } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
+
+        // =========================================================================
+        // DİKKAT: SİTEYİ GITHUB'A YÜKLEMEDEN ÖNCE BURAYI KENDİ FIREBASE BİLGİLERİNİZLE DEĞİŞTİRİN
+        // =========================================================================
+        const MY_FIREBASE_CONFIG = {
+            apiKey: "AIzaSyCtf0tkc9e5ZLqPrq-XCemQux-Rfki1oMg",
+            authDomain: "okulmatik-686f5.firebaseapp.com",
+            projectId: "okulmatik-686f5",
+            storageBucket: "okulmatik-686f5.firebasestorage.app",
+            messagingSenderId: "148931990744",
+            appId: "1:148931990744:web:444e1d294d7440a225b3ad",
+            measurementId: "G-L4D7YQPH03"
+        };
+
+        const isSandbox = typeof __firebase_config !== 'undefined';
+        const firebaseConfig = isSandbox ? JSON.parse(__firebase_config) : MY_FIREBASE_CONFIG;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'okulmatik-super-app';
+
+        let app, auth, db, analytics;
+        try {
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+            if (firebaseConfig.measurementId) {
+                analytics = getAnalytics(app);
+            }
+
+            if (isSandbox && typeof __initial_auth_token !== 'undefined') {
+                signInWithCustomToken(auth, __initial_auth_token).catch(e => console.warn(e));
+            } else if (isSandbox) {
+                signInAnonymously(auth).catch(e => console.warn(e));
+            }
+        } catch(e) {
+            console.warn("Firebase Başlatma Hatası:", e);
+        }
+
+        window.fb = {
+            auth, db, appId, isSandbox,
+            createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendEmailVerification,
+            doc, getDoc, setDoc
+        };
+    </script>
 </head>
 <body class="overflow-hidden w-screen h-[100dvh]">
     <div id="root" class="w-full h-full overflow-hidden"></div>
@@ -109,21 +218,13 @@
 
         const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
-        // --- Cümleleri güvenli biçimde ayır (nokta, ünlem, soru işareti; boşluk olmasa da çalışır) ---
         const splitSentences = (text) => {
             if (!text) return [];
             const raw = String(text).replace(/\s+/g, ' ').trim().match(/[^.!?]+[.!?]*/g) || [];
-            return raw
-                .map(s => s.trim())
-                .filter(s => s.length > 0)
-                .map(s => (/[.!?]$/.test(s) ? s : s + '.'));
+            return raw.map(s => s.trim()).filter(s => s.length > 0).map(s => (/[.!?]$/.test(s) ? s : s + '.'));
         };
 
-        // --- Satırları ölçüp kutuya TAM sığan ortak yazı boyutunu bulan bileşen ---
-        // Önce 100px ile gizlice ölçer, sonra genişlik + yüksekliğe göre küçültür.
-        // Böylece hiçbir cümle alt satıra taşmaz ve yazı gereksiz küçülmez.
         const FIT_PROBE = 100;
-
         const FitLines = ({ lines, maxPx = 64, minPx = 14, className = "", lineClassName = "", renderLine, safety = 0.985 }) => {
             const ref = useRef(null);
             const [size, setSize] = useState(null);
@@ -152,15 +253,8 @@
                 window.addEventListener('resize', again);
                 window.addEventListener('orientationchange', again);
                 let ro = null;
-                if (typeof ResizeObserver !== 'undefined' && ref.current) {
-                    ro = new ResizeObserver(again);
-                    ro.observe(ref.current);
-                }
-                return () => {
-                    window.removeEventListener('resize', again);
-                    window.removeEventListener('orientationchange', again);
-                    if (ro) ro.disconnect();
-                };
+                if (typeof ResizeObserver !== 'undefined' && ref.current) { ro = new ResizeObserver(again); ro.observe(ref.current); }
+                return () => { window.removeEventListener('resize', again); window.removeEventListener('orientationchange', again); if (ro) ro.disconnect(); };
             }, []);
 
             return (
@@ -173,10 +267,11 @@
                 </div>
             );
         };
+        
         const playSound = (audioRef) => { if(audioRef && audioRef.current) { audioRef.current.currentTime = 0; audioRef.current.play().catch(e=>{}); } };
 
         const Icons = {
-            Play: ({ size = 26 }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>,
+            Play: ({ size = 26, className="" }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className={className}><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>,
             Pause: ({ size = 26 }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>,
             Refresh: ({ size = 26 }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg>,
             Home: ({ size = 26 }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>,
@@ -186,12 +281,13 @@
             Puzzle: ({ size = 44 }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect></svg>,
             Syllable: ({ size = 44 }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M7 4v16M17 4v16M3 8h4M3 16h4M17 8h4M17 16h4M7 12h10"></path></svg>,
             Printer: ({ size = 26 }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>,
-            Book: ({ size = 44 }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>,
+            Book: ({ size = 44, className="" }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>,
             School: ({ size = 44, className = "" }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M14 22v-4a2 2 0 1 0-4 0v4"/><path d="m18 10 4 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-8l4-2"/><path d="M18 5v17"/><path d="m4 6 8-4 8 4"/><path d="M6 5v17"/><circle cx="12" cy="9" r="2"/></svg>,
             Trophy: ({ size = 24, className = "" }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>,
             CheckCircle: ({ size = 24, className = "" }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>,
             XCircle: ({ size = 24, className = "" }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>,
             Lock: ({ size = 24, className = "" }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>,
+            Unlock: ({ size = 24, className = "" }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>,
             Menu: ({ size = 24, className = "" }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>,
             ChevronDown: ({ size = 24, className = "" }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="6 9 12 15 18 9"/></svg>,
             Star: ({ size = 24, className = "" }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
@@ -199,7 +295,11 @@
             RefreshCw: ({ size = 24, className = "" }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>,
             Save: ({ size = 24, className = "" }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>,
             X: ({ size = 24, className = "" }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
-            Trash2: ({ size = 24, className = "" }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+            Trash2: ({ size = 24, className = "" }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>,
+            LogOut: ({ size = 24, className = "" }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>,
+            FileText: ({ size = 24, className = "" }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>,
+            History: ({ size = 24, className = "" }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>,
+            User: ({ size = 24, className = "" }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
         };
 
         const PYRAMID_CONTENT = [
@@ -238,16 +338,10 @@
             "Yağmur dindi ve pırıl pırıl güneş açtı. Gökyüzünde kocaman renkli bir gökkuşağı belirdi. Çocuklar neşeyle bahçeye çıktı. Su birikintilerinin üzerinden atladılar. Doğanın kokusu harikaydı."
         ];
 
-        // Kelime Bul havuzu: önce 3 harfli, sonra 4 harfli, en son 5 harfli kelimeler gelir.
         const PUZZLE_WORDS_BY_LENGTH = [
-            // 3 harfli
             ["BAL", "SÜT", "MUZ", "KUŞ", "AYI", "ÇAY", "GÜL", "TOP", "KEK", "YOL"],
-            // 4 harfli
-            ["KEDİ", "FARE", "KUZU", "İNEK", "KEÇİ", "DEVE", "KUĞU", "OKUL", "SIRA", "MASA",
-             "PANO", "DERS", "ELMA", "ERİK", "ÜZÜM", "KİVİ", "MAVİ", "SARI", "KOYU", "AÇIK"],
-            // 5 harfli
-            ["KÖPRÜ", "YOLCU", "KAŞIK", "ÖRDEK", "IRMAK", "ÇATAL", "TAŞIT", "KİTAP", "KALEM",
-             "BALIK", "ÇİÇEK", "BULUT", "ORMAN", "TAVUK", "ŞEKER"]
+            ["KEDİ", "FARE", "KUZU", "İNEK", "KEÇİ", "DEVE", "KUĞU", "OKUL", "SIRA", "MASA", "PANO", "DERS", "ELMA", "ERİK", "ÜZÜM", "KİVİ", "MAVİ", "SARI", "KOYU", "AÇIK"],
+            ["KÖPRÜ", "YOLCU", "KAŞIK", "ÖRDEK", "IRMAK", "ÇATAL", "TAŞIT", "KİTAP", "KALEM", "BALIK", "ÇİÇEK", "BULUT", "ORMAN", "TAVUK", "ŞEKER"]
         ];
 
         const shuffleArray = (arr) => {
@@ -256,7 +350,6 @@
             return a;
         };
 
-        // Her tur: grup içinde karışık ama uzunluk sırası korunur, kelime tekrarı olmaz.
         const buildPuzzleQueue = () => PUZZLE_WORDS_BY_LENGTH.reduce((acc, group) => acc.concat(shuffleArray(group)), []);
 
         const SYLLABLE_WORDS = [
@@ -285,7 +378,6 @@
                 while (!ok && attempts < 30) {
                     for (let i = chars.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [chars[i], chars[j]] = [chars[j], chars[i]]; }
                     const joined = chars.map(c => c.char).join('');
-                    // Ne kelimenin kendisi çıksın ne de istenmeyen bir kelime oluşsun
                     ok = joined !== word && !FORBIDDEN_WORDS.includes(joined);
                     attempts++;
                 }
@@ -315,9 +407,7 @@
             let backupIdx = 0;
             while (distractors.length < 2) { 
                 const candidate = safeBackups[backupIdx % safeBackups.length];
-                if (candidate !== syllable.toLocaleUpperCase('tr') && !distractors.includes(candidate)) {
-                    distractors.push(candidate);
-                }
+                if (candidate !== syllable.toLocaleUpperCase('tr') && !distractors.includes(candidate)) { distractors.push(candidate); }
                 backupIdx++;
             }
             return distractors;
@@ -431,13 +521,11 @@
                 };
 
                 const run = async () => {
-                    // yazı tipi yüklenmeden yazdırılırsa satırlar kayıyordu
                     try { if (document.fonts && document.fonts.ready) await document.fonts.ready; } catch (e) {}
                     await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
                     if (cancelled) return;
                     window.addEventListener('afterprint', finish, { once: true });
                     try { window.print(); } catch (e) { finish(); return; }
-                    // afterprint desteklemeyen tarayıcılar için yedek
                     cleanupTimer = setTimeout(finish, 1500);
                 };
                 run();
@@ -450,7 +538,7 @@
             }, [printData]);
 
             const handlePrint = (levelToPrint, idx) => {
-                if (isPrintingRef.current) return;   // arka arkaya basınca kilitlenmesin
+                if (isPrintingRef.current) return; 
                 isPrintingRef.current = true;
                 setIsPlaying(false);
                 clearInterval(timerRef.current);
@@ -524,7 +612,6 @@
                 if (currentIndex >= 0 && level < 3) {
                     const el = document.getElementById(`word-${currentIndex}`);
                     if (!el) return;
-                    // Sadece görünür alanın dışındaysa kaydır (aksi halde sayfa zıplıyordu)
                     const r = el.getBoundingClientRect();
                     const outside = r.top < 0 || r.bottom > window.innerHeight || r.left < 0 || r.right > window.innerWidth;
                     if (outside) el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
@@ -544,7 +631,7 @@
                                     </button>
                                 </div>
 
-                                <h1 className="text-5xl md:text-8xl font-normal text-[#FF8C42] mt-12 mb-2 tracking-wide drop-shadow-sm text-center">ABCMATİK</h1>
+                                <h1 className="text-5xl md:text-8xl font-normal text-[#FF8C42] mt-12 mb-2 tracking-wide drop-shadow-sm text-center">OKUMATİK</h1>
                                 <p className="text-slate-500 text-xl md:text-3xl mb-8 md:mb-12 font-normal text-center">1. Sınıf Hızlı Okuma Asistanı</p>
 
                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8 w-full max-w-5xl mb-8">
@@ -552,27 +639,22 @@
                                         <div className="bg-orange-100 p-3 md:p-5 rounded-full text-[#FF8C42]"><Icons.Eye size={36}/></div>
                                         <div><h3 className="text-xl md:text-3xl font-normal text-slate-700">Göz Takibi</h3><p className="hidden md:block text-slate-400">Kasları geliştir</p></div>
                                     </button>
-                                    
                                     <button onClick={() => { setLevel(5); setView('activity'); }} className="bg-white p-4 md:p-8 rounded-3xl md:rounded-[3rem] border-4 md:border-8 border-pink-400 shadow-lg hover:scale-105 transition-transform flex flex-col items-center text-center gap-2 md:gap-4">
                                         <div className="bg-pink-100 p-3 md:p-5 rounded-full text-pink-500"><Icons.Book size={36}/></div>
                                         <div><h3 className="text-xl md:text-3xl font-normal text-slate-700">Hece Oku</h3><p className="hidden md:block text-slate-400">Hızlı hece takibi</p></div>
                                     </button>
-
                                     <button onClick={() => { setLevel(4); setView('activity'); }} className="bg-white p-4 md:p-8 rounded-3xl md:rounded-[3rem] border-4 md:border-8 border-purple-400 shadow-lg hover:scale-105 transition-transform flex flex-col items-center text-center gap-2 md:gap-4">
                                         <div className="bg-purple-100 p-3 md:p-5 rounded-full text-purple-500"><Icons.Syllable size={36}/></div>
                                         <div><h3 className="text-xl md:text-3xl font-normal text-slate-700">Heceden Kelimeye</h3><p className="hidden md:block text-slate-400">Heceleri birleştir</p></div>
                                     </button>
-
                                     <button onClick={() => { setLevel(1); setView('activity'); }} className="bg-white p-4 md:p-8 rounded-3xl md:rounded-[3rem] border-4 md:border-8 border-[#0ea5e9] shadow-lg hover:scale-105 transition-transform flex flex-col items-center text-center gap-2 md:gap-4">
                                         <div className="bg-sky-100 p-3 md:p-5 rounded-full text-[#0ea5e9]"><Icons.Type size={36}/></div>
                                         <div><h3 className="text-xl md:text-3xl font-normal text-slate-700">Hızlı Oku</h3><p className="hidden md:block text-slate-400">Piramit okuma</p></div>
                                     </button>
-
                                     <button onClick={() => { setLevel(2); setView('activity'); }} className="bg-white p-4 md:p-8 rounded-3xl md:rounded-[3rem] border-4 md:border-8 border-[#10B981] shadow-lg hover:scale-105 transition-transform flex flex-col items-center text-center gap-2 md:gap-4">
                                         <div className="bg-emerald-100 p-3 md:p-5 rounded-full text-[#10B981]"><Icons.Align size={36}/></div>
                                         <div><h3 className="text-xl md:text-3xl font-normal text-slate-700">Metin Oku</h3><p className="hidden md:block text-slate-400">Hikayeleri çalış</p></div>
                                     </button>
-
                                     <button onClick={() => { setLevel(3); setView('activity'); }} className="bg-white p-4 md:p-8 rounded-3xl md:rounded-[3rem] border-4 md:border-8 border-[#F59E0B] shadow-lg hover:scale-105 transition-transform flex flex-col items-center text-center gap-2 md:gap-4">
                                         <div className="bg-amber-100 p-3 md:p-5 rounded-full text-[#F59E0B]"><Icons.Puzzle size={36}/></div>
                                         <div><h3 className="text-xl md:text-3xl font-normal text-slate-700">Kelime Bul</h3><p className="hidden md:block text-slate-400">Harfleri birleştir</p></div>
@@ -588,13 +670,11 @@
                                         <button onClick={() => { setIsPlaying(false); setView('menu'); }} className="flex items-center gap-1.5 bg-slate-100 px-3 py-2 rounded-xl text-slate-700 text-sm md:text-xl border border-slate-300 active:scale-95 transition font-sans font-bold">
                                             <Icons.Home size={20} /> <span className="hidden sm:inline">MENÜ</span>
                                         </button>
-
                                         {(level === 1 || level === 2) && (
                                             <button onClick={() => handlePrint(level, level === 1 ? pyramidIndex : storyIndex)} className="flex items-center gap-1.5 bg-blue-100 px-3 py-2 rounded-xl text-blue-600 text-sm md:text-xl border border-blue-300 active:scale-95 transition font-sans font-bold">
                                                 <Icons.Printer size={20} /> <span className="hidden sm:inline">Yazdır</span>
                                             </button>
                                         )}
-
                                         {level === 5 && (
                                             <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-300 gap-1 font-sans flex-wrap">
                                                 {HECE_OKU_PAGES.map((_, i) => (
@@ -603,7 +683,6 @@
                                             </div>
                                         )}
                                     </div>
-
                                     <div className="flex items-center gap-2 sm:gap-4 font-sans">
                                         {level !== 3 && level !== 4 && (
                                             <div className="flex items-center gap-1.5 sm:gap-2 bg-slate-100 px-2.5 py-1.5 md:px-4 md:py-2 rounded-xl border border-slate-300">
@@ -616,13 +695,11 @@
                                                 <span className="text-slate-700 text-xs md:text-sm w-6 text-center font-bold">{level === 5 ? heceSpeed : speed}s</span>
                                             </div>
                                         )}
-                                        
                                         {level !== 5 && (
                                             <button onClick={handleRefresh} className="bg-yellow-400 hover:bg-yellow-500 text-white p-2 md:p-2.5 rounded-xl border-b-2 border-yellow-600 active:scale-95 transition shadow-sm">
                                                 <Icons.Refresh size={20} />
                                             </button>
                                         )}
-
                                         {level !== 3 && level !== 4 && (
                                             <button onClick={() => setIsPlaying(!isPlaying)} className={`flex items-center gap-1.5 px-3 py-1.5 md:px-5 md:py-2 rounded-xl text-white text-sm md:text-lg border-b-2 active:scale-95 transition shadow-sm font-bold ${isPlaying ? 'bg-red-500 border-red-700' : 'bg-green-500 border-green-700'}`}>
                                                 {isPlaying ? <><Icons.Pause size={20}/> DUR</> : <><Icons.Play size={20}/> OKU</>}
@@ -630,7 +707,6 @@
                                         )}
                                     </div>
                                 </div>
-
                                 <div className="flex-1 overflow-hidden flex flex-col items-center justify-center p-2 sm:p-4 md:p-8 relative w-full h-full">
                                     {level === 0 && (
                                         eyeMode === 'grid' ? (
@@ -647,7 +723,6 @@
                                             </div>
                                         )
                                     )}
-
                                     {level === 5 && (
                                         <div className="grid grid-cols-3 gap-3 md:gap-12 m-auto max-w-full">
                                             {words.map((item) => (
@@ -655,7 +730,6 @@
                                             ))}
                                         </div>
                                     )}
-
                                     {level === 1 && (
                                         (() => {
                                             const rows = [0,1,2,3,4,5,6]
@@ -676,7 +750,6 @@
                                             );
                                         })()
                                     )}
-
                                     {level === 2 && (
                                         (() => {
                                             const grouped = []; let currentLine = [];
@@ -697,7 +770,6 @@
                                             );
                                         })()
                                     )}
-
                                     {level === 3 && (
                                         <div className={`flex flex-col items-center justify-center gap-6 md:gap-10 w-full max-w-5xl ${puzzleShake ? 'animate-shake' : ''}`}>
                                             <div className="flex flex-wrap justify-center gap-2 sm:gap-3 md:gap-5 bg-white p-3 sm:p-5 md:p-8 rounded-3xl border-4 md:border-8 border-slate-200 shadow-md">
@@ -705,17 +777,14 @@
                                                     <div key={idx} onClick={() => handleSlotClick(idx)} className={`w-[4.5rem] h-[4.5rem] sm:w-24 sm:h-24 md:w-32 md:h-32 rounded-2xl md:rounded-3xl flex items-center justify-center text-5xl sm:text-6xl md:text-8xl leading-none border-2 md:border-4 cursor-pointer transition-colors ${charObj ? (puzzleSuccess ? 'bg-green-500 border-green-600 text-white' : 'bg-white border-slate-300 text-black') : 'bg-slate-50 border-slate-300 border-dashed'}`}>{charObj ? charObj.char : ''}</div>
                                                 ))}
                                             </div>
-
                                             <div className="flex flex-wrap justify-center gap-2 sm:gap-3 md:gap-5">
                                                 {puzzleShuffled.map(charObj => (
                                                     <div key={charObj.id} onClick={() => !charObj.isPlaced && handlePoolClick(charObj)} className={`w-16 h-16 sm:w-20 sm:h-20 md:w-28 md:h-28 rounded-2xl flex items-center justify-center text-4xl sm:text-5xl md:text-7xl leading-none border-b-4 md:border-b-8 ${charObj.isPlaced ? 'opacity-0 pointer-events-none' : 'bg-yellow-400 border-yellow-600 text-black shadow-md cursor-pointer active:translate-y-1'}`}>{charObj.char}</div>
                                                 ))}
                                             </div>
-
                                             {puzzleSuccess && <div className="text-5xl md:text-8xl text-green-500 animate-pop-rotate font-normal">HARİKA!</div>}
                                         </div>
                                     )}
-
                                     {level === 4 && sylData && (
                                         <div className="flex flex-col items-center justify-center h-full w-full max-w-6xl gap-6 md:gap-10 py-2">
                                             <div className="flex justify-center items-center gap-4 sm:gap-6 md:gap-10 w-full">
@@ -731,7 +800,6 @@
                                                     ))}
                                                 </div>
                                             </div>
-
                                             <div className="flex flex-col items-center gap-4 md:gap-6 mt-2 md:mt-4 w-full">
                                                 <div className="flex gap-4 sm:gap-6 md:gap-8">
                                                     <div className={`w-28 h-20 sm:w-36 sm:h-24 md:w-52 md:h-32 rounded-2xl md:rounded-3xl border-4 md:border-8 flex items-center justify-center text-4xl sm:text-5xl md:text-7xl font-normal bg-white transition-all ${shakeLeft ? 'animate-shake border-red-400' : (selectedSyl1 ? 'border-blue-500 text-black shadow-md' : 'border-slate-300 text-slate-300')}`}>{selectedSyl1 || "?"}</div>
@@ -915,7 +983,7 @@
         };
 
         const NameInputModal = ({ score, grade, onSave }) => {
-            const [name, setName] = useState("");
+            const [name, useState] = React.useState("");
             const handleSubmit = (e) => { e.preventDefault(); if (name.trim().length > 0) onSave(name); };
             return (
                 <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 font-['Nunito']">
@@ -924,7 +992,7 @@
                         <h2 className="text-3xl md:text-4xl font-black text-slate-800 mb-2">TEBRİKLER!</h2>
                         <p className="text-slate-500 text-lg md:text-xl font-bold mb-6"><span className="text-yellow-500 font-black text-2xl">{score}</span> Puan ile Liderlik Tablosuna Girdin!</p>
                         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                            <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="İsminizi Giriniz" className="w-full bg-slate-100 border-2 border-slate-200 rounded-xl p-4 text-xl font-bold text-center focus:outline-none focus:border-yellow-400" maxLength={20} autoFocus />
+                            <input type="text" value={name} onChange={(e) => useState(e.target.value)} placeholder="İsminizi Giriniz" className="w-full bg-slate-100 border-2 border-slate-200 rounded-xl p-4 text-xl font-bold text-center focus:outline-none focus:border-yellow-400" maxLength={20} autoFocus />
                             <button type="submit" disabled={name.trim().length === 0} className="bg-yellow-400 text-white p-4 rounded-xl text-xl font-black hover:bg-yellow-500 border-b-4 border-yellow-600 active:border-b-0 active:translate-y-1 disabled:opacity-50 flex items-center justify-center gap-2"><Icons.Save />KAYDET</button>
                         </form>
                     </div>
@@ -1065,8 +1133,6 @@
             const [showMenuConfirm, setShowMenuConfirm] = useState(false);
             const [showExitConfirm, setShowExitConfirm] = useState(false);
 
-            // Geri sayım: sadece oyun durumuna bağlı. (Önceden puan her değiştiğinde
-            // sayaç yeniden kurulduğu için süre olduğundan uzun sürüyordu.)
             useEffect(() => {
                 if (!gameActive) return;
                 const timer = setInterval(() => {
@@ -1075,7 +1141,6 @@
                 return () => clearInterval(timer);
             }, [gameActive, gameKey]);
 
-            // Süre bitince maçı kapat
             useEffect(() => {
                 if (!gameActive || timeLeft > 0) return;
                 setGameActive(false);
@@ -1103,7 +1168,7 @@
                     <div className="w-full h-full bg-slate-50 flex flex-col items-center justify-center font-['Nunito'] relative overflow-y-auto overflow-x-hidden py-16 px-4 animate-in">
                         <div className="absolute top-4 left-4 z-50">
                             <button onClick={onExit} className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl shadow-md border-2 border-slate-200 hover:bg-slate-50 transition-colors text-slate-700 font-bold active:scale-95">
-                                <Icons.Home size={20} /> <span className="hidden sm:inline">ANA MENÜ</span>
+                                <Icons.Home size={20} /> <span className="hidden sm:inline">PORTAL</span>
                             </button>
                         </div>
                         {showLeaderboard && (<LeaderboardModal grade={gradeLevel} onClose={() => setShowLeaderboard(false)} />)}
@@ -1141,7 +1206,7 @@
                             {isMenuOpen && (
                                 <div className="absolute top-full left-0 mt-2 w-56 bg-white rounded-xl shadow-xl border-2 border-slate-100 overflow-hidden animate-in z-[60]">
                                     <button onClick={handleMainMenuClick} className="w-full text-left px-4 py-3 font-bold text-slate-600 hover:bg-slate-50 border-b border-slate-100">← Çarpmatik Menüsü</button>
-                                    <button onClick={handleExitClick} className="w-full text-left px-4 py-3 font-bold text-blue-600 hover:bg-blue-50 border-b border-slate-100 flex items-center gap-2"><Icons.Home size={18}/><span>ANA MENÜ</span></button>
+                                    <button onClick={handleExitClick} className="w-full text-left px-4 py-3 font-bold text-blue-600 hover:bg-blue-50 border-b border-slate-100 flex items-center gap-2"><Icons.Home size={18}/><span>PORTAL</span></button>
                                     {[2, 3, 4].map((level) => (<button key={level} onClick={() => { setGradeLevel(level); setIsMenuOpen(false); prepareNewGame(); }} className={`w-full text-left px-4 py-3 font-bold transition-colors ${gradeLevel === level ? 'bg-blue-50 text-blue-600' : 'text-slate-600 hover:bg-slate-50'}`}>{level}. Sınıf Seç</button>))}
                                 </div>
                             )}
@@ -1179,28 +1244,699 @@
             );
         };
 
-        const PortalApp = ({ onLaunch }) => {
+        const DM_CLASS_RULES = [
+            "Zil çaldığında yerinde oturarak dersi beklemek",
+            "Ders sırasında konuşmamak ve dersi dikkatle dinlemek",
+            "Söz almak ve derse katılmak için mutlaka parmak kaldırmak",
+            "Başkaları konuşurken onları dinlemek ve sözlerini kesmemek",
+            "Ders esnasında ders dışı başka eşyalarla ilgilenmemek",
+            "Sınıf içi etkinliklerde sessizliğini korumak ve odaklanmak"
+        ];
+        
+        const DM_CORRECTIVE_INTROS = [
+            "Bu hafta ders sırasında sınıf kurallarına uymadığın için öğretmenin tarafından birçok kez uyarıldın. Yapılan bu uyarılar, derse daha iyi odaklanman ve hem kendi öğrenme zamanını hem de arkadaşlarının öğrenme hakkını koruman içindi.",
+            "Bu hafta sınıf içerisinde kurallara uymakta sık sık zorlandın ve öğretmenin tarafından tekrar tekrar uyarıldın. Önümüzdeki hafta uyarılara gerek kalmadan davranışlarına dikkat etmeni ve ders zamanını daha verimli kullanmanı bekliyorum.",
+            "Bu hafta derslerde dikkatini toplamak ve sınıf kurallarına uymak konusunda zorlandığın görüldü. Öğretmenin seni daha dikkatli olman için sık sık uyarmak durumunda kaldı. Önümüzdeki hafta bu konuda daha olumlu bir değişim gösterebileceğine inanıyorum.",
+            "Bu hafta sınıf içerisinde dersin düzenini etkileyen bazı davranışların oldu ve bu nedenle öğretmenin tarafından sık sık uyarıldın. Unutma, ders sırasında geçirdiğimiz zaman çok değerli. Önümüzdeki hafta kurallara daha fazla dikkat etmeni bekliyorum.",
+            "Bu hafta öğretmenin tarafından sınıf kurallarına uyman ve ders sırasında daha dikkatli olman konusunda birçok kez uyarıldın. Yapılan uyarıları dikkate alarak önümüzdeki hafta daha sakin, dikkatli ve derse odaklanmış bir şekilde hareket etmeni bekliyorum.",
+            "Bu hafta sınıf kurallarına uymadığın ve ders sırasında dikkatini yeterince veremediğin zamanlar oldu. Bu nedenle öğretmenin seni sık sık uyarmak zorunda kaldı. Önümüzdeki hafta davranışlarına daha fazla dikkat ederek derslere daha iyi odaklanmanı istiyorum."
+        ];
+        
+        const DM_MID_INTROS = [
+            "Bu hafta sınıf içerisinde bazı zamanlarda kurallara uymakta ve derse odaklanmakta zorlandığın görüldü. Önümüzdeki hafta kurallara daha fazla dikkat ederek ve derse daha aktif katılarak çok daha iyi bir hafta geçirebileceğine inanıyorum.",
+            "Bu hafta sınıf içindeki davranışların genel olarak geliştirilebilir düzeydeydi. Zaman zaman dikkat etmen gereken durumlar yaşandı. Önümüzdeki hafta kurallara daha çok özen göstererek ve derslere aktif katılarak kendini daha iyi gösterebilirsin.",
+            "Bu hafta bazı güzel davranışlarının yanında dikkat etmen gereken durumlar da oldu. Özellikle ders sırasında kurallara uymaya ve dikkatini derse vermeye daha fazla özen göstermelisin. Önümüzdeki hafta daha olumlu bir gelişim göstereceğine inanıyorum.",
+            "Bu hafta derslere katılımın ve sınıf içindeki davranışların zaman zaman beklenen düzeyin altında kaldı. Önümüzdeki hafta öğretmeninin uyarılarını dikkate alarak kurallara daha fazla dikkat etmeni ve derslere daha aktif katılmanı bekliyorum.",
+            "Bu hafta sınıf içerisinde zaman zaman dikkatini toplamak ve ders kurallarına uymakta zorlandığın görüldü. Önümüzdeki hafta daha dikkatli davranarak, dersleri daha iyi takip ederek ve katılımını artırarak çok daha güzel bir hafta geçirebilirsin.",
+            "Bu hafta sınıf içerisinde hem olumlu hem de geliştirilmesi gereken davranışların oldu. Önümüzdeki hafta özellikle sınıf kurallarına uymaya, ders sırasında dikkatini korumaya ve etkinliklere daha aktif katılmaya özen göstermen seni daha ileriye taşıyacaktır.",
+            "Bu hafta ders sırasında zaman zaman dikkatinin dağıldığı ve sınıf kurallarına yeterince özen göstermediğin durumlar oldu. Önümüzdeki hafta daha dikkatli olmanı, öğretmenini daha iyi dinlemeni ve derslere aktif şekilde katılmanı bekliyorum.",
+            "Bu hafta sınıf içerisindeki davranışlarında ve derse katılımında geliştirebileceğin noktalar oldu. Önümüzdeki hafta kurallara daha fazla dikkat ederek, derslerini daha iyi takip ederek ve sorumluluklarını yerine getirerek çok daha olumlu bir hafta geçirebilirsin."
+        ];
+        
+        const DM_POS_INTROS = [
+            "Bu hafta sınıf içerisindeki harika davranışların ve kurallara olan özenin beni çok mutlu etti. Derslerini dikkatle takip etmen ve öğrenme zamanını verimli kullanman gerçekten takdire değer. Seni tebrik ediyorum!",
+            "Bu hafta gösterdiğin dikkat, saygı ve sorumluluk bilinciyle sınıfımız için güzel bir örnek oldun. Kurallara uyman ve derslere aktif katılımın çok güzeldi. Bu güzel davranışların için teşekkür ederim!",
+            "Bu hafta sınıf içerisinde sergilediğin olumlu davranışlar gerçekten gurur vericiydi. Öğretmenini dikkatle dinlemen, arkadaşlarına saygılı davranman ve etkinliklere istekle katılman harikaydı. Tebrik ederim!",
+            "Bu hafta derslerde gösterdiğin dikkat ve özenle öğrenme zamanını en güzel şekilde değerlendirdin. Sınıf kurallarına uyman ve sorumluluklarını yerine getirmen takdire değerdi. Böyle devam etmeni diliyorum!",
+            "Bu hafta sınıf içerisindeki tutumunla örnek bir öğrenci olduğunu gösterdin. Kurallara uyman, dersleri dikkatle dinlemen ve etkinliklere katılımın çok başarılıydı. Gösterdiğin bu güzel davranışlar için seni tebrik ediyorum!",
+            "Bu hafta gösterdiğin öz denetim ve sorumluluk bilinci beni çok mutlu etti. Ne zaman dinlemen, ne zaman çalışman ve ne zaman arkadaşlarınla paylaşımda bulunman gerektiğine dikkat ettin. Harika bir hafta geçirdin, tebrik ederim!",
+            "Bu hafta hem derslerdeki gayretin hem de sınıf içerisindeki güzel davranışların dikkatimi çekti. Kurallara uyman, arkadaşlarına saygılı davranman ve öğrenmeye istekli olman gerçekten çok değerli. Seninle gurur duyuyorum!",
+            "Bu hafta sınıfımızın düzenine ve öğrenme ortamına yaptığın güzel katkı için sana teşekkür ederim. Dersleri dikkatle takip etmen, etkinliklere katılman ve kurallara uyman örnek alınacak davranışlardı. Tebrikler!",
+            "Bu hafta gösterdiğin güzel tutum ve davranışlarla ne kadar sorumluluk sahibi bir öğrenci olduğunu gösterdin. Öğrenme zamanını verimli kullandın, kurallara uydun ve derslere güzel bir şekilde katıldın. Bu başarını sürdürmeni diliyorum!",
+            "Bu hafta sınıf içerisindeki davranışlarınla hepimizi mutlu ettin. Dikkatin, saygın, kurallara uyumun ve derslere olan isteğin gerçekten takdire değerdi. Hem kendin hem de arkadaşların için güzel bir öğrenme ortamı oluşturmaya katkı sağladın. Seni gönülden tebrik ediyorum!"
+        ];
+
+        const dmGetRandomItems = (arr, count) => {
+            const shuffled = [...arr].sort(() => 0.5 - Math.random());
+            return shuffled.slice(0, count);
+        };
+
+        const dmGetNextFridayMidnight = () => {
+            const d = new Date();
+            const day = d.getDay();
+            let daysUntilFriday = 5 - day;
+            if (day === 6) daysUntilFriday = 6; 
+            d.setDate(d.getDate() + daysUntilFriday);
+            d.setHours(23, 59, 59, 999);
+            return d.getTime();
+        };
+
+        const generateStudentReportHTML = (student, currentDate, currentWeekId, updateStudentMsgState) => {
+            let reportText = ""; let listTitle = ""; let rulesList = "";
+            const selectedRules = dmGetRandomItems(DM_CLASS_RULES, 3);
+            let haftalikPuan = student.netScore;
+            
+            let performanceSummary = `<p style="font-weight: bold; color: #000;">Haftalık Davranış Puanı: ${haftalikPuan} / 50</p>`;
+
+            let cat = '';
+            if (haftalikPuan <= 10) cat = 'corrective';
+            else if (haftalikPuan > 10 && haftalikPuan <= 25) cat = 'mid';
+            else if (haftalikPuan > 25) cat = 'pos';
+
+            let indexToUse = 0;
+            if (student.msgState.lastPrintWeek === currentWeekId && student.msgState.lastPrintCat === cat) {
+                indexToUse = student.msgState.lastPrintIndex;
+            } else {
+                indexToUse = student.msgState[cat];
+                updateStudentMsgState(student.id, cat, indexToUse, currentWeekId);
+            }
+
+            if (cat === 'corrective') {
+                const intro = DM_CORRECTIVE_INTROS[(indexToUse + student.id) % DM_CORRECTIVE_INTROS.length];
+                reportText = `Sevgili <b>${student.name}</b>,<br><br>${intro}`;
+                listTitle = haftalikPuan < -15 ? "Önümüzdeki Hafta Acilen Dikkat Etmen Gerekenler:" : "Önümüzdeki Hafta Dikkat Etmen ve Yapman Gerekenler:";
+                rulesList = selectedRules.map(rule => `<li>${rule}.</li>`).join('');
+            } 
+            else if (cat === 'mid') {
+                const intro = DM_MID_INTROS[(indexToUse + student.id) % DM_MID_INTROS.length];
+                reportText = `Sevgili <b>${student.name}</b>,<br><br>${intro}`;
+                listTitle = "Önümüzdeki Hafta Dikkat Etmen ve Geliştirmen Gerekenler:";
+                rulesList = selectedRules.map(rule => `<li>${rule}.</li>`).join('');
+            }
+            else if (cat === 'pos') {
+                const intro = DM_POS_INTROS[(indexToUse + student.id) % DM_POS_INTROS.length];
+                reportText = `Sevgili <b>${student.name}</b>,<br><br>${intro}`;
+                listTitle = "Bu Hafta Sergilediğin Örnek Davranışlar:";
+                rulesList = selectedRules.map(rule => `<li>${rule} konusunda gösterdiğin hassasiyet.</li>`).join('');
+            }
+
+            return `
+                <div class="header"><h1>Haftalık Sınıf İçi Denetim Raporu</h1></div>
+                <div class="date-score-container"><div class="score">${performanceSummary}</div><div class="date">Tarih: ${currentDate}</div></div>
+                <div class="content">${reportText}</div>
+                <div class="rules-section"><h3>${listTitle}</h3><ul>${rulesList}</ul></div>
+                <div class="signatures">
+                    <div class="sig-box"><p><strong>Veli</strong></p><br><p>İmza</p></div>
+                    <div class="sig-box"><p><strong>Sınıf Öğretmeni</strong></p><br><p>İmza</p></div>
+                </div>
+            `;
+        };
+
+        const dmPrintCSS = `
+            @page { size: A4 portrait; margin: 1cm 1.5cm; }
+            body { font-family: 'Times New Roman', Times, serif; font-size: 16pt; line-height: 1.4; color: #000; margin: 0; padding: 0; }
+            .report-page { page-break-after: always; padding-top: 1px; page-break-inside: avoid; }
+            .report-page:last-child { page-break-after: auto; }
+            .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 5px; margin-bottom: 15px; }
+            .header h1 { font-size: 18pt; margin: 0 0 10px 0; font-weight: bold; }
+            .date-score-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+            .score, .date { font-size: 13pt; }
+            .content { text-align: justify; margin-bottom: 15px; }
+            .rules-section h3 { font-size: 15pt; margin-bottom: 5px; }
+            ul { margin-top: 0; }
+            li { margin-bottom: 4px; }
+            .signatures { margin-top: 5px; display: flex; justify-content: space-between; padding: 0 10px; page-break-inside: avoid; }
+            .sig-box { text-align: center; width: 220px; }
+            .sig-box p { margin: 2px 0; font-size: 15pt; }
+        `;
+
+        const DinamikMotiveApp = ({ onExit }) => {
+            const [view, setView] = useState('loading'); 
+            const [students, setStudents] = useState([]);
+            const [isLocked, setIsLocked] = useState(false);
+            const [nextReset, setNextReset] = useState(0);
+            
+            const [isInitialLoad, setIsInitialLoad] = useState(true);
+            const [setupText, setSetupText] = useState('');
+            
+            const [activeModal, setActiveModal] = useState(null); 
+            const [lockPassword, setLockPassword] = useState('');
+            const [lockError, setLockError] = useState(false);
+            const [sortType, setSortType] = useState('net'); 
+            const [shakingCards, setShakingCards] = useState({});
+
+            useEffect(() => {
+                const user = window.fb.auth.currentUser;
+                if (!user) {
+                    if (window.fb.isSandbox) {
+                        setAuthError("Sandbox ortamında kullanıcı bulunamadı.");
+                    }
+                    return;
+                }
+                
+                const checkData = async () => {
+                    try {
+                        const docRef = window.fb.doc(window.fb.db, 'artifacts', window.fb.appId, 'users', user.uid, 'dinamikMotiveData', 'state');
+                        const snap = await window.fb.getDoc(docRef);
+                        
+                        if (snap.exists()) {
+                            const data = snap.data();
+                            setIsLocked(data.isLocked || false);
+                            checkResetAndLoad(data.students || [], data.nextReset || 0);
+                            setIsInitialLoad(false);
+                            setView('main');
+                        } else {
+                            setIsInitialLoad(false);
+                            setView('setup'); 
+                        }
+                    } catch (e) {
+                        console.error("Veri çekme hatası", e);
+                    }
+                };
+                checkData();
+            }, []);
+
+            useEffect(() => {
+                if (isInitialLoad || view !== 'main') return;
+                const user = window.fb.auth.currentUser;
+                if(!user) return;
+                
+                const saveToFirebase = async () => {
+                    try {
+                        const docRef = window.fb.doc(window.fb.db, 'artifacts', window.fb.appId, 'users', user.uid, 'dinamikMotiveData', 'state');
+                        await window.fb.setDoc(docRef, {
+                            students: students,
+                            isLocked: isLocked,
+                            nextReset: nextReset
+                        });
+                    } catch (e) {
+                        console.error("Veritabanına kayıt yapılamadı:", e);
+                    }
+                };
+                saveToFirebase();
+            }, [students, isLocked, nextReset, view, isInitialLoad]);
+
+            const checkResetAndLoad = (loadedStudents, savedNextReset) => {
+                const now = Date.now();
+                if (!savedNextReset || now > parseInt(savedNextReset)) {
+                    performReset(loadedStudents);
+                } else {
+                    setStudents(loadedStudents);
+                    setNextReset(savedNextReset);
+                }
+            };
+
+            const performReset = (targetStudents) => {
+                const resetData = targetStudents.map(oldS => ({
+                    ...oldS, positive: 0, negative: 0, netScore: 0,
+                    daily: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+                    msgState: oldS.msgState || { corrective: 0, mid: 0, pos: 0, lastPrintWeek: null, lastPrintCat: null, lastPrintIndex: 0 }
+                }));
+                const newTime = dmGetNextFridayMidnight();
+                setNextReset(newTime);
+                setStudents(resetData);
+            };
+
+            const handleSaveSetup = () => {
+                if(!setupText.trim()) return;
+                const nameArray = setupText.split(',').map(n => n.trim()).filter(n => n.length > 0);
+                if (nameArray.length === 0) return;
+                
+                const newStudents = nameArray.map((name, index) => ({
+                    id: index, name: name, positive: 0, negative: 0, netScore: 0,
+                    daily: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+                    msgState: { corrective: 0, mid: 0, pos: 0, lastPrintWeek: null, lastPrintCat: null, lastPrintIndex: 0 }
+                }));
+                
+                setNextReset(dmGetNextFridayMidnight());
+                setIsLocked(false);
+                setStudents(newStudents);
+                setIsInitialLoad(false); 
+                setView('main');
+            };
+
+            const toggleLock = () => {
+                if (isLocked) { setLockPassword(''); setLockError(false); setActiveModal('password'); } 
+                else { setIsLocked(true); }
+            };
+
+            const checkPassword = () => {
+                if (lockPassword === 'semihweb') {
+                    setIsLocked(false); setActiveModal(null);
+                } else {
+                    setLockError(true); setTimeout(() => setLockError(false), 2000);
+                }
+            };
+
+            const shakeCard = (id) => {
+                setShakingCards(prev => ({ ...prev, [id]: true }));
+                setTimeout(() => setShakingCards(prev => ({ ...prev, [id]: false })), 400);
+            };
+
+            const handleStudentAction = (e, id, isPositive) => {
+                e.preventDefault();
+                if (isLocked) { shakeCard(id); return; }
+                
+                let today = new Date().getDay();
+                if (today === 0 || today === 6) today = 5; 
+
+                setStudents(prev => prev.map(student => {
+                    if (student.id === id) {
+                        if (isPositive && student.daily[today] >= 10) { shakeCard(id); return student; }
+                        if (!isPositive && student.daily[today] <= -10) { shakeCard(id); return student; }
+                        
+                        return {
+                            ...student,
+                            positive: isPositive ? student.positive + 1 : student.positive,
+                            negative: !isPositive ? student.negative + 1 : student.negative,
+                            netScore: isPositive ? student.netScore + 1 : student.netScore - 1,
+                            daily: { ...student.daily, [today]: student.daily[today] + (isPositive ? 1 : -1) }
+                        };
+                    }
+                    return student;
+                }));
+            };
+
+            const updateStudentMsgState = (studentId, cat, indexToUse, currentWeekId) => {
+                setStudents(prev => prev.map(s => {
+                    if(s.id === studentId) {
+                        const newState = { ...s.msgState, lastPrintWeek: currentWeekId, lastPrintCat: cat, lastPrintIndex: indexToUse };
+                        newState[cat] = newState[cat] + 1;
+                        return { ...s, msgState: newState };
+                    }
+                    return s;
+                }));
+            };
+
+            const printReport = (studentId) => {
+                const student = students.find(s => s.id === studentId);
+                if (!student) return;
+                const currentDate = new Date().toLocaleDateString('tr-TR');
+                const currentWeekId = nextReset.toString();
+                const reportContent = generateStudentReportHTML(student, currentDate, currentWeekId, updateStudentMsgState);
+
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(`<html><head><title>${student.name} Raporu</title><style>${dmPrintCSS}</style></head><body>${reportContent}</body></html>`);
+                printWindow.document.close();
+                setTimeout(() => { printWindow.print(); }, 250);
+            };
+
+            const printAllReports = () => {
+                const currentDate = new Date().toLocaleDateString('tr-TR');
+                const currentWeekId = nextReset.toString();
+                let allReportsHTML = '';
+                let sortedStudents = [...students].sort((a, b) => a.name.localeCompare(b.name, 'tr'));
+
+                sortedStudents.forEach((student) => {
+                    const reportContent = generateStudentReportHTML(student, currentDate, currentWeekId, updateStudentMsgState);
+                    allReportsHTML += `<div class="report-page">${reportContent}</div>`;
+                });
+
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(`<html><head><title>Tüm Sınıf Raporları</title><style>${dmPrintCSS}</style></head><body>${allReportsHTML}</body></html>`);
+                printWindow.document.close();
+                setTimeout(() => { printWindow.print(); }, 500); 
+            };
+
+            if (view === 'loading') {
+                return <div className="w-full h-full bg-slate-50 flex items-center justify-center font-['Nunito'] text-xl font-bold text-slate-500 animate-pulse">Sınıf Yükleniyor...</div>;
+            }
+
+            if (view === 'setup') {
+                return (
+                    <div className="w-full h-full bg-slate-50 flex items-center justify-center font-['Inter',sans-serif] animate-in relative">
+                        <button onClick={onExit} className="absolute top-4 left-4 flex items-center gap-2 bg-white px-4 py-2 rounded-xl shadow-md border-2 border-slate-200 hover:bg-slate-50 transition-colors text-slate-700 font-bold active:scale-95">
+                            <Icons.Home size={20} /> PORTAL
+                        </button>
+                        <div className="bg-white p-10 md:p-12 border-2 border-slate-100 rounded-[2rem] shadow-2xl w-full max-w-2xl text-center z-10 relative mt-12 md:mt-0">
+                            <div className="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-emerald-100 mb-6 text-4xl">✨</div>
+                            <h1 className="text-3xl md:text-4xl font-extrabold text-slate-800 mb-4">Sınıfını Oluştur</h1>
+                            
+                            <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-8 text-left">
+                                <p className="text-slate-600 font-medium leading-relaxed text-sm md:text-base">
+                                    <strong className="text-slate-800">Sayın Öğretmenim;</strong><br/>
+                                    Sınıfınızı oluşturarak, öğrencilerinize anlık artı ve eksi puanlar verebilir, derse odaklanmalarını ve motivasyonlarını zirvede tutabilirsiniz.
+                                </p>
+                                <p className="text-slate-600 font-medium leading-relaxed mt-2 text-sm md:text-base">
+                                    Cuma günleri tek tuşla, her öğrencinin puan durumuna göre özel olarak üretilmiş <strong>pedagojik değerlendirme raporlarını</strong> velilerinize göndermek üzere otomatik olarak yazdırabilirsiniz. Sistem, her Cuma gece yarısı (24.00) tüm puanları otomatik olarak sıfırlar. Böylece yeni haftaya temiz bir sayfayla, yepyeni bir başlangıç yapabilirsiniz.
+                                </p>
+                            </div>
+
+                            <div className="text-left mb-2 text-sm font-bold text-slate-600">Öğrenci İsimleri (Araya virgül koyarak yazın):</div>
+                            <textarea value={setupText} onChange={(e) => setSetupText(e.target.value)} className="w-full p-4 border-2 border-slate-200 rounded-xl min-h-[160px] font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 outline-none transition-all resize-y mb-6 text-slate-700" placeholder="Örnek: Semih, Alya, Sinem..."></textarea>
+                            <button onClick={handleSaveSetup} className="w-full py-4 rounded-xl text-white font-bold bg-gradient-to-r from-emerald-500 to-emerald-700 hover:shadow-lg active:scale-95 transition-all text-xl">Sınıfı Kaydet ve Başla</button>
+                        </div>
+                    </div>
+                );
+            }
+
+            const sortedAnalysisStudents = [...students].sort((a, b) => sortType === 'net' ? b.netScore - a.netScore : a.name.localeCompare(b.name, 'tr'));
+            const sortedHistoryStudents = [...students].sort((a, b) => a.name.localeCompare(b.name, 'tr'));
+            const formatDailyScore = (score) => {
+                if (score > 0) return <span className="text-blue-600 font-bold text-lg">+{score}</span>;
+                if (score < 0) return <span className="text-red-600 font-bold text-lg">{score}</span>;
+                return <span className="text-slate-400 font-medium">0</span>;
+            };
+
+            return (
+                <div className="w-full h-full bg-[#f8fafc] font-['Inter',sans-serif] overflow-y-auto flex flex-col items-center animate-in relative">
+                    <button onClick={onExit} className="absolute top-4 left-4 flex items-center gap-2 bg-white px-4 py-2 rounded-xl shadow-md border border-slate-200 hover:bg-slate-50 transition-colors text-slate-700 font-bold active:scale-95 z-50">
+                        <Icons.Home size={20} /> PORTAL
+                    </button>
+
+                    {activeModal === 'password' && (
+                        <div className="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+                            <div className={`bg-white p-8 rounded-3xl w-full max-w-sm text-center shadow-2xl transition-transform ${lockError ? 'dm-shake-anim' : ''}`}>
+                                <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-blue-100 mb-4 text-3xl">🔒</div>
+                                <h3 className="text-2xl font-bold mb-2 text-slate-800">Öğretmen Kilidi</h3>
+                                <p className="mb-6 text-slate-500 font-medium text-sm">Kilidi açmak için lütfen şifreyi giriniz.</p>
+                                <input type="password" value={lockPassword} onChange={(e) => setLockPassword(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && checkPassword()} className={`w-full p-4 mb-4 border-2 rounded-xl text-center text-xl font-bold outline-none transition-colors ${lockError ? 'border-red-400 focus:border-red-500' : 'border-slate-200 focus:border-blue-500'}`} placeholder="Şifre" autoFocus />
+                                <div className="flex gap-4">
+                                    <button onClick={() => { setActiveModal(null); setLockError(false); }} className="flex-1 bg-slate-200 text-slate-700 py-3 rounded-xl font-bold">İptal</button>
+                                    <button onClick={checkPassword} className="flex-1 bg-emerald-500 text-white py-3 rounded-xl font-bold">Aç</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {activeModal === 'analyze' && (
+                        <div className="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+                            <div className="bg-white rounded-3xl w-full max-w-4xl max-h-[85vh] shadow-2xl flex flex-col overflow-hidden animate-in">
+                                <div className="p-6 border-b-2 border-slate-100 flex justify-between items-center bg-slate-50">
+                                    <h2 className="text-2xl font-extrabold text-slate-800 flex items-center gap-2"><Icons.FileText className="text-indigo-500"/> Davranış Analiz Raporu</h2>
+                                    <button onClick={() => setActiveModal(null)} className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-xl active:scale-95 transition-transform"><Icons.X size={20}/></button>
+                                </div>
+                                <div className="p-6 bg-white border-b border-slate-100 flex flex-wrap justify-between gap-4 items-center">
+                                    <div className="flex gap-3">
+                                        <button onClick={() => setSortType('net')} className={`px-4 py-2 rounded-xl font-bold text-sm transition-colors ${sortType === 'net' ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>Net Puan Sıralı</button>
+                                        <button onClick={() => setSortType('name')} className={`px-4 py-2 rounded-xl font-bold text-sm transition-colors ${sortType === 'name' ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>İsim Sıralı</button>
+                                    </div>
+                                    <button onClick={printAllReports} className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm transition-all shadow-md active:scale-95 flex items-center gap-2"><Icons.Printer size={18}/> Tüm Sınıfı Yazdır</button>
+                                </div>
+                                <div className="flex-1 overflow-y-auto dm-modal-content p-6">
+                                    <table className="w-full text-left border-collapse">
+                                        <thead><tr className="border-b-2 border-slate-200"><th className="pb-3 text-slate-500 font-bold uppercase text-sm">Öğrenci Adı</th><th className="pb-3 text-slate-500 font-bold uppercase text-sm">Net Durum</th><th className="pb-3 text-slate-500 font-bold uppercase text-sm text-center">Yazdır</th></tr></thead>
+                                        <tbody className="divide-y divide-slate-100">
+                                            {sortedAnalysisStudents.map(student => (
+                                                <tr key={student.id} className="hover:bg-slate-50 transition-colors">
+                                                    <td className="py-4 font-extrabold text-slate-700 text-lg">{student.name}</td>
+                                                    <td className="py-4">
+                                                        {student.netScore > 0 ? <span className="text-blue-600 font-bold text-lg">+{student.netScore} (Olumlu Ağırlıklı)</span> : 
+                                                         student.netScore < 0 ? <span className="text-red-600 font-bold text-lg">{student.netScore} (Olumsuz Ağırlıklı)</span> : 
+                                                         <span className="text-slate-500 font-bold text-lg">0 (Nötr)</span>}
+                                                    </td>
+                                                    <td className="py-4 text-center">
+                                                        <button onClick={() => printReport(student.id)} className="p-3 bg-white border-2 border-slate-200 rounded-xl text-slate-600 hover:text-indigo-600 hover:border-indigo-200 hover:bg-indigo-50 transition-all shadow-sm mx-auto flex items-center justify-center active:scale-95"><Icons.Printer size={20}/></button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {activeModal === 'history' && (
+                        <div className="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+                            <div className="bg-white rounded-3xl w-full max-w-5xl max-h-[85vh] shadow-2xl flex flex-col overflow-hidden animate-in">
+                                <div className="p-6 border-b-2 border-slate-100 flex justify-between items-center bg-slate-50">
+                                    <h2 className="text-2xl font-extrabold text-slate-800 flex items-center gap-2"><Icons.History className="text-indigo-500"/> Haftalık Geçmiş</h2>
+                                    <button onClick={() => setActiveModal(null)} className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-xl active:scale-95 transition-transform"><Icons.X size={20}/></button>
+                                </div>
+                                <div className="px-6 py-4 bg-indigo-50 border-b border-indigo-100"><p className="text-indigo-800 font-bold text-sm">* Veriler her Cuma gece 24:00'te otomatik sıfırlanır.</p></div>
+                                <div className="flex-1 overflow-y-auto dm-modal-content p-6">
+                                    <table className="w-full text-left border-collapse">
+                                        <thead><tr className="border-b-2 border-slate-200 text-slate-500 font-bold uppercase text-xs md:text-sm"><th className="pb-3">Öğrenci Adı</th><th className="pb-3">Pzt</th><th className="pb-3">Sal</th><th className="pb-3">Çar</th><th className="pb-3">Per</th><th className="pb-3">Cum</th></tr></thead>
+                                        <tbody className="divide-y divide-slate-100">
+                                            {sortedHistoryStudents.map(student => (
+                                                <tr key={student.id} className="hover:bg-slate-50 transition-colors">
+                                                    <td className="py-4 font-extrabold text-slate-700">{student.name}</td>
+                                                    <td className="py-4">{formatDailyScore(student.daily[1])}</td>
+                                                    <td className="py-4">{formatDailyScore(student.daily[2])}</td>
+                                                    <td className="py-4">{formatDailyScore(student.daily[3])}</td>
+                                                    <td className="py-4">{formatDailyScore(student.daily[4])}</td>
+                                                    <td className="py-4">{formatDailyScore(student.daily[5])}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {activeModal === 'reset' && (
+                        <div className="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+                            <div className="bg-white p-8 rounded-3xl w-full max-w-sm text-center shadow-2xl animate-in">
+                                <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4 text-red-500"><Icons.RefreshCw size={32}/></div>
+                                <h3 className="text-2xl font-bold mb-2 text-slate-800">Tüm Verileri Sıfırla</h3>
+                                <p className="mb-6 text-slate-500 font-medium">Günlük ve haftalık puanlar silinecek. Geri alınamaz. Emin misiniz?</p>
+                                <div className="flex gap-4">
+                                    <button onClick={() => setActiveModal(null)} className="flex-1 bg-slate-200 text-slate-700 py-3 rounded-xl font-bold">İptal</button>
+                                    <button onClick={() => { performReset(students); setActiveModal(null); }} className="flex-1 bg-red-500 hover:bg-red-600 text-white py-3 rounded-xl font-bold">Evet, Sıfırla</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="text-center mb-8 mt-16 w-full flex flex-col items-center px-4">
+                        <div className="bg-blue-100 text-blue-800 px-4 py-1 rounded-full font-bold text-sm mb-4 inline-block">Bulut Senkronizasyonu Aktif</div>
+                        <h1 className="text-4xl md:text-5xl font-black text-slate-800 tracking-tight mb-8">Sınıf Davranış Takip Sistemi</h1>
+                        
+                        <div className="flex items-center justify-center gap-3 w-full max-w-6xl flex-wrap">
+                            <button onClick={toggleLock} className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-white shadow-md transition-transform active:scale-95 ${isLocked ? 'bg-gradient-to-r from-red-500 to-red-600' : 'bg-gradient-to-r from-emerald-500 to-emerald-600'}`}>
+                                {isLocked ? <><Icons.Lock size={20}/> Ekran Kilitli</> : <><Icons.Unlock size={20}/> Ekran Açık</>}
+                            </button>
+                            <button onClick={() => setActiveModal('analyze')} className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-white shadow-md transition-transform active:scale-95 bg-gradient-to-r from-indigo-500 to-indigo-600">
+                                <Icons.FileText size={20}/> Analiz Raporları
+                            </button>
+                            <button onClick={() => setActiveModal('history')} className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-white shadow-md transition-transform active:scale-95 bg-gradient-to-r from-sky-500 to-sky-600">
+                                <Icons.History size={20}/> Geçmiş
+                            </button>
+                            <button onClick={() => { if(isLocked){shakeCard('resetBtn'); return;} setActiveModal('reset'); }} id="resetBtn" className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-white shadow-md transition-transform active:scale-95 bg-gradient-to-r from-slate-500 to-slate-600 ${shakingCards['resetBtn'] ? 'dm-shake-anim' : ''}`}>
+                                <Icons.RefreshCw size={20}/> Sıfırla
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="dm-student-grid">
+                        {students.map(student => {
+                            let colorClass = '';
+                            if (student.netScore > 0) colorClass = 'dm-pos-active';
+                            if (student.netScore < 0) colorClass = 'dm-neg-active';
+                            
+                            return (
+                                <div key={student.id} className={`dm-student-card ${colorClass} ${shakingCards[student.id] ? 'dm-shake-anim' : ''}`} onClick={(e) => handleStudentAction(e, student.id, true)} onContextMenu={(e) => handleStudentAction(e, student.id, false)}>
+                                    {student.netScore >= 40 && <div className="dm-crown-icon">👑</div>}
+                                    <div className="text-xl font-extrabold tracking-wide mb-2 drop-shadow-md break-words w-full px-1">{student.name}</div>
+                                    {student.netScore !== 0 && (
+                                        <div className="flex justify-center text-sm font-bold mt-1">
+                                            <span className="text-white bg-white/25 px-4 py-1 rounded-xl text-xl drop-shadow-md shadow-inner">{student.netScore > 0 ? `+${student.netScore}` : student.netScore}</span>
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            );
+        };
+
+            const AuthScreen = ({ onSandboxPass }) => {
+            const [authEmail, setAuthEmail] = useState('');
+            const [authPassword, setAuthPassword] = useState('');
+            const [authError, setAuthError] = useState('');
+            const [authSuccess, setAuthSuccess] = useState('');
+            const [showResend, setShowResend] = useState(false);
+            const [resendCooldown, setResendCooldown] = useState(false);
+
+            const handleLogin = async () => {
+                setAuthError(''); setAuthSuccess(''); setShowResend(false);
+                if(!authEmail || !authPassword) { setAuthError("Lütfen e-posta ve şifre girin."); return; }
+                
+                if (window.fb.isSandbox) {
+                    if (authEmail === 'admin' && authPassword === 'admin') { setAuthError(''); onSandboxPass(); } 
+                    else { setAuthError("Önizleme modundasınız. admin / admin yazın."); }
+                    return;
+                }
+                try {
+                    const userCredential = await window.fb.signInWithEmailAndPassword(window.fb.auth, authEmail, authPassword);
+                    if (!userCredential.user.emailVerified) {
+                        await window.fb.signOut(window.fb.auth); // Doğrulamadıysa hemen çıkış yaptır
+                        setAuthError("Lütfen önce e-posta adresinizi doğrulayın. Mailinize gelen linke tıklayın.");
+                        setShowResend(true);
+                        return;
+                    }
+                    setAuthError('');
+                } catch (e) { setAuthError("Giriş başarısız. Bilgilerinizi kontrol edin."); }
+            };
+
+            const handleRegister = async () => {
+                setAuthError(''); setAuthSuccess(''); setShowResend(false);
+                if(!authEmail || !authPassword) { setAuthError("Lütfen e-posta ve şifre girin."); return; }
+                if (window.fb.isSandbox) { setAuthError("Önizleme modunda kayıt yapılamaz (admin/admin kullanın)."); return; }
+                try {
+                    const userCredential = await window.fb.createUserWithEmailAndPassword(window.fb.auth, authEmail, authPassword);
+                    await window.fb.sendEmailVerification(userCredential.user);
+                    await window.fb.signOut(window.fb.auth); // Kayıt sonrası çıkış yaptır ki doğrulayıp öyle girsin
+                    setAuthSuccess("Kayıt başarılı! Lütfen giriş yapmadan önce e-posta adresinize gelen linke tıklayarak hesabınızı doğrulayın.");
+                    setAuthEmail(''); setAuthPassword('');
+                } catch (e) { 
+                    if (e.code === 'auth/email-already-in-use') setAuthError("Bu e-posta adresi zaten kullanımda.");
+                    else if (e.code === 'auth/weak-password') setAuthError("Şifre en az 6 karakter olmalıdır.");
+                    else setAuthError("Kayıt oluşturulamadı. Lütfen geçerli bir e-posta girin."); 
+                }
+            };
+
+            const handleResendVerification = async () => {
+                if (resendCooldown) return;
+                setAuthError(''); setAuthSuccess('');
+                try {
+                    // Tekrar göndermek için geçici giriş yapıp hemen çıkıyoruz
+                    const userCredential = await window.fb.signInWithEmailAndPassword(window.fb.auth, authEmail, authPassword);
+                    await window.fb.sendEmailVerification(userCredential.user);
+                    await window.fb.signOut(window.fb.auth);
+                    setAuthSuccess("Doğrulama maili tekrar gönderildi. Lütfen spam/gereksiz klasörünü de kontrol edin.");
+                    setShowResend(false);
+                    setResendCooldown(true);
+                    setTimeout(() => setResendCooldown(false), 60000); // 1 dakika bekleme süresi
+                } catch (e) {
+                    setAuthError("Mail gönderilirken hata oluştu. Şifrenizin doğru olduğundan emin olun.");
+                }
+            };
+
+            return (
+                <div className="w-full h-full bg-slate-900 flex items-center justify-center font-['Nunito'] relative overflow-hidden">
+                    {/* Background decorative elements */}
+                    <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-sky-500 rounded-full blur-[120px] opacity-20 pointer-events-none"></div>
+                    <div className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] bg-indigo-500 rounded-full blur-[120px] opacity-20 pointer-events-none"></div>
+                    
+                    <div className="w-full max-w-5xl h-auto min-h-[500px] md:h-[600px] bg-slate-800/50 backdrop-blur-2xl rounded-3xl md:rounded-[3rem] shadow-2xl border border-slate-700/50 flex flex-col md:flex-row overflow-hidden z-10 mx-4 animate-in">
+                        
+                        {/* Left Side: Information / Features */}
+                        <div className="w-full md:w-3/5 p-8 md:p-12 lg:p-16 flex flex-col justify-center relative">
+                            <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-8 tracking-tight">OKULMATİK PORTAL</h1>
+                            
+                            <h2 className="text-2xl md:text-3xl font-bold text-sky-400 mb-8 tracking-wide">NELER VAR ?</h2>
+                            
+                            <div className="flex flex-col gap-8">
+                                <div className="flex items-start gap-4 group">
+                                    <div className="w-3 h-3 md:w-4 md:h-4 rounded-full bg-indigo-400 mt-2.5 shadow-[0_0_15px_rgba(129,140,248,0.6)] group-hover:scale-125 transition-transform"></div>
+                                    <div>
+                                        <h3 className="text-2xl md:text-4xl font-black text-white tracking-wide">OKUMATİK</h3>
+                                        <p className="text-slate-400 text-lg md:text-xl font-bold mt-1 uppercase tracking-wider">1.SINIFLAR İÇİN</p>
+                                    </div>
+                                </div>
+                                
+                                <div className="flex items-start gap-4 group">
+                                    <div className="w-3 h-3 md:w-4 md:h-4 rounded-full bg-sky-400 mt-2.5 shadow-[0_0_15px_rgba(56,189,248,0.6)] group-hover:scale-125 transition-transform"></div>
+                                    <div>
+                                        <h3 className="text-2xl md:text-4xl font-black text-white tracking-wide">ÇARPMATİK</h3>
+                                        <p className="text-slate-400 text-lg md:text-xl font-bold mt-1 uppercase tracking-wider">TÜM SINIFLAR İÇİN</p>
+                                    </div>
+                                </div>
+                                
+                                <div className="flex items-start gap-4 group">
+                                    <div className="w-3 h-3 md:w-4 md:h-4 rounded-full bg-pink-400 mt-2.5 shadow-[0_0_15px_rgba(244,114,182,0.6)] group-hover:scale-125 transition-transform"></div>
+                                    <div>
+                                        <h3 className="text-2xl md:text-4xl font-black text-white tracking-wide">DİNAMİK MOTİVE</h3>
+                                        <p className="text-slate-400 text-lg md:text-xl font-bold mt-1 uppercase tracking-wider">ÖĞRETMENLER İÇİN</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Right Side: Login Form */}
+                        <div className="w-full md:w-2/5 bg-white p-8 md:p-12 flex flex-col justify-center relative">
+                            {window.fb.isSandbox && (
+                                <div className="absolute top-4 left-4 right-4 bg-amber-50 border border-amber-200 text-amber-700 text-xs font-bold p-2 rounded-lg text-center">
+                                    Önizleme modu: admin / admin
+                                </div>
+                            )}
+
+                            <div className="w-full max-w-sm mx-auto flex flex-col gap-4 mt-8 md:mt-0">
+                                <div className="mb-2">
+                                    <input 
+                                        type="email" 
+                                        value={authEmail} 
+                                        onChange={(e) => setAuthEmail(e.target.value)} 
+                                        className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 font-bold focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition-all placeholder:text-slate-400" 
+                                        placeholder="E-posta" 
+                                    />
+                                </div>
+                                
+                                <div className="mb-4">
+                                    <input 
+                                        type="password" 
+                                        value={authPassword} 
+                                        onChange={(e) => setAuthPassword(e.target.value)} 
+                                        onKeyPress={(e) => e.key === 'Enter' && handleLogin()} 
+                                        className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 font-bold focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition-all placeholder:text-slate-400" 
+                                        placeholder="Şifreniz" 
+                                    />
+                                </div>
+                                
+                                {authError && <p className="text-red-500 font-bold text-sm text-center animate-in mb-2">{authError}</p>}
+                                {authSuccess && <p className="text-green-600 font-bold text-sm text-center animate-in mb-2 p-3 bg-green-50 rounded-xl border border-green-200">{authSuccess}</p>}
+                                
+                                {showResend && (
+                                    <button onClick={handleResendVerification} disabled={resendCooldown} className="text-sm font-bold text-indigo-600 hover:text-indigo-800 underline mb-2 transition-colors disabled:opacity-50 text-center">
+                                        {resendCooldown ? 'Lütfen biraz bekleyin...' : 'Doğrulama Mailini Tekrar Gönder'}
+                                    </button>
+                                )}
+                                
+                                <button onClick={handleLogin} className="w-full py-4 rounded-xl text-white font-black bg-[#4f46e5] hover:bg-[#4338ca] active:scale-[0.98] transition-all text-lg shadow-lg hover:shadow-indigo-500/30">
+                                    Giriş Yap
+                                </button>
+                                
+                                <button onClick={handleRegister} className="w-full py-4 rounded-xl text-[#4f46e5] font-black bg-white border-2 border-[#4f46e5] hover:bg-indigo-50 active:scale-[0.98] transition-all text-lg mt-2">
+                                    Yeni Kayıt Ol
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const PortalApp = ({ onLaunch, onLogout }) => {
             return (
                 <div className="w-full h-full bg-slate-50 flex flex-col items-center justify-center relative font-['Nunito'] overflow-y-auto overflow-x-hidden py-10 px-4">
+                    <div className="absolute top-4 right-4 z-50">
+                        <button onClick={onLogout} className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl shadow-md border-2 border-slate-200 hover:bg-slate-50 transition-colors text-slate-700 font-bold active:scale-95">
+                            <Icons.LogOut size={20} /> <span className="hidden sm:inline">Güvenli Çıkış</span>
+                        </button>
+                    </div>
+
                     <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-yellow-200 rounded-full blur-3xl opacity-30 animate-pulse pointer-events-none"></div>
                     <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-blue-200 rounded-full blur-3xl opacity-30 animate-pulse delay-1000 pointer-events-none"></div>
                     
                     <div className="text-center z-10 mb-8 md:mb-12 animate-in">
+                        <div className="bg-green-100 text-green-800 px-4 py-1 rounded-full font-bold text-sm mb-4 inline-block shadow-sm">Bağlantı Güvenli</div>
                         <h1 className="text-5xl md:text-7xl font-black text-slate-800 tracking-tight drop-shadow-sm mb-2 md:mb-4">OKULMATİK</h1>
                         <p className="text-slate-500 font-bold text-sm md:text-2xl tracking-widest uppercase">Eğitim Portalına Hoş Geldiniz</p>
                     </div>
 
-                    <div className="flex flex-col md:flex-row gap-6 md:gap-12 z-10 mb-16 shrink-0">
-                        <button onClick={() => onLaunch('abcmatik')} className="group relative w-64 h-72 md:w-80 md:h-[22rem] bg-white rounded-3xl md:rounded-[3rem] border-[6px] md:border-[8px] border-pink-400 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 flex flex-col items-center justify-center gap-4 md:gap-6 active:scale-95">
+                    <div className="flex flex-col md:flex-row gap-6 md:gap-12 z-10 mb-16 shrink-0 flex-wrap justify-center">
+                        <button onClick={() => onLaunch('abcmatik')} className="group relative w-64 h-72 md:w-80 md:h-[22rem] bg-white rounded-3xl md:rounded-[3rem] border-[6px] md:border-[8px] border-pink-400 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 flex flex-col items-center justify-center gap-4 md:gap-6 active:scale-95 shrink-0">
                             <div className="bg-pink-100 p-4 md:p-6 rounded-full text-pink-500 group-hover:scale-110 transition-transform"><Icons.Book size={60} className="md:w-20 md:h-20" /></div>
-                            <h2 className="text-2xl md:text-3xl font-black text-slate-700">ABCMATİK</h2>
+                            <h2 className="text-2xl md:text-3xl font-black text-slate-700">OKUMATİK</h2>
                             <p className="text-slate-400 font-bold text-sm md:text-base">Okuma Asistanı</p>
                         </button>
                         
-                        <button onClick={() => onLaunch('carpmatik')} className="group relative w-64 h-72 md:w-80 md:h-[22rem] bg-white rounded-3xl md:rounded-[3rem] border-[6px] md:border-[8px] border-blue-400 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 flex flex-col items-center justify-center gap-4 md:gap-6 active:scale-95">
+                        <button onClick={() => onLaunch('carpmatik')} className="group relative w-64 h-72 md:w-80 md:h-[22rem] bg-white rounded-3xl md:rounded-[3rem] border-[6px] md:border-[8px] border-blue-400 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 flex flex-col items-center justify-center gap-4 md:gap-6 active:scale-95 shrink-0">
                             <div className="bg-blue-100 p-4 md:p-6 rounded-full text-blue-500 group-hover:scale-110 transition-transform"><Icons.School size={60} className="md:w-20 md:h-20" /></div>
                             <h2 className="text-2xl md:text-3xl font-black text-slate-700">ÇARPMATİK</h2>
                             <p className="text-slate-400 font-bold text-sm md:text-base">Matematik Oyunları</p>
+                        </button>
+
+                        <button onClick={() => onLaunch('dinamikMotive')} className="group relative w-64 h-72 md:w-80 md:h-[22rem] bg-white rounded-3xl md:rounded-[3rem] border-[6px] md:border-[8px] border-emerald-400 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 flex flex-col items-center justify-center gap-4 md:gap-6 active:scale-95 shrink-0">
+                            <div className="bg-emerald-100 p-4 md:p-6 rounded-full text-emerald-500 group-hover:scale-110 transition-transform"><Icons.Trophy size={60} className="md:w-20 md:h-20" /></div>
+                            <div className="text-center">
+                                <h2 className="text-2xl md:text-3xl font-black text-slate-700">DİNAMİK MOTİVE</h2>
+                                <p className="text-slate-500 font-bold text-xs md:text-sm tracking-widest mt-1">Sınıf Davranış Takibi</p>
+                            </div>
                         </button>
                     </div>
                     
@@ -1214,10 +1950,37 @@
         };
 
         const MainApp = () => {
+            const [user, setUser] = useState(null);
+            const [sandboxPassed, setSandboxPassed] = useState(false);
+            const [authChecked, setAuthChecked] = useState(false);
             const [currentApp, setCurrentApp] = useState('portal');
+
+            useEffect(() => {
+                if (!window.fb || !window.fb.auth) { setAuthChecked(true); return; }
+                const unsub = window.fb.onAuthStateChanged(window.fb.auth, (u) => { setUser(u); setAuthChecked(true); });
+                return () => unsub();
+            }, []);
+
+            const isLoggedIn = (window.fb && !window.fb.isSandbox && user) || (window.fb && window.fb.isSandbox && user && sandboxPassed);
+
+            if (!authChecked) {
+                return <div className="w-full h-full flex items-center justify-center bg-slate-50 font-['Nunito'] text-xl font-bold text-slate-500 animate-pulse">Okulmatik Yükleniyor...</div>;
+            }
+
+            if (!isLoggedIn) {
+                return <AuthScreen onSandboxPass={() => setSandboxPassed(true)} />;
+            }
+
+            const handleLogout = async () => {
+                if (window.fb.isSandbox) { setSandboxPassed(false); setCurrentApp('portal'); } 
+                else { await window.fb.signOut(window.fb.auth); setCurrentApp('portal'); }
+            };
+
             if (currentApp === 'abcmatik') return <AbcmatikApp onExit={() => setCurrentApp('portal')} />;
             if (currentApp === 'carpmatik') return <CarpmatikApp onExit={() => setCurrentApp('portal')} />;
-            return <PortalApp onLaunch={setCurrentApp} />;
+            if (currentApp === 'dinamikMotive') return <DinamikMotiveApp onExit={() => setCurrentApp('portal')} />;
+            
+            return <PortalApp onLaunch={setCurrentApp} onLogout={handleLogout} />;
         };
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
