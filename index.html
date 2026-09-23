@@ -132,6 +132,7 @@
         .dm-student-card:hover { transform: translateY(-4px); box-shadow: 0 10px 15px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255,255,255,0.3); }
         .dm-pos-active { background: linear-gradient(135deg, #3b82f6, #2563eb) !important; }
         .dm-neg-active { background: linear-gradient(135deg, #ef4444, #dc2626) !important; }
+        .dm-locked-active { background: linear-gradient(135deg, #eab308, #ca8a04) !important; }
 
         .dm-crown-icon {
             position: absolute;
@@ -1301,12 +1302,36 @@
             return d.getTime();
         };
 
+        const dmCalculateProportionalScore = (student) => {
+            let absentCount = 0;
+            let actualScore = 0;
+            const absents = student.absentDays || {};
+            const daily = student.daily || {};
+            for (let i = 1; i <= 5; i++) {
+                if (absents[i]) { absentCount++; } 
+                else { actualScore += (daily[i] || 0); }
+            }
+            const attendedDays = 5 - absentCount;
+            if (attendedDays === 0) return { proportional: 0, actualScore, attendedDays, maxPossible: 0 };
+            const maxPossible = attendedDays * 10;
+            let proportional = Math.round((actualScore / attendedDays) * 5);
+            return { proportional, actualScore, attendedDays, maxPossible };
+        };
+
         const generateStudentReportHTML = (student, currentDate, currentWeekId, updateStudentMsgState) => {
             let reportText = ""; let listTitle = ""; let rulesList = "";
             const selectedRules = dmGetRandomItems(DM_CLASS_RULES, 3);
-            let haftalikPuan = student.netScore;
+            
+            const scoreData = dmCalculateProportionalScore(student);
+            let haftalikPuan = scoreData.proportional;
             
             let performanceSummary = `<p style="font-weight: bold; color: #000;">Haftalık Davranış Puanı: ${haftalikPuan} / 50</p>`;
+            if (scoreData.attendedDays > 0 && scoreData.attendedDays < 5) {
+                performanceSummary += `<p style="font-size: 11pt; color: #444; margin-top: 4px;">* Öğrencimiz bu hafta <strong>${scoreData.attendedDays} gün</strong> okula gelmiş ve ${scoreData.maxPossible} üzerinden <strong>${scoreData.actualScore} puan</strong> almıştır. Bu performans, tam haftalık (50 puanlık) değerlendirme sistemine göre <strong>${haftalikPuan} puana</strong> eşdeğerdir.</p>`;
+            } else if (scoreData.attendedDays === 0) {
+                performanceSummary = `<p style="font-weight: bold; color: #d97706;">Öğrenci bu hafta okula gelmemiştir.</p>`;
+                haftalikPuan = 0;
+            }
 
             let cat = '';
             if (haftalikPuan <= 10) cat = 'corrective';
@@ -1450,6 +1475,7 @@
                 const resetData = targetStudents.map(oldS => ({
                     ...oldS, positive: 0, negative: 0, netScore: 0,
                     daily: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+                    absentDays: { 1: false, 2: false, 3: false, 4: false, 5: false },
                     msgState: oldS.msgState || { corrective: 0, mid: 0, pos: 0, lastPrintWeek: null, lastPrintCat: null, lastPrintIndex: 0 }
                 }));
                 const newTime = dmGetNextFridayMidnight();
@@ -1465,6 +1491,7 @@
                 const newStudents = nameArray.map((name, index) => ({
                     id: index, name: name, positive: 0, negative: 0, netScore: 0,
                     daily: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+                    absentDays: { 1: false, 2: false, 3: false, 4: false, 5: false },
                     msgState: { corrective: 0, mid: 0, pos: 0, lastPrintWeek: null, lastPrintCat: null, lastPrintIndex: 0 }
                 }));
                 
@@ -1493,6 +1520,44 @@
                 setTimeout(() => setShakingCards(prev => ({ ...prev, [id]: false })), 400);
             };
 
+            const toggleStudentAbsence = (e, id) => {
+                e.stopPropagation();
+                if (isLocked) { shakeCard(id); return; }
+                let today = new Date().getDay();
+                if (today === 0 || today === 6) today = 5; 
+
+                setStudents(prev => prev.map(student => {
+                    if (student.id === id) {
+                        const currentAbsentDays = student.absentDays || { 1: false, 2: false, 3: false, 4: false, 5: false };
+                        const isCurrentlyAbsent = currentAbsentDays[today];
+                        
+                        let newDaily = { ...student.daily };
+                        let newNetScore = student.netScore;
+                        let newPositive = student.positive;
+                        let newNegative = student.negative;
+                        
+                        // Yanlışlıkla puan verildiyse ve sonradan yok yazılırsa, o günün puanlarını geri al
+                        if (!isCurrentlyAbsent) {
+                            const todaysScore = newDaily[today] || 0;
+                            if (todaysScore > 0) newPositive -= todaysScore;
+                            if (todaysScore < 0) newNegative -= Math.abs(todaysScore);
+                            newNetScore -= todaysScore;
+                            newDaily[today] = 0;
+                        }
+                        
+                        return { 
+                            ...student, 
+                            absentDays: { ...currentAbsentDays, [today]: !isCurrentlyAbsent },
+                            daily: newDaily,
+                            netScore: newNetScore,
+                            positive: Math.max(0, newPositive),
+                            negative: Math.max(0, newNegative)
+                        };
+                    }
+                    return student;
+                }));
+            };
+
             const handleStudentAction = (e, id, isPositive) => {
                 e.preventDefault();
                 if (isLocked) { shakeCard(id); return; }
@@ -1502,6 +1567,9 @@
 
                 setStudents(prev => prev.map(student => {
                     if (student.id === id) {
+                        const isAbsentToday = student.absentDays && student.absentDays[today];
+                        if (isAbsentToday) { shakeCard(id); return student; } // Kilitliyse puan vermeyi engelle
+
                         if (isPositive && student.daily[today] >= 10) { shakeCard(id); return student; }
                         if (!isPositive && student.daily[today] <= -10) { shakeCard(id); return student; }
                         
@@ -1724,21 +1792,38 @@
                         {students.map(student => {
                             let today = new Date().getDay();
                             if (today === 0 || today === 6) today = 5; // Haftasonunu Cumaya sabitle
+                            
+                            const isAbsentToday = student.absentDays && student.absentDays[today];
                             const dailyScore = student.daily[today] || 0;
 
                             let colorClass = '';
-                            if (dailyScore > 0) colorClass = 'dm-pos-active';
-                            if (dailyScore < 0) colorClass = 'dm-neg-active';
+                            if (isAbsentToday) colorClass = 'dm-locked-active';
+                            else if (dailyScore > 0) colorClass = 'dm-pos-active';
+                            else if (dailyScore < 0) colorClass = 'dm-neg-active';
+                            
+                            const scoreData = dmCalculateProportionalScore(student);
                             
                             return (
                                 <div key={student.id} className={`dm-student-card ${colorClass} ${shakingCards[student.id] ? 'dm-shake-anim' : ''}`} onClick={(e) => handleStudentAction(e, student.id, true)} onContextMenu={(e) => handleStudentAction(e, student.id, false)}>
-                                    {student.netScore >= 40 && <div className="dm-crown-icon">👑</div>}
+                                    
+                                    {/* TAÇ KONTROLÜ: Taç her zaman orantılı puan (haftalık performans) üzerinden hesaplanır! */}
+                                    {scoreData.proportional >= 40 && <div className="dm-crown-icon">👑</div>}
+                                    
                                     <div className="text-xl font-extrabold tracking-wide mb-2 drop-shadow-md break-words w-full px-1">{student.name}</div>
-                                    {dailyScore !== 0 && (
+                                    
+                                    {/* EKRANA YAZDIRILAN PUAN: Sadece BUGÜN kazanılan (dailyScore) puandır! Kilitli ise puan gösterme */}
+                                    {!isAbsentToday && dailyScore !== 0 && (
                                         <div className="flex justify-center text-sm font-bold mt-1">
-                                            <span className="text-white bg-white/25 px-4 py-1 rounded-xl text-xl drop-shadow-md shadow-inner">{dailyScore > 0 ? `+${dailyScore}` : dailyScore}</span>
+                                            <span className="text-white bg-white/25 px-4 py-1 rounded-xl text-xl drop-shadow-md shadow-inner">
+                                                {dailyScore > 0 ? `+${dailyScore}` : dailyScore}
+                                            </span>
                                         </div>
                                     )}
+                                    
+                                    {/* KİLİT İKONU */}
+                                    <div onClick={(e) => toggleStudentAbsence(e, student.id)} className={`absolute bottom-2 left-2 p-1.5 rounded-lg cursor-pointer transition-all ${isAbsentToday ? 'bg-amber-100 text-amber-700 shadow-sm' : 'bg-white/20 text-white hover:bg-white/40'}`}>
+                                        {isAbsentToday ? <Icons.Lock size={18} /> : <Icons.Unlock size={18} />}
+                                    </div>
                                 </div>
                             );
                         })}
@@ -1747,7 +1832,7 @@
             );
         };
 
-            const AuthScreen = ({ onSandboxPass }) => {
+        const AuthScreen = ({ onSandboxPass }) => {
             const [authEmail, setAuthEmail] = useState('');
             const [authPassword, setAuthPassword] = useState('');
             const [authError, setAuthError] = useState('');
