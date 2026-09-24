@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Okulmatik Eğitim Portalı</title>
+    <title>Okulatte Eğitim Portalı</title>
     
     <link rel="icon" type="image/png" href="assets/icon.png">
 
@@ -11,7 +11,8 @@
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Quicksand:wght@500;700;900&display=swap" rel="stylesheet">
 
     <style>
         @font-face {
@@ -98,7 +99,6 @@
             }
         }
 
-        /* DİNAMİK MOTİVE ÖZEL STİLLERİ */
         .dm-student-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
@@ -179,11 +179,12 @@
             storageBucket: "okulmatik-686f5.firebasestorage.app",
             messagingSenderId: "148931990744",
             appId: "1:148931990744:web:444e1d294d7440a225b3ad",
-            measurementId: "G-L4D7YQPH03"
+            measurementId: "G-L4D7YQPH03" // Analytics Kimliğiniz eklendi
         };
 
         const isSandbox = typeof __firebase_config !== 'undefined';
         const firebaseConfig = isSandbox ? JSON.parse(__firebase_config) : MY_FIREBASE_CONFIG;
+        // DİKKAT: Veritabanı (Firestore) kaydını korumak için appId 'okulmatik-super-app' olarak sabit tutuldu.
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'okulmatik-super-app';
 
         let app, auth, db, analytics;
@@ -300,7 +301,8 @@
             LogOut: ({ size = 24, className = "" }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>,
             FileText: ({ size = 24, className = "" }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>,
             History: ({ size = 24, className = "" }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>,
-            User: ({ size = 24, className = "" }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            User: ({ size = 24, className = "" }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>,
+            Users: ({ size = 24, className = "" }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
         };
 
         const PYRAMID_CONTENT = [
@@ -624,6 +626,7 @@
                     <div className={`h-full flex flex-col items-center bg-[#FFFBEB] font-['TemelYazi'] overflow-hidden print-hide ${printData ? 'hidden' : 'flex'}`}>
                         <audio ref={audioRef} src="assets/ses.mp3" preload="auto" />
 
+                        {}
                         {view === 'menu' && (
                             <div className="flex-1 overflow-y-auto overflow-x-hidden w-full flex flex-col items-center p-4 pb-12 md:p-8 md:pb-16 animate-in relative">
                                 <div className="absolute top-4 left-4 z-50">
@@ -664,6 +667,7 @@
                             </div>
                         )}
 
+                        {}
                         {view === 'activity' && (
                             <div className="w-full h-full flex flex-col relative overflow-hidden animate-in">
                                 <div className="bg-white shadow-md px-3 py-2 md:px-6 md:py-3 flex justify-between items-center z-50 border-b-2 md:border-b-4 border-slate-200 gap-2 shrink-0">
@@ -817,6 +821,7 @@
                         )}
                     </div>
 
+                    {}
                     {printData && (
                         <div className="print-show print-stage bg-white text-black font-['TemelYazi']">
                             {printData.level === 1 ? (() => {
@@ -827,7 +832,7 @@
                                     <div className="print-page">
                                         <div className="w-full flex justify-between items-end border-b-[2px] border-slate-400 pb-2 mb-4 shrink-0">
                                             <h2 className="text-[6mm] text-slate-700 font-normal leading-none">Okuma Çalışmaları</h2>
-                                            <span className="text-[4mm] text-slate-500 font-normal tracking-widest leading-none">OKULMATİK</span>
+                                            <span className="text-[4mm] text-slate-500 font-normal tracking-widest leading-none">OKULATTE</span>
                                         </div>
                                         <FitLines
                                             lines={fitLines}
@@ -846,7 +851,7 @@
                                     <div className="print-page">
                                         <div className="w-full flex justify-between items-end border-b-[2px] border-slate-400 pb-2 mb-4 shrink-0">
                                             <h2 className="text-[6mm] text-slate-700 font-normal leading-none">Okuma Çalışmaları</h2>
-                                            <span className="text-[4mm] text-slate-500 font-normal tracking-widest leading-none">OKULMATİK</span>
+                                            <span className="text-[4mm] text-slate-500 font-normal tracking-widest leading-none">OKULATTE</span>
                                         </div>
                                         <FitLines
                                             lines={fitLines}
@@ -984,7 +989,7 @@
         };
 
         const NameInputModal = ({ score, grade, onSave }) => {
-            const [name, useState] = React.useState("");
+            const [name, setName] = React.useState(""); 
             const handleSubmit = (e) => { e.preventDefault(); if (name.trim().length > 0) onSave(name); };
             return (
                 <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 font-['Nunito']">
@@ -993,7 +998,7 @@
                         <h2 className="text-3xl md:text-4xl font-black text-slate-800 mb-2">TEBRİKLER!</h2>
                         <p className="text-slate-500 text-lg md:text-xl font-bold mb-6"><span className="text-yellow-500 font-black text-2xl">{score}</span> Puan ile Liderlik Tablosuna Girdin!</p>
                         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                            <input type="text" value={name} onChange={(e) => useState(e.target.value)} placeholder="İsminizi Giriniz" className="w-full bg-slate-100 border-2 border-slate-200 rounded-xl p-4 text-xl font-bold text-center focus:outline-none focus:border-yellow-400" maxLength={20} autoFocus />
+                            <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="İsminizi Giriniz" className="w-full bg-slate-100 border-2 border-slate-200 rounded-xl p-4 text-xl font-bold text-center focus:outline-none focus:border-yellow-400" maxLength={20} autoFocus />
                             <button type="submit" disabled={name.trim().length === 0} className="bg-yellow-400 text-white p-4 rounded-xl text-xl font-black hover:bg-yellow-500 border-b-4 border-yellow-600 active:border-b-0 active:translate-y-1 disabled:opacity-50 flex items-center justify-center gap-2"><Icons.Save />KAYDET</button>
                         </form>
                     </div>
@@ -1169,7 +1174,7 @@
                     <div className="w-full h-full bg-slate-50 flex flex-col items-center justify-center font-['Nunito'] relative overflow-y-auto overflow-x-hidden py-16 px-4 animate-in">
                         <div className="absolute top-4 left-4 z-50">
                             <button onClick={onExit} className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl shadow-md border-2 border-slate-200 hover:bg-slate-50 transition-colors text-slate-700 font-bold active:scale-95">
-                                <Icons.Home size={20} /> <span className="hidden sm:inline">PORTAL</span>
+                                <Icons.Home size={20} /> <span className="hidden sm:inline">ANA MENÜ</span>
                             </button>
                         </div>
                         {showLeaderboard && (<LeaderboardModal grade={gradeLevel} onClose={() => setShowLeaderboard(false)} />)}
@@ -1207,7 +1212,7 @@
                             {isMenuOpen && (
                                 <div className="absolute top-full left-0 mt-2 w-56 bg-white rounded-xl shadow-xl border-2 border-slate-100 overflow-hidden animate-in z-[60]">
                                     <button onClick={handleMainMenuClick} className="w-full text-left px-4 py-3 font-bold text-slate-600 hover:bg-slate-50 border-b border-slate-100">← Çarpmatik Menüsü</button>
-                                    <button onClick={handleExitClick} className="w-full text-left px-4 py-3 font-bold text-blue-600 hover:bg-blue-50 border-b border-slate-100 flex items-center gap-2"><Icons.Home size={18}/><span>PORTAL</span></button>
+                                    <button onClick={handleExitClick} className="w-full text-left px-4 py-3 font-bold text-blue-600 hover:bg-blue-50 border-b border-slate-100 flex items-center gap-2"><Icons.Home size={18}/><span>ANA MENÜ</span></button>
                                     {[2, 3, 4].map((level) => (<button key={level} onClick={() => { setGradeLevel(level); setIsMenuOpen(false); prepareNewGame(); }} className={`w-full text-left px-4 py-3 font-bold transition-colors ${gradeLevel === level ? 'bg-blue-50 text-blue-600' : 'text-slate-600 hover:bg-slate-50'}`}>{level}. Sınıf Seç</button>))}
                                 </div>
                             )}
@@ -1267,7 +1272,7 @@
             "Bu hafta sınıf içerisinde bazı zamanlarda kurallara uymakta ve derse odaklanmakta zorlandığın görüldü. Önümüzdeki hafta kurallara daha fazla dikkat ederek ve derse daha aktif katılarak çok daha iyi bir hafta geçirebileceğine inanıyorum.",
             "Bu hafta sınıf içindeki davranışların genel olarak geliştirilebilir düzeydeydi. Zaman zaman dikkat etmen gereken durumlar yaşandı. Önümüzdeki hafta kurallara daha çok özen göstererek ve derslere aktif katılarak kendini daha iyi gösterebilirsin.",
             "Bu hafta bazı güzel davranışlarının yanında dikkat etmen gereken durumlar da oldu. Özellikle ders sırasında kurallara uymaya ve dikkatini derse vermeye daha fazla özen göstermelisin. Önümüzdeki hafta daha olumlu bir gelişim göstereceğine inanıyorum.",
-            "Bu hafta derslere katılımın ve sınıf içindeki davranışların zaman zaman beklenen düzeyin altında kaldı. Önümüzdeki hafta öğretmeninin uyarılarını dikkate alarak kurallara daha fazla dikkat etmeni ve derslere daha aktif katılmanı bekliyorum.",
+            "Bu hafta derslere katılımın ve sınıf içindeki davranışların zaman zaman beklenen düzeyin altında kaldı. Önümüzdeki hafta öğretmeninin uyarılarını dikkate alarak kurallara daha fazla dikkat etmeni ve derslere aktif katılmanı bekliyorum.",
             "Bu hafta sınıf içerisinde zaman zaman dikkatini toplamak ve ders kurallarına uymakta zorlandığın görüldü. Önümüzdeki hafta daha dikkatli davranarak, dersleri daha iyi takip ederek ve katılımını artırarak çok daha güzel bir hafta geçirebilirsin.",
             "Bu hafta sınıf içerisinde hem olumlu hem de geliştirilmesi gereken davranışların oldu. Önümüzdeki hafta özellikle sınıf kurallarına uymaya, ders sırasında dikkatini korumaya ve etkinliklere daha aktif katılmaya özen göstermen seni daha ileriye taşıyacaktır.",
             "Bu hafta ders sırasında zaman zaman dikkatinin dağıldığı ve sınıf kurallarına yeterince özen göstermediğin durumlar oldu. Önümüzdeki hafta daha dikkatli olmanı, öğretmenini daha iyi dinlemeni ve derslere aktif şekilde katılmanı bekliyorum.",
@@ -1302,6 +1307,7 @@
             return d.getTime();
         };
 
+        // HAKKANİYETLİ ORANTISAL HESAPLAMA MOTORU (Yoklama Orantısı)
         const dmCalculateProportionalScore = (student) => {
             let absentCount = 0;
             let actualScore = 0;
@@ -1313,8 +1319,17 @@
             }
             const attendedDays = 5 - absentCount;
             if (attendedDays === 0) return { proportional: 0, actualScore, attendedDays, maxPossible: 0 };
+            
+            if (attendedDays === 5) {
+                return { proportional: actualScore, actualScore, attendedDays, maxPossible: 50 };
+            }
+            
             const maxPossible = attendedDays * 10;
-            let proportional = Math.round((actualScore / attendedDays) * 5);
+            let proportional = Math.round((actualScore / maxPossible) * 50);
+            
+            if (proportional > 50) proportional = 50;
+            if (proportional < -50) proportional = -50;
+            
             return { proportional, actualScore, attendedDays, maxPossible };
         };
 
@@ -1401,6 +1416,12 @@
             const [isLocked, setIsLocked] = useState(false);
             const [nextReset, setNextReset] = useState(0);
             
+            // ZAMAN MAKİNESİ (Gün Seçimi) Değişkenleri
+            const getRealToday = () => { let d = new Date().getDay(); return (d === 0 || d === 6) ? 5 : d; };
+            const [viewDay, setViewDay] = useState(getRealToday());
+            const [isDayMenuOpen, setIsDayMenuOpen] = useState(false);
+            const dayNames = { 1: "Pazartesi", 2: "Salı", 3: "Çarşamba", 4: "Perşembe", 5: "Cuma" };
+
             const [isInitialLoad, setIsInitialLoad] = useState(true);
             const [setupText, setSetupText] = useState('');
             
@@ -1414,7 +1435,7 @@
                 const user = window.fb.auth.currentUser;
                 if (!user) {
                     if (window.fb.isSandbox) {
-                        setAuthError("Sandbox ortamında kullanıcı bulunamadı.");
+                        console.warn("Sandbox ortamında kullanıcı bulunamadı.");
                     }
                     return;
                 }
@@ -1521,33 +1542,32 @@
             };
 
             const toggleStudentAbsence = (e, id) => {
-                e.stopPropagation();
+                e.stopPropagation(); 
                 if (isLocked) { shakeCard(id); return; }
-                let today = new Date().getDay();
-                if (today === 0 || today === 6) today = 5; 
+                const dayToEdit = viewDay; 
 
                 setStudents(prev => prev.map(student => {
                     if (student.id === id) {
                         const currentAbsentDays = student.absentDays || { 1: false, 2: false, 3: false, 4: false, 5: false };
-                        const isCurrentlyAbsent = currentAbsentDays[today];
+                        const isCurrentlyAbsent = currentAbsentDays[dayToEdit];
                         
                         let newDaily = { ...student.daily };
                         let newNetScore = student.netScore;
                         let newPositive = student.positive;
                         let newNegative = student.negative;
                         
-                        // Yanlışlıkla puan verildiyse ve sonradan yok yazılırsa, o günün puanlarını geri al
+                        // Kilitleniyorsa, o günkü puanları iptal edelim
                         if (!isCurrentlyAbsent) {
-                            const todaysScore = newDaily[today] || 0;
+                            const todaysScore = newDaily[dayToEdit] || 0;
                             if (todaysScore > 0) newPositive -= todaysScore;
                             if (todaysScore < 0) newNegative -= Math.abs(todaysScore);
                             newNetScore -= todaysScore;
-                            newDaily[today] = 0;
+                            newDaily[dayToEdit] = 0; 
                         }
                         
                         return { 
                             ...student, 
-                            absentDays: { ...currentAbsentDays, [today]: !isCurrentlyAbsent },
+                            absentDays: { ...currentAbsentDays, [dayToEdit]: !isCurrentlyAbsent },
                             daily: newDaily,
                             netScore: newNetScore,
                             positive: Math.max(0, newPositive),
@@ -1562,23 +1582,22 @@
                 e.preventDefault();
                 if (isLocked) { shakeCard(id); return; }
                 
-                let today = new Date().getDay();
-                if (today === 0 || today === 6) today = 5; 
+                const dayToEdit = viewDay;
 
                 setStudents(prev => prev.map(student => {
                     if (student.id === id) {
-                        const isAbsentToday = student.absentDays && student.absentDays[today];
-                        if (isAbsentToday) { shakeCard(id); return student; } // Kilitliyse puan vermeyi engelle
+                        const isAbsentToday = student.absentDays && student.absentDays[dayToEdit];
+                        if (isAbsentToday) { shakeCard(id); return student; }
 
-                        if (isPositive && student.daily[today] >= 10) { shakeCard(id); return student; }
-                        if (!isPositive && student.daily[today] <= -10) { shakeCard(id); return student; }
+                        if (isPositive && student.daily[dayToEdit] >= 10) { shakeCard(id); return student; }
+                        if (!isPositive && student.daily[dayToEdit] <= -10) { shakeCard(id); return student; }
                         
                         return {
                             ...student,
                             positive: isPositive ? student.positive + 1 : student.positive,
                             negative: !isPositive ? student.negative + 1 : student.negative,
                             netScore: isPositive ? student.netScore + 1 : student.netScore - 1,
-                            daily: { ...student.daily, [today]: student.daily[today] + (isPositive ? 1 : -1) }
+                            daily: { ...student.daily, [dayToEdit]: student.daily[dayToEdit] + (isPositive ? 1 : -1) }
                         };
                     }
                     return student;
@@ -1627,14 +1646,14 @@
             };
 
             if (view === 'loading') {
-                return <div className="w-full h-full bg-slate-50 flex items-center justify-center font-['Nunito'] text-xl font-bold text-slate-500 animate-pulse">Sınıf Yükleniyor...</div>;
+                return <div className="w-full h-full bg-slate-50 flex items-center justify-center font-['Nunito'] text-xl font-bold text-slate-500 animate-pulse">Okulatte Yükleniyor...</div>;
             }
 
             if (view === 'setup') {
                 return (
                     <div className="w-full h-full bg-slate-50 flex items-center justify-center font-['Inter',sans-serif] animate-in relative">
                         <button onClick={onExit} className="absolute top-4 left-4 flex items-center gap-2 bg-white px-4 py-2 rounded-xl shadow-md border-2 border-slate-200 hover:bg-slate-50 transition-colors text-slate-700 font-bold active:scale-95">
-                            <Icons.Home size={20} /> PORTAL
+                            <Icons.Home size={20} /> ANA MENÜ
                         </button>
                         <div className="bg-white p-10 md:p-12 border-2 border-slate-100 rounded-[2rem] shadow-2xl w-full max-w-2xl text-center z-10 relative mt-12 md:mt-0">
                             <div className="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-emerald-100 mb-6 text-4xl">✨</div>
@@ -1669,7 +1688,7 @@
             return (
                 <div className="w-full h-full bg-[#f8fafc] font-['Inter',sans-serif] overflow-y-auto flex flex-col items-center animate-in relative">
                     <button onClick={onExit} className="absolute top-4 left-4 flex items-center gap-2 bg-white px-4 py-2 rounded-xl shadow-md border border-slate-200 hover:bg-slate-50 transition-colors text-slate-700 font-bold active:scale-95 z-50">
-                        <Icons.Home size={20} /> PORTAL
+                        <Icons.Home size={20} /> ANA MENÜ
                     </button>
 
                     {activeModal === 'password' && (
@@ -1769,10 +1788,28 @@
                     )}
 
                     <div className="text-center mb-8 mt-16 w-full flex flex-col items-center px-4">
-                        <div className="bg-blue-100 text-blue-800 px-4 py-1 rounded-full font-bold text-sm mb-4 inline-block">Bulut Senkronizasyonu Aktif</div>
+                        <div className="bg-blue-100 text-blue-800 px-4 py-1 rounded-full font-bold text-sm mb-4 inline-block shadow-sm">Bağlantı Güvenli</div>
                         <h1 className="text-4xl md:text-5xl font-black text-slate-800 tracking-tight mb-8">Sınıf Davranış Takip Sistemi</h1>
                         
                         <div className="flex items-center justify-center gap-3 w-full max-w-6xl flex-wrap">
+                            <div className="relative z-[70]">
+                                <button onClick={() => setIsDayMenuOpen(!isDayMenuOpen)} className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-white shadow-md transition-all active:scale-95 ${viewDay === getRealToday() ? 'bg-gradient-to-r from-sky-500 to-sky-600' : 'bg-gradient-to-r from-orange-500 to-red-600 animate-pulse'}`}>
+                                    <span className="text-xl">{viewDay === getRealToday() ? '📅' : '⏳'}</span>
+                                    <span>{viewDay === getRealToday() ? `Bugün (${dayNames[viewDay]})` : `Zaman Makinesi: ${dayNames[viewDay]}`}</span>
+                                    <Icons.ChevronDown size={18} className={`transition-transform ${isDayMenuOpen ? 'rotate-180' : ''}`} />
+                                </button>
+                                {isDayMenuOpen && (
+                                    <div className="absolute top-full mt-2 left-0 md:left-1/2 md:-translate-x-1/2 w-56 bg-white rounded-xl shadow-2xl border-2 border-slate-100 overflow-hidden animate-in">
+                                        {[1, 2, 3, 4, 5].map(d => (
+                                            <button key={d} onClick={() => { setViewDay(d); setIsDayMenuOpen(false); }} className={`w-full text-left px-4 py-3 font-bold transition-colors border-b border-slate-50 last:border-0 flex justify-between items-center ${viewDay === d ? 'bg-sky-50 text-sky-700' : 'text-slate-600 hover:bg-slate-50'}`}>
+                                                <span>{dayNames[d]}</span>
+                                                {d === getRealToday() && <span className="text-[10px] bg-sky-100 text-sky-600 px-2 py-1 rounded-full uppercase tracking-wider">Bugün</span>}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
                             <button onClick={toggleLock} className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-white shadow-md transition-transform active:scale-95 ${isLocked ? 'bg-gradient-to-r from-red-500 to-red-600' : 'bg-gradient-to-r from-emerald-500 to-emerald-600'}`}>
                                 {isLocked ? <><Icons.Lock size={20}/> Ekran Kilitli</> : <><Icons.Unlock size={20}/> Ekran Açık</>}
                             </button>
@@ -1790,11 +1827,10 @@
 
                     <div className="dm-student-grid">
                         {students.map(student => {
-                            let today = new Date().getDay();
-                            if (today === 0 || today === 6) today = 5; // Haftasonunu Cumaya sabitle
+                            const dayToView = viewDay;
                             
-                            const isAbsentToday = student.absentDays && student.absentDays[today];
-                            const dailyScore = student.daily[today] || 0;
+                            const isAbsentToday = student.absentDays && student.absentDays[dayToView];
+                            const dailyScore = student.daily[dayToView] || 0;
 
                             let colorClass = '';
                             if (isAbsentToday) colorClass = 'dm-locked-active';
@@ -1806,12 +1842,10 @@
                             return (
                                 <div key={student.id} className={`dm-student-card ${colorClass} ${shakingCards[student.id] ? 'dm-shake-anim' : ''}`} onClick={(e) => handleStudentAction(e, student.id, true)} onContextMenu={(e) => handleStudentAction(e, student.id, false)}>
                                     
-                                    {/* TAÇ KONTROLÜ: Taç her zaman orantılı puan (haftalık performans) üzerinden hesaplanır! */}
                                     {scoreData.proportional >= 40 && <div className="dm-crown-icon">👑</div>}
                                     
                                     <div className="text-xl font-extrabold tracking-wide mb-2 drop-shadow-md break-words w-full px-1">{student.name}</div>
                                     
-                                    {/* EKRANA YAZDIRILAN PUAN: Sadece BUGÜN kazanılan (dailyScore) puandır! Kilitli ise puan gösterme */}
                                     {!isAbsentToday && dailyScore !== 0 && (
                                         <div className="flex justify-center text-sm font-bold mt-1">
                                             <span className="text-white bg-white/25 px-4 py-1 rounded-xl text-xl drop-shadow-md shadow-inner">
@@ -1820,9 +1854,8 @@
                                         </div>
                                     )}
                                     
-                                    {/* KİLİT İKONU */}
-                                    <div onClick={(e) => toggleStudentAbsence(e, student.id)} className={`absolute bottom-2 left-2 p-1.5 rounded-lg cursor-pointer transition-all ${isAbsentToday ? 'bg-amber-100 text-amber-700 shadow-sm' : 'bg-white/20 text-white hover:bg-white/40'}`}>
-                                        {isAbsentToday ? <Icons.Lock size={18} /> : <Icons.Unlock size={18} />}
+                                    <div onClick={(e) => toggleStudentAbsence(e, student.id)} className={`absolute bottom-2 left-2 p-1.5 rounded-lg cursor-pointer transition-all ${isAbsentToday ? 'text-amber-800' : 'bg-white/20 text-white hover:bg-white/40'}`}>
+                                        {isAbsentToday ? <Icons.Lock size={22} /> : <Icons.Unlock size={22} className="opacity-40 hover:opacity-100" />}
                                     </div>
                                 </div>
                             );
@@ -1852,7 +1885,7 @@
                 try {
                     const userCredential = await window.fb.signInWithEmailAndPassword(window.fb.auth, authEmail, authPassword);
                     if (!userCredential.user.emailVerified) {
-                        await window.fb.signOut(window.fb.auth); // Doğrulamadıysa hemen çıkış yaptır
+                        await window.fb.signOut(window.fb.auth); 
                         setAuthError("Lütfen önce e-posta adresinizi doğrulayın. Mailinize gelen linke tıklayın.");
                         setShowResend(true);
                         return;
@@ -1868,7 +1901,7 @@
                 try {
                     const userCredential = await window.fb.createUserWithEmailAndPassword(window.fb.auth, authEmail, authPassword);
                     await window.fb.sendEmailVerification(userCredential.user);
-                    await window.fb.signOut(window.fb.auth); // Kayıt sonrası çıkış yaptır ki doğrulayıp öyle girsin
+                    await window.fb.signOut(window.fb.auth); 
                     setAuthSuccess("Kayıt başarılı! Lütfen giriş yapmadan önce e-posta adresinize gelen linke tıklayarak hesabınızı doğrulayın.");
                     setAuthEmail(''); setAuthPassword('');
                 } catch (e) { 
@@ -1882,104 +1915,111 @@
                 if (resendCooldown) return;
                 setAuthError(''); setAuthSuccess('');
                 try {
-                    // Tekrar göndermek için geçici giriş yapıp hemen çıkıyoruz
                     const userCredential = await window.fb.signInWithEmailAndPassword(window.fb.auth, authEmail, authPassword);
                     await window.fb.sendEmailVerification(userCredential.user);
                     await window.fb.signOut(window.fb.auth);
                     setAuthSuccess("Doğrulama maili tekrar gönderildi. Lütfen spam/gereksiz klasörünü de kontrol edin.");
                     setShowResend(false);
                     setResendCooldown(true);
-                    setTimeout(() => setResendCooldown(false), 60000); // 1 dakika bekleme süresi
+                    setTimeout(() => setResendCooldown(false), 60000); 
                 } catch (e) {
                     setAuthError("Mail gönderilirken hata oluştu. Şifrenizin doğru olduğundan emin olun.");
                 }
             };
 
             return (
-                <div className="w-full h-full bg-slate-900 flex items-center justify-center font-['Nunito'] relative overflow-hidden">
-                    {/* Background decorative elements */}
-                    <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-sky-500 rounded-full blur-[120px] opacity-20 pointer-events-none"></div>
-                    <div className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] bg-indigo-500 rounded-full blur-[120px] opacity-20 pointer-events-none"></div>
+                <div className="w-full h-full bg-[#fdf8f2] font-['Quicksand'] relative overflow-y-auto flex items-center justify-center p-4 md:p-8">
                     
-                    <div className="w-full max-w-5xl h-auto min-h-[500px] md:h-[600px] bg-slate-800/50 backdrop-blur-2xl rounded-3xl md:rounded-[3rem] shadow-2xl border border-slate-700/50 flex flex-col md:flex-row overflow-hidden z-10 mx-4 animate-in">
+                    {/* Arka Plan Kahve Deseni (SVG) */}
+                    <div className="fixed inset-0 pointer-events-none opacity-[0.4]" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M40 60C40 60 15 35 15 20C15 5 30 0 40 15C50 0 65 5 65 20C65 35 40 60 40 60Z' fill='%23a67c52' fill-opacity='0.08'/%3E%3C/svg%3E")` }}></div>
+                    
+                    <div className="w-full max-w-4xl bg-[#fcf5eb] rounded-[3rem] shadow-2xl border-4 border-white flex flex-col md:flex-row overflow-hidden animate-in z-10 relative">
                         
-                        {/* Left Side: Information / Features */}
-                        <div className="w-full md:w-3/5 p-8 md:p-12 lg:p-16 flex flex-col justify-center relative">
-                            <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-8 tracking-tight">OKULMATİK PORTAL</h1>
+                        {/* Sol Panel - Tanıtım */}
+                        <div className="w-full md:w-1/2 p-6 sm:p-8 md:p-12 flex flex-col justify-center relative">
+                            <img src="assets/logo.png" alt="Okulatte" className="w-48 sm:w-56 md:w-64 mb-6 md:mb-8 drop-shadow-sm mx-auto md:mx-0" />
                             
-                            <h2 className="text-2xl md:text-3xl font-bold text-sky-400 mb-8 tracking-wide">NELER VAR ?</h2>
-                            
-                            <div className="flex flex-col gap-8">
-                                <div className="flex items-start gap-4 group">
-                                    <div className="w-3 h-3 md:w-4 md:h-4 rounded-full bg-indigo-400 mt-2.5 shadow-[0_0_15px_rgba(129,140,248,0.6)] group-hover:scale-125 transition-transform"></div>
+                            <div className="flex flex-col gap-4 sm:gap-6 pl-2">
+                                <div className="flex items-center gap-3 sm:gap-4 group cursor-default">
+                                    <div className="text-[#8c6b4a] bg-[#f2e6d5] p-2.5 sm:p-3 rounded-2xl group-hover:scale-110 transition-all"><Icons.Book size={28} /></div>
                                     <div>
-                                        <h3 className="text-2xl md:text-4xl font-black text-white tracking-wide">OKUMATİK</h3>
-                                        <p className="text-slate-400 text-lg md:text-xl font-bold mt-1 uppercase tracking-wider">1.SINIFLAR İÇİN</p>
+                                        <h3 className="text-xl sm:text-2xl font-black text-[#5c4024] tracking-tight">Okumatik</h3>
+                                        <p className="text-[#8c6b4a] font-bold text-xs sm:text-sm">1. Sınıflar için</p>
                                     </div>
                                 </div>
                                 
-                                <div className="flex items-start gap-4 group">
-                                    <div className="w-3 h-3 md:w-4 md:h-4 rounded-full bg-sky-400 mt-2.5 shadow-[0_0_15px_rgba(56,189,248,0.6)] group-hover:scale-125 transition-transform"></div>
+                                <div className="flex items-center gap-3 sm:gap-4 group cursor-default">
+                                    <div className="text-[#8c6b4a] bg-[#f2e6d5] p-2.5 sm:p-3 rounded-2xl group-hover:scale-110 transition-all"><Icons.X size={28} /></div>
                                     <div>
-                                        <h3 className="text-2xl md:text-4xl font-black text-white tracking-wide">ÇARPMATİK</h3>
-                                        <p className="text-slate-400 text-lg md:text-xl font-bold mt-1 uppercase tracking-wider">TÜM SINIFLAR İÇİN</p>
+                                        <h3 className="text-xl sm:text-2xl font-black text-[#5c4024] tracking-tight">Çarpmatik</h3>
+                                        <p className="text-[#8c6b4a] font-bold text-xs sm:text-sm">Tüm Sınıflar için</p>
                                     </div>
                                 </div>
                                 
-                                <div className="flex items-start gap-4 group">
-                                    <div className="w-3 h-3 md:w-4 md:h-4 rounded-full bg-pink-400 mt-2.5 shadow-[0_0_15px_rgba(244,114,182,0.6)] group-hover:scale-125 transition-transform"></div>
+                                <div className="flex items-center gap-3 sm:gap-4 group cursor-default">
+                                    <div className="text-[#8c6b4a] bg-[#f2e6d5] p-2.5 sm:p-3 rounded-2xl group-hover:scale-110 transition-all"><Icons.Users size={28} /></div>
                                     <div>
-                                        <h3 className="text-2xl md:text-4xl font-black text-white tracking-wide">DİNAMİK MOTİVE</h3>
-                                        <p className="text-slate-400 text-lg md:text-xl font-bold mt-1 uppercase tracking-wider">ÖĞRETMENLER İÇİN</p>
+                                        <h3 className="text-xl sm:text-2xl font-black text-[#5c4024] tracking-tight">Dinamik Motive</h3>
+                                        <p className="text-[#8c6b4a] font-bold text-xs sm:text-sm">Öğretmenler için</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Right Side: Login Form */}
-                        <div className="w-full md:w-2/5 bg-white p-8 md:p-12 flex flex-col justify-center relative">
+                        {/* Sağ Panel - Giriş Formu */}
+                        <div className="w-full md:w-1/2 bg-[#f4ebd9] p-6 sm:p-8 md:p-12 flex flex-col justify-center items-center relative shadow-inner">
                             {window.fb.isSandbox && (
-                                <div className="absolute top-4 left-4 right-4 bg-amber-50 border border-amber-200 text-amber-700 text-xs font-bold p-2 rounded-lg text-center">
+                                <div className="absolute top-2 left-2 right-2 sm:top-4 sm:left-4 sm:right-4 bg-[#fdecdb] border border-[#e8c8a7] text-[#a87c51] text-xs font-bold p-2 rounded-lg text-center shadow-sm">
                                     Önizleme modu: admin / admin
                                 </div>
                             )}
 
-                            <div className="w-full max-w-sm mx-auto flex flex-col gap-4 mt-8 md:mt-0">
-                                <div className="mb-2">
+                            {/* Kod ile Çizilmiş Kahve Fincanı */}
+                            <div className="bg-[#a67c52] rounded-[1.8rem] p-1.5 mb-6 md:mb-8 shadow-lg transform rotate-3 hover:rotate-0 transition-transform mt-4 md:mt-0">
+                                <svg viewBox="0 0 100 100" className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-[1.6rem] bg-[#8e6944] p-1">
+                                    <circle cx="50" cy="50" r="46" fill="#fcf5eb"/>
+                                    <circle cx="50" cy="50" r="40" fill="#a67c52"/>
+                                    <circle cx="50" cy="50" r="32" fill="#6b4623"/>
+                                    <path d="M50 68 C50 68 25 48 25 33 C25 18 40 13 50 28 C60 13 75 18 75 33 C75 48 50 68 50 68 Z" fill="#fdfbf7"/>
+                                </svg>
+                            </div>
+
+                            <div className="w-full max-w-sm flex flex-col gap-3 sm:gap-4">
+                                <div>
                                     <input 
                                         type="email" 
                                         value={authEmail} 
                                         onChange={(e) => setAuthEmail(e.target.value)} 
-                                        className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 font-bold focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition-all placeholder:text-slate-400" 
+                                        className="w-full p-3.5 sm:p-4 bg-[#fdfbf7] border-2 border-[#e6d5c3] rounded-xl sm:rounded-2xl text-[#5c4024] font-bold focus:border-[#7aa962] outline-none transition-all placeholder:text-[#b8a38d] text-base sm:text-lg shadow-sm" 
                                         placeholder="E-posta" 
                                     />
                                 </div>
                                 
-                                <div className="mb-4">
+                                <div>
                                     <input 
                                         type="password" 
                                         value={authPassword} 
                                         onChange={(e) => setAuthPassword(e.target.value)} 
                                         onKeyPress={(e) => e.key === 'Enter' && handleLogin()} 
-                                        className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 font-bold focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition-all placeholder:text-slate-400" 
+                                        className="w-full p-3.5 sm:p-4 bg-[#fdfbf7] border-2 border-[#e6d5c3] rounded-xl sm:rounded-2xl text-[#5c4024] font-bold focus:border-[#7aa962] outline-none transition-all placeholder:text-[#b8a38d] text-base sm:text-lg shadow-sm" 
                                         placeholder="Şifreniz" 
                                     />
                                 </div>
                                 
-                                {authError && <p className="text-red-500 font-bold text-sm text-center animate-in mb-2">{authError}</p>}
-                                {authSuccess && <p className="text-green-600 font-bold text-sm text-center animate-in mb-2 p-3 bg-green-50 rounded-xl border border-green-200">{authSuccess}</p>}
+                                {authError && <p className="text-red-500 font-bold text-xs sm:text-sm text-center animate-in">{authError}</p>}
+                                {authSuccess && <p className="text-[#7aa962] font-bold text-xs sm:text-sm text-center animate-in p-2 sm:p-3 bg-[#f2f7ef] rounded-xl border border-[#c1d6b8]">{authSuccess}</p>}
                                 
                                 {showResend && (
-                                    <button onClick={handleResendVerification} disabled={resendCooldown} className="text-sm font-bold text-indigo-600 hover:text-indigo-800 underline mb-2 transition-colors disabled:opacity-50 text-center">
+                                    <button onClick={handleResendVerification} disabled={resendCooldown} className="text-xs sm:text-sm font-bold text-[#8c6b4a] hover:text-[#5c4024] underline transition-colors disabled:opacity-50 text-center">
                                         {resendCooldown ? 'Lütfen biraz bekleyin...' : 'Doğrulama Mailini Tekrar Gönder'}
                                     </button>
                                 )}
                                 
-                                <button onClick={handleLogin} className="w-full py-4 rounded-xl text-white font-black bg-[#4f46e5] hover:bg-[#4338ca] active:scale-[0.98] transition-all text-lg shadow-lg hover:shadow-indigo-500/30">
+                                <button onClick={handleLogin} className="w-full py-3.5 sm:py-4 rounded-xl sm:rounded-2xl text-white font-black bg-[#7aa962] hover:bg-[#689452] active:scale-[0.98] transition-all text-lg sm:text-xl shadow-md mt-1">
                                     Giriş Yap
                                 </button>
                                 
-                                <button onClick={handleRegister} className="w-full py-4 rounded-xl text-[#4f46e5] font-black bg-white border-2 border-[#4f46e5] hover:bg-indigo-50 active:scale-[0.98] transition-all text-lg mt-2">
+                                <button onClick={handleRegister} className="w-full py-3.5 sm:py-4 rounded-xl sm:rounded-2xl text-white font-black bg-[#a67c52] hover:bg-[#8e6944] active:scale-[0.98] transition-all text-lg sm:text-xl shadow-md">
                                     Yeni Kayıt Ol
                                 </button>
                             </div>
@@ -2003,7 +2043,7 @@
                     
                     <div className="text-center z-10 mb-8 md:mb-12 animate-in">
                         <div className="bg-green-100 text-green-800 px-4 py-1 rounded-full font-bold text-sm mb-4 inline-block shadow-sm">Bağlantı Güvenli</div>
-                        <h1 className="text-5xl md:text-7xl font-black text-slate-800 tracking-tight drop-shadow-sm mb-2 md:mb-4">OKULMATİK</h1>
+                        <h1 className="text-5xl md:text-7xl font-black text-slate-800 tracking-tight drop-shadow-sm mb-2 md:mb-4">OKULATTE</h1>
                         <p className="text-slate-500 font-bold text-sm md:text-2xl tracking-widest uppercase">Eğitim Portalına Hoş Geldiniz</p>
                     </div>
 
@@ -2028,12 +2068,6 @@
                             </div>
                         </button>
                     </div>
-                    
-                    <div className="absolute bottom-4 left-0 right-0 text-center pointer-events-none z-20">
-                        <div className="inline-block bg-white/60 backdrop-blur-md px-6 py-2 rounded-full border border-slate-200 shadow-sm">
-                            <span className="text-slate-500 font-extrabold tracking-[0.3em] md:tracking-[0.5em] text-xs md:text-sm uppercase">okulmatikstudio</span>
-                        </div>
-                    </div>
                 </div>
             );
         };
@@ -2052,24 +2086,30 @@
 
             const isLoggedIn = (window.fb && !window.fb.isSandbox && user) || (window.fb && window.fb.isSandbox && user && sandboxPassed);
 
-            if (!authChecked) {
-                return <div className="w-full h-full flex items-center justify-center bg-slate-50 font-['Nunito'] text-xl font-bold text-slate-500 animate-pulse">Okulmatik Yükleniyor...</div>;
-            }
-
-            if (!isLoggedIn) {
-                return <AuthScreen onSandboxPass={() => setSandboxPassed(true)} />;
-            }
-
             const handleLogout = async () => {
                 if (window.fb.isSandbox) { setSandboxPassed(false); setCurrentApp('portal'); } 
                 else { await window.fb.signOut(window.fb.auth); setCurrentApp('portal'); }
             };
 
-            if (currentApp === 'abcmatik') return <AbcmatikApp onExit={() => setCurrentApp('portal')} />;
-            if (currentApp === 'carpmatik') return <CarpmatikApp onExit={() => setCurrentApp('portal')} />;
-            if (currentApp === 'dinamikMotive') return <DinamikMotiveApp onExit={() => setCurrentApp('portal')} />;
-            
-            return <PortalApp onLaunch={setCurrentApp} onLogout={handleLogout} />;
+            const renderAppContent = () => {
+                if (!authChecked) return <div className="w-full h-full flex items-center justify-center bg-slate-50 font-['Nunito'] text-xl font-bold text-slate-500 animate-pulse">Okulatte Yükleniyor...</div>;
+                if (!isLoggedIn) return <AuthScreen onSandboxPass={() => setSandboxPassed(true)} />;
+                if (currentApp === 'abcmatik') return <AbcmatikApp onExit={() => setCurrentApp('portal')} />;
+                if (currentApp === 'carpmatik') return <CarpmatikApp onExit={() => setCurrentApp('portal')} />;
+                if (currentApp === 'dinamikMotive') return <DinamikMotiveApp onExit={() => setCurrentApp('portal')} />;
+                return <PortalApp onLaunch={setCurrentApp} onLogout={handleLogout} />;
+            };
+
+            return (
+                <React.Fragment>
+                    {renderAppContent()}
+                    
+                    {/* Tüm Sayfalarda Görünen Şık Okulatte Logosu */}
+                    <div className="fixed bottom-3 left-3 md:bottom-5 md:left-5 z-[9999] pointer-events-none opacity-30 print-hide">
+                        <img src="assets/logo.png" alt="Okulatte" className="w-24 md:w-32 h-auto" />
+                    </div>
+                </React.Fragment>
+            );
         };
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
