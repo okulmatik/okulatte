@@ -5,14 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Okulatte Eğitim Portalı</title>
     
-    <link rel="icon" type="image/png" href="assets/icon.png">
+    <!-- SEO ve Arama Motoru İkonları (Google Arama Sonuçları İçin) -->
+    <meta name="description" content="Okulatte, 1. sınıflar için okuma asistanı, çarpım tablosu oyunları ve öğretmenler için sınıf davranış takip sistemi sunan interaktif eğitim portalıdır.">
+    <meta name="keywords" content="okulatte, okulatte eğitim, okumatik, çarpmatik, sınıf davranış takibi, ilkokul eğitim, hızlı okuma">
+    <meta name="author" content="Okulatte Studio">
+    
+    <!-- Arama Motorları (Google) ve Tarayıcılar İçin Optimize Edilmiş İkon Kodları -->
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/icon.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/icon.png">
+    <link rel="shortcut icon" type="image/png" href="assets/icon.png">
+    
+    <!-- Apple (iOS) ve Android Ana Ekrana Ekleme İkonu -->
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/icon.png">
+    <meta name="apple-mobile-web-app-title" content="Okulatte">
+    
+    <!-- Sosyal Medya (WhatsApp, Instagram, vb.) Paylaşım Görseli -->
+    <meta property="og:title" content="Okulatte Eğitim Portalı">
+    <meta property="og:description" content="İlkokul öğrencileri için interaktif oyunlar ve öğretmen portalı.">
+    <meta property="og:image" content="assets/logo.png">
+    <meta property="og:type" content="website">
+    <meta itemprop="image" content="assets/logo.png">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Quicksand:wght@500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Quicksand:wght@500;700;900&family=Poppins:wght@500;700;900&display=swap" rel="stylesheet">
 
     <style>
         @font-face {
@@ -179,12 +198,11 @@
             storageBucket: "okulmatik-686f5.firebasestorage.app",
             messagingSenderId: "148931990744",
             appId: "1:148931990744:web:444e1d294d7440a225b3ad",
-            measurementId: "G-L4D7YQPH03" // Analytics Kimliğiniz
+            measurementId: "G-L4D7YQPH03"
         };
 
         const isSandbox = typeof __firebase_config !== 'undefined';
         const firebaseConfig = isSandbox ? JSON.parse(__firebase_config) : MY_FIREBASE_CONFIG;
-        // DİKKAT: Veritabanı (Firestore) kaydını korumak için appId 'okulmatik-super-app' olarak sabit tutuldu.
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'okulmatik-super-app';
 
         let app, auth, db, analytics;
@@ -604,8 +622,7 @@
                                 if (lap < maxLaps) { setLap(l => l + 1); return 0; } 
                                 else { 
                                     setIsPlaying(false); clearInterval(timerRef.current); 
-                                    // Sadece uzun okuma metinleri bitince ses çalsın.
-                                    if (level === 1 || level === 2) playSound(audioRef); 
+                                    if (level === 1 || level === 2) playSound(audioRef); // Sadece uzun metinlerde çalar
                                     return prev; 
                                 }
                             }
@@ -678,7 +695,7 @@
                                 <div className="bg-white shadow-md px-3 py-2 md:px-6 md:py-3 flex justify-between items-center z-50 border-b-2 md:border-b-4 border-slate-200 gap-2 shrink-0">
                                     <div className="flex items-center gap-2 flex-wrap">
                                         <button onClick={() => { setIsPlaying(false); setView('menu'); }} className="flex items-center gap-1.5 bg-slate-100 px-3 py-2 rounded-xl text-slate-700 text-sm md:text-xl border border-slate-300 active:scale-95 transition font-sans font-bold">
-                                            <Icons.Home size={20} /> <span className="hidden sm:inline">MENÜ</span>
+                                            <Icons.Home size={20} /> <span className="hidden sm:inline">ANA MENÜ</span>
                                         </button>
                                         {(level === 1 || level === 2) && (
                                             <button onClick={() => handlePrint(level, level === 1 ? pyramidIndex : storyIndex)} className="flex items-center gap-1.5 bg-blue-100 px-3 py-2 rounded-xl text-blue-600 text-sm md:text-xl border border-blue-300 active:scale-95 transition font-sans font-bold">
@@ -719,8 +736,8 @@
                                                 } else {
                                                     setIsPlaying(!isPlaying);
                                                 }
-                                            }} className={`flex items-center gap-1.5 px-3 py-1.5 md:px-5 md:py-2 rounded-xl text-white text-sm md:text-lg border-b-2 active:scale-95 transition shadow-sm font-bold ${isFinishedReading ? 'bg-amber-500 border-amber-700' : (isPlaying ? 'bg-red-500 border-red-700' : 'bg-green-500 border-green-700')}`}>
-                                                {isFinishedReading ? <><Icons.RefreshCw size={20}/> TEKRAR</> : (isPlaying ? <><Icons.Pause size={20}/> DUR</> : <><Icons.Play size={20}/> OKU</>)}
+                                            }} className={`flex items-center gap-1.5 px-3 py-1.5 md:px-5 md:py-2 rounded-xl text-white text-sm md:text-lg border-b-2 active:scale-95 transition shadow-sm font-bold ${isFinishedReading ? 'bg-green-500 border-green-700' : (isPlaying ? 'bg-red-500 border-red-700' : 'bg-green-500 border-green-700')}`}>
+                                                {isFinishedReading ? <><Icons.RefreshCw size={20}/> TEKRAR OKU</> : (isPlaying ? <><Icons.Pause size={20}/> DUR</> : <><Icons.Play size={20}/> OKU</>)}
                                             </button>
                                         )}
                                     </div>
@@ -1286,15 +1303,38 @@
         ];
         
         const DM_MID_INTROS = [
-            "Bu hafta sınıf içerisinde bazı zamanlarda kurallara uymakta ve derse odaklanmakta zorlandığın görüldü. Önümüzdeki hafta kurallara daha fazla dikkat ederek ve derse daha aktif katılarak çok daha iyi bir hafta geçirebileceğine inanıyorum.",
-            "Bu hafta sınıf içindeki davranışların genel olarak geliştirilebilir düzeydeydi. Zaman zaman dikkat etmen gereken durumlar yaşandı. Önümüzdeki hafta kurallara daha çok özen göstererek ve derslere aktif katılarak kendini daha iyi gösterebilirsin.",
-            "Bu hafta bazı güzel davranışlarının yanında dikkat etmen gereken durumlar da oldu. Özellikle ders sırasında kurallara uymaya ve dikkatini derse vermeye daha fazla özen göstermelisin. Önümüzdeki hafta daha olumlu bir gelişim göstereceğine inanıyorum."
+            "Bu hafta sınıf içerisinde bazı zamanlarda kurallara uymak ve derse odaklanmak konusunda biraz daha gayret etmen gerekiyor. Önümüzdeki hafta kurallara daha fazla dikkat ederek ve derslere daha aktif katılarak kendini daha iyi gösterebileceğine inanıyorum.",
+            "Bu hafta sınıf içindeki davranışların genel olarak geliştirilebilir düzeydeydi. Zaman zaman dikkat etmen gereken durumlar yaşandı. Önümüzdeki hafta kurallara daha çok özen göstererek ve derslere aktif katılarak daha olumlu bir hafta geçirebilirsin.",
+            "Bu hafta bazı güzel davranışlarının yanında dikkat etmen gereken durumlar da oldu. Özellikle ders sırasında kurallara uymaya ve dikkatini derse vermeye biraz daha fazla özen göstermelisin. Önümüzdeki hafta daha iyi bir gelişim göstereceğine inanıyorum.",
+            "Bu hafta sınıf kurallarına uyma ve derslere katılım konusunda zaman zaman daha dikkatli olman gereken durumlar yaşandı. Önümüzdeki hafta dikkatini daha iyi toparlayarak ve derslere daha istekli katılarak çok daha güzel bir performans gösterebilirsin.",
+            "Bu hafta genel olarak olumlu davranışlar sergiledin ancak bazı zamanlarda kurallara uyma ve derse odaklanma konusunda daha dikkatli olabilirsin. Önümüzdeki hafta göstereceğin biraz daha fazla çabayla davranışlarını daha iyi bir seviyeye taşıyabileceğine inanıyorum.",
+            "Bu hafta ders sırasında dikkatini sürdürme ve sınıf kurallarına uyma konusunda geliştirebileceğin noktalar oldu. Önümüzdeki hafta kurallara daha fazla dikkat ederek, derslere daha aktif katılarak ve sorumluluklarını daha özenli yerine getirerek kendini daha iyi gösterebilirsin.",
+            "Bu hafta bazı derslerde ve sınıf içindeki bazı durumlarda daha dikkatli olman gerekti. Kurallara uyma ve derse katılım konusunda göstereceğin biraz daha fazla özen, seni daha başarılı bir seviyeye taşıyacaktır. Önümüzdeki hafta bunu başarabileceğine inanıyorum.",
+            "Bu hafta derslerde ve davranışlarında daha dikkatli olabilirdin. Özellikle sınıf kurallarına uymaya, ders sırasında dikkatini korumaya ve etkinliklere daha aktif katılmaya özen göstermelisin. Önümüzdeki hafta daha güzel bir gelişim göstereceğine inanıyorum."
         ];
-        
+
+        const DM_UPPER_MID_INTROS = [
+            "Bu hafta sınıf içerisindeki davranışların ve derslere katılımın genel olarak iyi düzeydeydi. Zaman zaman daha dikkatli olman gereken durumlar olsa da gösterdiğin olumlu davranışlar sevindiriciydi. Önümüzdeki hafta kurallara biraz daha fazla özen göstererek ve derslere daha aktif katılarak çok daha iyi bir seviyeye ulaşabilirsin.",
+            "Bu hafta sınıf kurallarına uyma ve derslere katılım konusunda güzel bir performans gösterdin. Bazı zamanlarda dikkatini daha iyi toplaman gereken durumlar yaşandı. Önümüzdeki hafta göstereceğin biraz daha fazla dikkat ve gayretle çok daha başarılı bir hafta geçirebileceğine inanıyorum.",
+            "Bu hafta genel olarak olumlu davranışların ve derslere katılımınla güzel bir gelişim gösterdin. Daha üst bir seviyeye ulaşmak için özellikle kurallara uyma ve dikkatini sürdürme konusunda biraz daha istikrarlı olmalısın. Önümüzdeki hafta bunu başarabileceğine inanıyorum.",
+            "Bu hafta sınıf içerisindeki davranışların genel olarak iyi düzeydeydi ve derslere katılımınla olumlu bir tablo ortaya koydun. Küçük dikkat eksikliklerini de giderdiğinde kendini çok daha iyi bir seviyeye getirebilirsin. Önümüzdeki hafta daha da güzel bir performans sergilemeni bekliyorum.",
+            "Bu hafta kurallara uyma, derslere katılma ve sınıf içerisindeki davranışların konusunda güzel bir performans gösterdin. Bir üst seviyeye çıkmak için bazı anlarda dikkatini daha iyi koruman ve kurallara daha istikrarlı şekilde uyman yeterli olacaktır. Önümüzdeki hafta çok daha iyi bir sonuç elde edebileceğine inanıyorum.",
+            "Bu hafta sınıf içerisindeki olumlu davranışların ve derslere katılımın dikkat çekiciydi. Genel olarak iyi bir seviyede olsan da kendini biraz daha geliştirerek çok daha başarılı olabilirsin. Önümüzdeki hafta göstereceğin dikkat, sorumluluk ve gayretle bir üst seviyeye çıkmanı bekliyorum.",
+            "Bu hafta sınıf kurallarına uyma ve derslere katılım konusunda güzel bir performans sergiledin. Zaman zaman daha dikkatli olman gereken durumlar olsa da genel olarak olumlu bir hafta geçirdin. Önümüzdeki hafta olumlu davranışlarını daha istikrarlı hâle getirerek kendini bir üst seviyede gösterebilirsin.",
+            "Bu hafta gösterdiğin olumlu davranışlar ve derslere katılımın güzel bir seviyedeydi. Artık bir üst seviyeye ulaşmak için dikkatini korumaya, kurallara her zaman özen göstermeye ve derslere daha istekli katılmaya devam etmelisin. Önümüzdeki hafta çok daha başarılı bir performans göstereceğine inanıyorum."
+        ];
+
         const DM_POS_INTROS = [
-            "Bu hafta sınıf içerisindeki harika davranışların ve kurallara olan özenin beni çok mutlu etti. Derslerini dikkatle takip etmen ve öğrenme zamanını verimli kullanman gerçekten takdire değer. Seni tebrik ediyorum!",
-            "Bu hafta gösterdiğin dikkat, saygı ve sorumluluk bilinciyle sınıfımız için güzel bir örnek oldun. Kurallara uyman ve derslere aktif katılımın çok güzeldi. Bu güzel davranışların için teşekkür ederim!",
-            "Bu hafta sınıf içerisinde sergilediğin olumlu davranışlar gerçekten gurur vericiydi. Öğretmenini dikkatle dinlemen, arkadaşlarına saygılı davranman ve etkinliklere istekle katılman harikaydı. Tebrik ederim!"
+            "Bu hafta sınıf içerisindeki harika davranışların ve kurallara olan özenin beni çok mutlu etti. Derslerini dikkatle takip etmen ve öğrenme zamanını verimli kullanman gerçekten takdire değer. Bu güzel tutumunu sürdürdüğün için seni tebrik ediyorum!",
+            "Bu hafta gösterdiğin dikkat, saygı ve sorumluluk bilinciyle sınıfımız için güzel bir örnek oldun. Kurallara uyman, derslere aktif katılımın ve öğrenmeye olan isteğin çok güzeldi. Bu güzel davranışların için seni kutluyorum!",
+            "Bu hafta sınıf içerisinde sergilediğin olumlu davranışlar gerçekten gurur vericiydi. Öğretmenini dikkatle dinlemen, arkadaşlarına saygılı davranman ve etkinliklere istekle katılman harikaydı. Böyle güzel bir hafta geçirdiğin için seni tebrik ediyorum!",
+            "Bu hafta derslerdeki dikkatli ve istekli tutumunla çok güzel bir performans sergiledin. Sınıf kurallarına uyman, sorumluluklarını yerine getirmen ve arkadaşlarınla uyumlu davranman takdire değerdi. Bu güzel davranışlarınla gurur duymalısın!",
+            "Bu hafta öğrenme zamanını çok iyi değerlendirdin. Derslere olan ilgin, öğretmenini dikkatle dinlemen ve sınıf içerisindeki olumlu davranışların seni örnek bir öğrenci hâline getirdi. Gösterdiğin bu güzel performans için seni gönülden tebrik ediyorum!",
+            "Bu hafta sınıf içerisinde gösterdiğin sorumluluk, dikkat ve saygı gerçekten çok güzeldi. Derslere katılımın, kurallara uyumun ve arkadaşlarına karşı olumlu tutumunla sınıfımıza güzel bir katkı sağladın. Bu başarını ve güzel davranışlarını sürdürmeni diliyorum!",
+            "Bu hafta sergilediğin güzel davranışlar ve derslerdeki gayretin dikkatimi çekti. Kurallara uyman, öğrenmeye istekli olman ve sınıf içerisindeki sorumluluklarını özenle yerine getirmen gerçekten takdire değerdi. Seni kutluyor ve bu güzel tutumunun devamını diliyorum!",
+            "Bu hafta hem derslerdeki başarın hem de sınıf içerisindeki güzel davranışlarınla örnek bir performans sergiledin. Dikkatini koruman, kurallara özen göstermen, arkadaşlarına saygılı davranman ve öğrenme zamanını verimli kullanman çok güzeldi. Harika bir hafta geçirdin, seni tebrik ediyorum!",
+            "Bu hafta sınıf içerisindeki dikkatli, saygılı ve sorumluluk sahibi davranışlarınla yine çok güzel bir örnek oldun. Dersleri dikkatle takip etmen, verilen görevleri özenle yerine getirmen ve arkadaşlarınla uyumlu davranman gerçekten takdire değerdi. Bu güzel performansın için seni gönülden tebrik ediyorum!",
+            "Bu hafta derslere gösterdiğin ilgi, sınıf kurallarına uyumun ve arkadaşlarına karşı güzel davranışlarınla harika bir hafta geçirdin. Öğrenme zamanını verimli kullanman ve sorumluluklarını özenle yerine getirmen beni çok mutlu etti. Bu güzel davranışlarını sürdürdüğün için seni kutluyorum!"
         ];
 
         const dmGetRandomItems = (arr, count) => {
@@ -1355,14 +1395,15 @@
 
             let cat = '';
             if (haftalikPuan <= 10) cat = 'corrective';
-            else if (haftalikPuan > 10 && haftalikPuan <= 25) cat = 'mid';
-            else if (haftalikPuan > 25) cat = 'pos';
+            else if (haftalikPuan > 10 && haftalikPuan <= 19) cat = 'mid';
+            else if (haftalikPuan > 19 && haftalikPuan <= 29) cat = 'upperMid';
+            else if (haftalikPuan > 29) cat = 'pos';
 
             let indexToUse = 0;
-            if (student.msgState.lastPrintWeek === currentWeekId && student.msgState.lastPrintCat === cat) {
+            if (student.msgState && student.msgState.lastPrintWeek === currentWeekId && student.msgState.lastPrintCat === cat) {
                 indexToUse = student.msgState.lastPrintIndex;
             } else {
-                indexToUse = student.msgState[cat];
+                indexToUse = (student.msgState && student.msgState[cat]) || 0;
                 updateStudentMsgState(student.id, cat, indexToUse, currentWeekId);
             }
 
@@ -1377,6 +1418,12 @@
                 reportText = `Sevgili <b>${student.name}</b>,<br><br>${intro}`;
                 listTitle = "Önümüzdeki Hafta Dikkat Etmen ve Geliştirmen Gerekenler:";
                 rulesList = selectedRules.map(rule => `<li>${rule}.</li>`).join('');
+            }
+            else if (cat === 'upperMid') {
+                const intro = DM_UPPER_MID_INTROS[(indexToUse + student.id) % DM_UPPER_MID_INTROS.length];
+                reportText = `Sevgili <b>${student.name}</b>,<br><br>${intro}`;
+                listTitle = "Önümüzdeki Hafta İçin Hedeflerimiz:";
+                rulesList = selectedRules.map(rule => `<li>${rule} konusuna biraz daha özen göstermek.</li>`).join('');
             }
             else if (cat === 'pos') {
                 const intro = DM_POS_INTROS[(indexToUse + student.id) % DM_POS_INTROS.length];
@@ -1513,7 +1560,7 @@
                     }
                 };
                 saveToFirebase();
-            }, [students, isLocked, nextReset, view, isInitialLoad]);
+            }, [students, isLocked, nextReset, view, isInitialLoad, isAlarmPlaying]);
 
             const checkResetAndLoad = (loadedStudents, savedNextReset) => {
                 const now = Date.now();
@@ -1530,7 +1577,7 @@
                     ...oldS, positive: 0, negative: 0, netScore: 0,
                     daily: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
                     absentDays: { 1: false, 2: false, 3: false, 4: false, 5: false },
-                    msgState: oldS.msgState || { corrective: 0, mid: 0, pos: 0, lastPrintWeek: null, lastPrintCat: null, lastPrintIndex: 0 }
+                    msgState: oldS.msgState || { corrective: 0, mid: 0, upperMid: 0, pos: 0, lastPrintWeek: null, lastPrintCat: null, lastPrintIndex: 0 }
                 }));
                 const newTime = dmGetNextFridayMidnight();
                 setNextReset(newTime);
@@ -1546,7 +1593,7 @@
                     id: index, name: name, positive: 0, negative: 0, netScore: 0,
                     daily: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
                     absentDays: { 1: false, 2: false, 3: false, 4: false, 5: false },
-                    msgState: { corrective: 0, mid: 0, pos: 0, lastPrintWeek: null, lastPrintCat: null, lastPrintIndex: 0 }
+                    msgState: { corrective: 0, mid: 0, upperMid: 0, pos: 0, lastPrintWeek: null, lastPrintCat: null, lastPrintIndex: 0 }
                 }));
                 
                 setNextReset(dmGetNextFridayMidnight());
@@ -1650,8 +1697,8 @@
             const updateStudentMsgState = (studentId, cat, indexToUse, currentWeekId) => {
                 setStudents(prev => prev.map(s => {
                     if(s.id === studentId) {
-                        const newState = { ...s.msgState, lastPrintWeek: currentWeekId, lastPrintCat: cat, lastPrintIndex: indexToUse };
-                        newState[cat] = newState[cat] + 1;
+                        const newState = { ...(s.msgState || { corrective: 0, mid: 0, upperMid: 0, pos: 0 }), lastPrintWeek: currentWeekId, lastPrintCat: cat, lastPrintIndex: indexToUse };
+                        newState[cat] = (newState[cat] || 0) + 1;
                         return { ...s, msgState: newState };
                     }
                     return s;
