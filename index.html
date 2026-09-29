@@ -1692,10 +1692,11 @@
                         const currentAbsentDays = student.absentDays || { 1: false, 2: false, 3: false, 4: false, 5: false };
                         const isCurrentlyAbsent = currentAbsentDays[dayToEdit];
                         
-                        let newDaily = { ...student.daily };
-                        let newNetScore = student.netScore;
-                        let newPositive = student.positive;
-                        let newNegative = student.negative;
+                        const safeDaily = student.daily || {};
+                        let newDaily = { ...safeDaily };
+                        let newNetScore = student.netScore || 0;
+                        let newPositive = student.positive || 0;
+                        let newNegative = student.negative || 0;
                         
                         if (!isCurrentlyAbsent) {
                             const todaysScore = newDaily[dayToEdit] || 0;
@@ -1738,18 +1739,24 @@
 
                 setStudents(prev => prev.map(student => {
                     if (student.id === studentId) {
+                        const safeDaily = student.daily || {};
+                        const currentDailyScore = safeDaily[dayToEdit] || 0;
+
                         // Maksimum limit kontrolü (Günlük +/- 10)
-                        if (isPositive && student.daily[dayToEdit] + points > 10) return student;
-                        if (!isPositive && student.daily[dayToEdit] + points < -10) return student;
+                        if (isPositive && currentDailyScore + points > 10) return student;
+                        if (!isPositive && currentDailyScore + points < -10) return student;
                         
                         const safeBehaviors = student.behaviors || {};
+                        const currentPositive = student.positive || 0;
+                        const currentNegative = student.negative || 0;
+                        const currentNetScore = student.netScore || 0;
                         
                         return {
                             ...student,
-                            positive: isPositive ? student.positive + points : student.positive,
-                            negative: !isPositive ? student.negative + Math.abs(points) : student.negative,
-                            netScore: student.netScore + points,
-                            daily: { ...student.daily, [dayToEdit]: student.daily[dayToEdit] + points },
+                            positive: isPositive ? currentPositive + points : currentPositive,
+                            negative: !isPositive ? currentNegative + Math.abs(points) : currentNegative,
+                            netScore: currentNetScore + points,
+                            daily: { ...safeDaily, [dayToEdit]: currentDailyScore + points },
                             behaviors: { ...safeBehaviors, [behaviorObj.id]: (safeBehaviors[behaviorObj.id] || 0) + 1 }
                         };
                     }
@@ -2031,7 +2038,8 @@
                                 {(() => {
                                     const student = students.find(s => s.id === activeBehaviorStudentId);
                                     if (!student) return null;
-                                    const dailyScore = student.daily[viewDay] || 0;
+                                    const safeDaily = student.daily || {};
+                                    const dailyScore = safeDaily[viewDay] || 0;
                                     
                                     return (
                                         <>
@@ -2128,7 +2136,8 @@
                             const dayToView = viewDay;
                             
                             const isAbsentToday = student.absentDays && student.absentDays[dayToView];
-                            const dailyScore = student.daily[dayToView] || 0;
+                            const safeDaily = student.daily || {};
+                            const dailyScore = safeDaily[dayToView] || 0;
 
                             let colorClass = '';
                             if (isAbsentToday) colorClass = 'dm-locked-active';
