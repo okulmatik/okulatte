@@ -1337,7 +1337,7 @@
             "Bu hafta sınıf içerisindeki davranışların ve derslere katılımın genel olarak iyi düzeydeydi. Zaman zaman daha dikkatli olman gereken durumlar olsa da gösterdiğin olumlu davranışlar sevindiriciydi. Önümüzdeki hafta kurallara biraz daha fazla özen göstererek ve derslere daha aktif katılarak çok daha iyi bir seviyeye ulaşabilirsin.",
             "Bu hafta sınıf kurallarına uyma ve derslere katılım konusunda güzel bir performans gösterdin. Bazı zamanlarda dikkatini daha iyi toplaman gereken durumlar yaşandı. Önümüzdeki hafta göstereceğin biraz daha fazla dikkat ve gayretle çok daha başarılı bir hafta geçirebileceğine inanıyorum.",
             "Bu hafta genel olarak olumlu davranışların ve derslere katılımınla güzel bir gelişim gösterdin. Daha üst bir seviyeye ulaşmak için özellikle kurallara uyma ve dikkatini sürdürme konusunda biraz daha istikrarlı olmalısın. Önümüzdeki hafta bunu başarabileceğine inanıyorum.",
-            "Bu hafta sınıf içerisindeki davranışların genel olarak iyi düzeydeydi ve derslere katılımınla olumlu bir tablo ortaya koydun. Küçük dikkat eksikliklerini de giderdiğinde kendini çok daha iyi bir seviyede gösterebilirsin. Önümüzdeki hafta daha da güzel bir performans sergilemeni bekliyorum.",
+            "Bu hafta sınıf içerisindeki davranışların genel olarak iyi düzeydeydi ve derslere katılımınla olumlu bir tablo ortaya koydun. Küçük dikkat eksikliklerini de giderdiğinde kendini çok daha iyi bir seviyeye getirebilirsin. Önümüzdeki hafta daha da güzel bir performans sergilemeni bekliyorum.",
             "Bu hafta kurallara uyma, derslere katılma ve sınıf içerisindeki davranışların konusunda güzel bir performans gösterdin. Bir üst seviyeye çıkmak için bazı anlarda dikkatini daha iyi koruman ve kurallara daha istikrarlı şekilde uyman yeterli olacaktır. Önümüzdeki hafta çok daha iyi bir sonuç elde edebileceğine inanıyorum.",
             "Bu hafta sınıf içerisindeki olumlu davranışların ve derslere katılımın dikkat çekiciydi. Genel olarak iyi bir seviyede olsan da kendini biraz daha geliştirerek çok daha başarılı olabilirsin. Önümüzdeki hafta göstereceğin dikkat, sorumluluk ve gayretle bir üst seviyeye çıkmanı bekliyorum.",
             "Bu hafta sınıf kurallarına uyma ve derslere katılım konusunda güzel bir performans sergiledin. Zaman zaman daha dikkatli olman gereken durumlar olsa da genel olarak olumlu bir hafta geçirdin. Önümüzdeki hafta olumlu davranışlarını daha istikrarlı hâle getirerek kendini bir üst seviyede gösterebilirsin.",
@@ -1449,21 +1449,21 @@
                     const posBehavior = DM_BEHAVIORS.pos.find(b => b.id === bId);
                     const negBehavior = DM_BEHAVIORS.neg.find(b => b.id === bId);
                     
-                    if (posBehavior) posList.push(`<li style="margin-bottom: 8px;"><strong>${posBehavior.label.split('&')[0].trim()}:</strong> ${posBehavior.reportText}</li>`);
-                    if (negBehavior) negList.push(`<li style="margin-bottom: 8px;"><strong>${negBehavior.label.split('(')[0].trim()}:</strong> ${negBehavior.reportText}</li>`);
+                    if (posBehavior) posList.push(`<li style="margin-bottom: 4px; font-size: 10.5pt; line-height: 1.3;"><strong>${posBehavior.label.split('&')[0].trim()}:</strong> ${posBehavior.reportText}</li>`);
+                    if (negBehavior) negList.push(`<li style="margin-bottom: 4px; font-size: 10.5pt; line-height: 1.3;"><strong>${negBehavior.label.split('(')[0].trim()}:</strong> ${negBehavior.reportText}</li>`);
                 }
             });
 
             const behaviorSectionHTML = (posList.length > 0 || negList.length > 0) ? `
-                <div class="rules-section" style="margin-top: 20px; border-top: 1px solid #ccc; padding-top: 15px;">
-                    <p style="font-weight: bold; font-size: 14pt; margin-bottom: 10px;">Haftanın Detaylı Davranış Gözlemleri:</p>
+                <div class="rules-section" style="margin-top: 15px; border-top: 1px solid #ccc; padding-top: 10px;">
+                    <p style="font-weight: bold; font-size: 12pt; margin-bottom: 6px;">Haftanın Detaylı Davranış Gözlemleri:</p>
                     ${posList.length > 0 ? `
-                        <p style="font-weight: bold; color: #16a34a; margin-top: 10px; font-size: 12pt;">🌟 Gözlemlenen Olumlu Davranışlar:</p>
-                        <ul style="list-style-type: disc; padding-left: 20px; color: #333;">${posList.join('')}</ul>
+                        <p style="font-weight: bold; color: #16a34a; margin-top: 4px; font-size: 11pt; margin-bottom: 4px;">🌟 Gözlemlenen Olumlu Davranışlar:</p>
+                        <ul style="list-style-type: disc; padding-left: 20px; color: #333; margin-bottom: 4px;">${posList.join('')}</ul>
                     ` : ''}
                     ${negList.length > 0 ? `
-                        <p style="font-weight: bold; color: #dc2626; margin-top: 15px; font-size: 12pt;">⚠️ Geliştirilmesi Gereken Davranışlar:</p>
-                        <ul style="list-style-type: disc; padding-left: 20px; color: #333;">${negList.join('')}</ul>
+                        <p style="font-weight: bold; color: #dc2626; margin-top: 8px; font-size: 11pt; margin-bottom: 4px;">⚠️ Geliştirilmesi Gereken Davranışlar:</p>
+                        <ul style="list-style-type: disc; padding-left: 20px; color: #333; margin-bottom: 4px;">${negList.join('')}</ul>
                     ` : ''}
                 </div>
             ` : '';
@@ -1737,7 +1737,7 @@
                 setActiveBehaviorStudentId(id);
             };
 
-            const toggleBehaviorAndSave = (bId) => {
+            const toggleBehaviorAndSave = (bId, forceDecrease = false) => {
                 let limitReached = false;
                 setStudents(prev => prev.map(student => {
                     if (student.id === activeBehaviorStudentId) {
@@ -1745,7 +1745,6 @@
                         const safeDailyBehaviors = student.dailyBehaviors || { 1: [], 2: [], 3: [], 4: [], 5: [] };
                         const currentDayBehaviors = safeDailyBehaviors[dayToEdit] || [];
                         
-                        const isCurrentlySelected = currentDayBehaviors.includes(bId);
                         const behaviorDef = DM_BEHAVIORS.pos.find(b => b.id === bId) || DM_BEHAVIORS.neg.find(b => b.id === bId);
                         if (!behaviorDef) return student;
 
@@ -1753,24 +1752,22 @@
                         const isPositive = points > 0;
                         const currentDailyScore = student.daily?.[dayToEdit] || 0;
 
-                        if (!isCurrentlySelected) {
-                            if (isPositive && currentDailyScore + points > 10) { limitReached = true; return student; }
-                            if (!isPositive && currentDailyScore + points < -10) { limitReached = true; return student; }
-                        }
-
-                        let newDayBehaviors;
+                        let newDayBehaviors = [...currentDayBehaviors];
                         let scoreChange = 0;
                         let newBehaviors = { ...(student.behaviors || {}) };
 
-                        if (isCurrentlySelected) {
-                            const indexToRemove = currentDayBehaviors.lastIndexOf(bId);
-                            newDayBehaviors = [...currentDayBehaviors];
-                            newDayBehaviors.splice(indexToRemove, 1);
-                            
-                            scoreChange = -points;
-                            newBehaviors[bId] = Math.max(0, (newBehaviors[bId] || 0) - 1);
+                        if (forceDecrease) {
+                            const indexToRemove = newDayBehaviors.lastIndexOf(bId);
+                            if (indexToRemove !== -1) {
+                                newDayBehaviors.splice(indexToRemove, 1);
+                                scoreChange = -points;
+                                newBehaviors[bId] = Math.max(0, (newBehaviors[bId] || 0) - 1);
+                            }
                         } else {
-                            newDayBehaviors = [...currentDayBehaviors, bId];
+                            if (isPositive && currentDailyScore + points > 10) { limitReached = true; return student; }
+                            if (!isPositive && currentDailyScore + points < -10) { limitReached = true; return student; }
+
+                            newDayBehaviors.push(bId);
                             scoreChange = points;
                             newBehaviors[bId] = (newBehaviors[bId] || 0) + 1;
                         }
@@ -1780,10 +1777,10 @@
                         let newNegative = student.negative || 0;
                         
                         if (isPositive) {
-                            if (isCurrentlySelected) newPositive -= points;
+                            if (forceDecrease) newPositive = Math.max(0, newPositive - points);
                             else newPositive += points;
                         } else {
-                            if (isCurrentlySelected) newNegative -= Math.abs(points);
+                            if (forceDecrease) newNegative = Math.max(0, newNegative - Math.abs(points));
                             else newNegative += Math.abs(points);
                         }
 
@@ -1792,8 +1789,8 @@
                             dailyBehaviors: { ...safeDailyBehaviors, [dayToEdit]: newDayBehaviors },
                             daily: { ...(student.daily || {}), [dayToEdit]: newDailyScore },
                             behaviors: newBehaviors,
-                            positive: Math.max(0, newPositive),
-                            negative: Math.max(0, newNegative),
+                            positive: newPositive,
+                            negative: newNegative,
                             netScore: (student.netScore || 0) + scoreChange
                         };
                     }
@@ -2234,7 +2231,16 @@
                                                         return (
                                                             <button key={b.id} onClick={() => toggleBehaviorAndSave(b.id)} className={`flex items-center justify-between p-3 rounded-xl transition-all ${isSelected ? 'bg-green-100 border-2 border-green-500 shadow-inner scale-[0.98]' : 'bg-green-50 hover:bg-green-100 border-2 border-green-200 active:scale-[0.98]'} ${isShaking ? 'animate-shake bg-red-100 border-red-500' : ''}`}>
                                                                 <div className="flex items-center gap-3 text-left">
-                                                                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${isSelected ? 'bg-green-500 border-green-500 text-white' : 'border-green-400 bg-white'}`}>
+                                                                    <div 
+                                                                        onClick={(e) => {
+                                                                            if (isSelected) {
+                                                                                e.stopPropagation();
+                                                                                toggleBehaviorAndSave(b.id, true);
+                                                                            }
+                                                                        }}
+                                                                        className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${isSelected ? 'bg-green-500 border-green-500 text-white cursor-pointer hover:bg-green-600' : 'border-green-400 bg-white'}`}
+                                                                        title={isSelected ? "Bir tane azalt" : ""}
+                                                                    >
                                                                         {isSelected && <Icons.Check size={16} />}
                                                                     </div>
                                                                     <span className="text-xl">{b.emoji}</span>
@@ -2258,7 +2264,16 @@
                                                         return (
                                                             <button key={b.id} onClick={() => toggleBehaviorAndSave(b.id)} className={`flex items-center justify-between p-3 rounded-xl transition-all ${isSelected ? 'bg-red-100 border-2 border-red-500 shadow-inner scale-[0.98]' : 'bg-red-50 hover:bg-red-100 border-2 border-red-200 active:scale-[0.98]'} ${isShaking ? 'animate-shake bg-red-100 border-red-500' : ''}`}>
                                                                 <div className="flex items-center gap-3 text-left">
-                                                                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${isSelected ? 'bg-red-500 border-red-500 text-white' : 'border-red-400 bg-white'}`}>
+                                                                    <div 
+                                                                        onClick={(e) => {
+                                                                            if (isSelected) {
+                                                                                e.stopPropagation();
+                                                                                toggleBehaviorAndSave(b.id, true);
+                                                                            }
+                                                                        }}
+                                                                        className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${isSelected ? 'bg-red-500 border-red-500 text-white cursor-pointer hover:bg-red-600' : 'border-red-400 bg-white'}`}
+                                                                        title={isSelected ? "Bir tane azalt" : ""}
+                                                                    >
                                                                         {isSelected && <Icons.Check size={16} />}
                                                                     </div>
                                                                     <span className="text-xl">{b.emoji}</span>
