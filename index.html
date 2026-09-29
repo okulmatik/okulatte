@@ -26,9 +26,9 @@
     
     <meta property="og:title" content="Okulatte Eğitim Portalı">
     <meta property="og:description" content="İlkokul öğrencileri için interaktif oyunlar ve öğretmen portalı.">
-    <meta property="og:image" content="assets/logo.png">
+    <meta property="og:image" content="assets/icon.png">
     <meta property="og:type" content="website">
-    <meta itemprop="image" content="assets/logo.png">
+    <meta itemprop="image" content="assets/icon.png">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -1293,24 +1293,24 @@
 
         const DM_BEHAVIORS = {
             pos: [
-                { id: 'p1', emoji: '🙋', label: 'Derse Aktif Katılım & Parmak Kaldırma', points: 1, reportText: 'Bu hafta derse aktif katılımın ve parmak kaldırarak söz istemen çok güzeldi.' },
+                { id: 'p1', emoji: '🙋', label: 'Derse Aktif Katılım & Parmak Kaldırma', points: 1, reportText: 'Bu hafta derslere katılımın ve ilgin çok güzeldi.' },
                 { id: 'p2', emoji: '🗣️', label: 'Söz Hakkı Bekleme & Uygun Konuşma', points: 1, reportText: 'Söz hakkı bekleme ve uygun bir ses tonuyla konuşma konusunda örnek oldun.' },
                 { id: 'p3', emoji: '🎯', label: 'Dikkatini Derse Verme & Çalışmaya Devam Etme', points: 1, reportText: 'Ders boyunca dikkatini koruman ve çalışmaya gayret etmen takdire değerdi.' },
                 { id: 'p4', emoji: '🌱', label: 'Sıra ve Sınıf Temizliği/Düzeni', points: 1, reportText: 'Sıranı ve sınıfımızı temiz tutma konusundaki hassasiyetin çok güzeldi.' },
                 { id: 'p5', emoji: '⭐', label: 'Kurallara Hatırlatılmadan Uyma', points: 1, reportText: 'Sınıf kurallarına uyarıya gerek kalmadan uyman beni çok mutlu etti.' },
-                { id: 'p6', emoji: '🤝', label: 'Arkadaşına Yardım Etme & Paylaşımcılık', points: 1, reportText: 'Arkadaşlarına karşı duyarlı ve paylaşımcı tavırların çok güzeldi.' },
+                { id: 'p6', emoji: '🤝', label: 'Arkadaşına Yardım Etme & Paylaşımcılık', points: 1, reportText: 'Arkadaşlarına karşı duyarlı ve paylaşımcı tavırların takdire değerdi.' },
                 { id: 'p7', emoji: '🧹', label: 'Sınıf Görevlerini İstekle Yerine Getirme', points: 1, reportText: 'Sınıf içindeki görevlerini istekle ve özenle yerine getirdin.' },
                 { id: 'p8', emoji: '❤️', label: 'Arkadaşlarına Karşı Nazik ve Yardımsever Olma', points: 1, reportText: 'Arkadaşlarına karşı nazik, anlayışlı ve yardımsever olman harikaydı.' }
             ],
             neg: [
-                { id: 'n1', emoji: '💬', label: 'Ders Düzenini Bozma (İzinsiz Konuşma)', points: -1, reportText: 'Dersin düzeni için söz hakkı almadan konuşmamaya daha çok özen göstermelisin.' },
+                { id: 'n1', emoji: '💬', label: 'Ders Düzenini Bozma (İzinsiz Konuşma)', points: -1, reportText: 'Dersin düzenini korumak için söz hakkı almadan konuşmamaya özen göstermelisin.' },
                 { id: 'n2', emoji: '📝', label: 'Ödev Yapmama / Eksik Getirme', points: -2, reportText: 'Ödevlerini zamanında ve eksiksiz tamamlama konusunda daha dikkatli olmalısın.' },
                 { id: 'n3', emoji: '🗣️', label: 'Söz Almadan Konuşma / Araya Girme', points: -1, reportText: 'Başkaları konuşurken araya girmemeli, parmak kaldırarak söz istemelisin.' },
                 { id: 'n4', emoji: '🪑', label: 'Ders Sırasında Yerinden İzinsiz Kalkma', points: -1, reportText: 'Ders sırasında izinsiz yerinden kalkmamaya ve derse odaklanmaya dikkat etmelisin.' },
                 { id: 'n5', emoji: '🤝', label: 'Arkadaşına Karşı Kaba Davranma', points: -2, reportText: 'Arkadaşlarına karşı daha nazik olmalı ve kaba davranışlardan kaçınmalısın.' },
                 { id: 'n6', emoji: '📢', label: 'Uyarıya Rağmen Davranışı Sürdürme', points: -2, reportText: 'Yapılan uyarılara dikkat etmeli ve olumsuz davranışları tekrarlamamalısın.' },
                 { id: 'n7', emoji: '🧹', label: 'Sınıf Düzenini / Temizliğini Bozma', points: -1, reportText: 'Sınıfımızı ve sıranı temiz tutma konusunda daha özenli davranmalısın.' },
-                { id: 'n8', emoji: '🚫', label: 'Nezaket Dışı Söz / Alay Etme', points: -2, reportText: 'Arkadaşlarınla iletişim kurarken kelimelerine dikkat etmeli ve kırıcı olmamalısın.' },
+                { id: 'n8', emoji: '🚫', label: 'Nezaket Dışı Söz / Alay Etme', points: -2, reportText: 'Arkadaşlarınla iletişim kurarken kullanacağın kelimelere ve davranışlarına daha çok dikkat etmelisin.' },
                 { id: 'n9', emoji: '🤸', label: 'Arkadaşlarının Dikkatini Dağıtma', points: -1, reportText: 'Ders sırasında arkadaşlarının dikkatini dağıtacak hareketlerden uzak durmalısın.' }
             ]
         };
@@ -1525,6 +1525,8 @@
             
             const [activeBehaviorStudentId, setActiveBehaviorStudentId] = useState(null);
             const [shakeButtonId, setShakeButtonId] = useState(null);
+            
+            const [bulkSelections, setBulkSelections] = useState([]);
 
             const isRemoteUpdate = useRef(false);
             const localStateString = useRef("");
@@ -1761,7 +1763,10 @@
                         let newBehaviors = { ...(student.behaviors || {}) };
 
                         if (isCurrentlySelected) {
-                            newDayBehaviors = currentDayBehaviors.filter(id => id !== bId);
+                            const indexToRemove = currentDayBehaviors.lastIndexOf(bId);
+                            newDayBehaviors = [...currentDayBehaviors];
+                            newDayBehaviors.splice(indexToRemove, 1);
+                            
                             scoreChange = -points;
                             newBehaviors[bId] = Math.max(0, (newBehaviors[bId] || 0) - 1);
                         } else {
@@ -1775,10 +1780,10 @@
                         let newNegative = student.negative || 0;
                         
                         if (isPositive) {
-                            if (isCurrentlySelected) newPositive = Math.max(0, newPositive - points);
+                            if (isCurrentlySelected) newPositive -= points;
                             else newPositive += points;
                         } else {
-                            if (isCurrentlySelected) newNegative = Math.max(0, newNegative - Math.abs(points));
+                            if (isCurrentlySelected) newNegative -= Math.abs(points);
                             else newNegative += Math.abs(points);
                         }
 
@@ -1787,8 +1792,8 @@
                             dailyBehaviors: { ...safeDailyBehaviors, [dayToEdit]: newDayBehaviors },
                             daily: { ...(student.daily || {}), [dayToEdit]: newDailyScore },
                             behaviors: newBehaviors,
-                            positive: newPositive,
-                            negative: newNegative,
+                            positive: Math.max(0, newPositive),
+                            negative: Math.max(0, newNegative),
                             netScore: (student.netScore || 0) + scoreChange
                         };
                     }
@@ -1801,6 +1806,67 @@
                 }
             };
             
+            const handleApplyBulk = () => {
+                if (bulkSelections.length === 0) {
+                    setActiveModal(null);
+                    return;
+                }
+
+                setStudents(prev => prev.map(student => {
+                    const dayToEdit = viewDay;
+                    const isAbsent = student.absentDays?.[dayToEdit];
+                    const currentDailyScore = student.daily?.[dayToEdit] || 0;
+
+                    if (isAbsent || currentDailyScore < 0) {
+                        return student;
+                    }
+
+                    const safeDailyBehaviors = student.dailyBehaviors || { 1: [], 2: [], 3: [], 4: [], 5: [] };
+                    let newDayBehaviors = [...(safeDailyBehaviors[dayToEdit] || [])];
+                    let newBehaviors = { ...(student.behaviors || {}) };
+                    let scoreChange = 0;
+                    let newPositive = student.positive || 0;
+                    let newNegative = student.negative || 0;
+                    let tempDailyScore = currentDailyScore;
+
+                    bulkSelections.forEach(bId => {
+                        const behaviorDef = DM_BEHAVIORS.pos.find(b => b.id === bId) || DM_BEHAVIORS.neg.find(b => b.id === bId);
+                        if (behaviorDef) {
+                            const points = behaviorDef.points;
+                            const isPositive = points > 0;
+
+                            if (isPositive && tempDailyScore + points > 10) return; 
+                            if (!isPositive && tempDailyScore + points < -10) return; 
+
+                            newDayBehaviors.push(bId);
+                            scoreChange += points;
+                            tempDailyScore += points;
+                            newBehaviors[bId] = (newBehaviors[bId] || 0) + 1;
+
+                            if (isPositive) newPositive += points;
+                            else newNegative += Math.abs(points);
+                        }
+                    });
+
+                    if (scoreChange !== 0) {
+                        return {
+                            ...student,
+                            dailyBehaviors: { ...safeDailyBehaviors, [dayToEdit]: newDayBehaviors },
+                            daily: { ...(student.daily || {}), [dayToEdit]: tempDailyScore },
+                            behaviors: newBehaviors,
+                            positive: Math.max(0, newPositive),
+                            negative: Math.max(0, newNegative),
+                            netScore: (student.netScore || 0) + scoreChange
+                        };
+                    }
+
+                    return student;
+                }));
+
+                setBulkSelections([]);
+                setActiveModal(null);
+            };
+
             const handleAddStudent = () => {
                 const val = newStudentName.trim();
                 if (val) {
@@ -1815,6 +1881,25 @@
                     }]);
                     setNewStudentName('');
                 }
+            };
+
+            const updateStudentMsgState = (studentId, cat, index, weekId) => {
+                setStudents(prev => prev.map(s => {
+                    if (s.id === studentId) {
+                        let safeState = s.msgState || { corrective: 0, mid: 0, upperMid: 0, pos: 0, lastPrintWeek: null, lastPrintCat: null, lastPrintIndex: 0 };
+                        let nextIndex = index + 1;
+                        if (cat === 'corrective' && nextIndex >= DM_CORRECTIVE_INTROS.length) nextIndex = 0;
+                        if (cat === 'mid' && nextIndex >= DM_MID_INTROS.length) nextIndex = 0;
+                        if (cat === 'upperMid' && nextIndex >= DM_UPPER_MID_INTROS.length) nextIndex = 0;
+                        if (cat === 'pos' && nextIndex >= DM_POS_INTROS.length) nextIndex = 0;
+                        
+                        return { 
+                            ...s, 
+                            msgState: { ...safeState, [cat]: nextIndex, lastPrintWeek: weekId, lastPrintCat: cat, lastPrintIndex: index }
+                        };
+                    }
+                    return s;
+                }));
             };
 
             const printReport = (studentId) => {
@@ -2053,6 +2138,70 @@
                         </div>
                     )}
 
+                    {activeModal === 'bulkBehavior' && (
+                        <div className="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4">
+                            <div className="bg-white rounded-[2rem] w-full max-w-lg shadow-2xl flex flex-col overflow-hidden animate-in max-h-[90vh]">
+                                <div className="p-6 pb-4 border-b-2 border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
+                                    <div>
+                                        <h2 className="text-2xl font-black text-slate-800 uppercase tracking-wide flex items-center gap-2"><Icons.Users className="text-purple-500"/> Toplu Puan Ver</h2>
+                                        <p className="text-slate-500 font-bold text-xs sm:text-sm mt-1">Eksi (-) puanda olanlar <strong className="text-red-500">hariç</strong> tüm sınıfa uygulanır.</p>
+                                    </div>
+                                    <button onClick={() => { setActiveModal(null); setBulkSelections([]); }} className="bg-slate-200 hover:bg-slate-300 text-slate-700 p-2.5 rounded-xl active:scale-95 transition-transform"><Icons.X size={20}/></button>
+                                </div>
+
+                                <div className="flex-1 overflow-y-auto dm-modal-content p-4 sm:p-6 bg-[#f8fafc]">
+                                    <h3 className="text-green-600 font-black mb-3 flex items-center gap-2"><Icons.Star size={20} /> OLUMLU DAVRANIŞLAR</h3>
+                                    <div className="flex flex-col gap-2 mb-6">
+                                        {DM_BEHAVIORS.pos.map(b => {
+                                            const isSelected = bulkSelections.includes(b.id);
+                                            return (
+                                                <button key={b.id} onClick={() => setBulkSelections(prev => prev.includes(b.id) ? prev.filter(id => id !== b.id) : [...prev, b.id])} className={`flex items-center justify-between p-3 rounded-xl transition-all ${isSelected ? 'bg-green-100 border-2 border-green-500 shadow-inner scale-[0.98]' : 'bg-green-50 hover:bg-green-100 border-2 border-green-200 active:scale-[0.98]'}`}>
+                                                    <div className="flex items-center gap-3 text-left">
+                                                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${isSelected ? 'bg-green-500 border-green-500 text-white' : 'border-green-400 bg-white'}`}>
+                                                            {isSelected && <Icons.Check size={16} />}
+                                                        </div>
+                                                        <span className="text-xl">{b.emoji}</span>
+                                                        <span className="font-bold text-green-900 text-sm sm:text-base leading-tight pr-2">{b.label}</span>
+                                                    </div>
+                                                    <span className="font-black text-green-600 bg-white px-2 py-1 rounded-lg shadow-sm shrink-0">+{b.points}</span>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                    
+                                    <h3 className="text-red-600 font-black mb-3 flex items-center gap-2"><Icons.XCircle size={20} /> OLUMSUZ DAVRANIŞLAR</h3>
+                                    <div className="flex flex-col gap-2 mb-2">
+                                        {DM_BEHAVIORS.neg.map(b => {
+                                            const isSelected = bulkSelections.includes(b.id);
+                                            return (
+                                                <button key={b.id} onClick={() => setBulkSelections(prev => prev.includes(b.id) ? prev.filter(id => id !== b.id) : [...prev, b.id])} className={`flex items-center justify-between p-3 rounded-xl transition-all ${isSelected ? 'bg-red-100 border-2 border-red-500 shadow-inner scale-[0.98]' : 'bg-red-50 hover:bg-red-100 border-2 border-red-200 active:scale-[0.98]'}`}>
+                                                    <div className="flex items-center gap-3 text-left">
+                                                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${isSelected ? 'bg-red-500 border-red-500 text-white' : 'border-red-400 bg-white'}`}>
+                                                            {isSelected && <Icons.Check size={16} />}
+                                                        </div>
+                                                        <span className="text-xl">{b.emoji}</span>
+                                                        <span className="font-bold text-red-900 text-sm sm:text-base leading-tight pr-2">{b.label}</span>
+                                                    </div>
+                                                    <span className="font-black text-red-600 bg-white px-2 py-1 rounded-lg shadow-sm shrink-0">{b.points}</span>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
+                                <div className="p-4 bg-white border-t-2 border-slate-100 shrink-0">
+                                    <button 
+                                        onClick={handleApplyBulk}
+                                        disabled={bulkSelections.length === 0}
+                                        className="w-full py-3 rounded-2xl font-black text-lg transition-all bg-purple-600 hover:bg-purple-700 text-white active:scale-95 disabled:opacity-50 disabled:active:scale-100 shadow-md"
+                                    >
+                                        Seçili Davranışları Sınıfa Uygula
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     {activeBehaviorStudentId && (
                         <div className="fixed inset-0 z-[150] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4" onClick={() => setActiveBehaviorStudentId(null)}>
                             <div className="bg-white rounded-[2rem] w-full max-w-lg shadow-2xl flex flex-col overflow-hidden animate-in max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
@@ -2079,7 +2228,8 @@
                                                 <h3 className="text-green-600 font-black mb-3 flex items-center gap-2"><Icons.Star size={20} /> OLUMLU DAVRANIŞLAR (+ PUAN)</h3>
                                                 <div className="flex flex-col gap-2 mb-6">
                                                     {DM_BEHAVIORS.pos.map(b => {
-                                                        const isSelected = currentDayBehaviors.includes(b.id);
+                                                        const bCount = currentDayBehaviors.filter(id => id === b.id).length;
+                                                        const isSelected = bCount > 0;
                                                         const isShaking = shakeButtonId === b.id;
                                                         return (
                                                             <button key={b.id} onClick={() => toggleBehaviorAndSave(b.id)} className={`flex items-center justify-between p-3 rounded-xl transition-all ${isSelected ? 'bg-green-100 border-2 border-green-500 shadow-inner scale-[0.98]' : 'bg-green-50 hover:bg-green-100 border-2 border-green-200 active:scale-[0.98]'} ${isShaking ? 'animate-shake bg-red-100 border-red-500' : ''}`}>
@@ -2090,7 +2240,10 @@
                                                                     <span className="text-xl">{b.emoji}</span>
                                                                     <span className="font-bold text-green-900 text-sm sm:text-base leading-tight pr-2">{b.label}</span>
                                                                 </div>
-                                                                <span className="font-black text-green-600 bg-white px-2 py-1 rounded-lg shadow-sm shrink-0">+{b.points}</span>
+                                                                <div className="flex items-center gap-1 shrink-0">
+                                                                    {bCount > 1 && <span className="font-black text-white bg-blue-500 px-2 py-1 rounded-lg text-xs shadow-sm">x{bCount}</span>}
+                                                                    <span className="font-black text-green-600 bg-white px-2 py-1 rounded-lg shadow-sm">+{b.points}</span>
+                                                                </div>
                                                             </button>
                                                         );
                                                     })}
@@ -2099,7 +2252,8 @@
                                                 <h3 className="text-red-600 font-black mb-3 flex items-center gap-2"><Icons.XCircle size={20} /> GELİŞTİRİLMESİ GEREKEN DAVRANIŞLAR (- PUAN)</h3>
                                                 <div className="flex flex-col gap-2 mb-2">
                                                     {DM_BEHAVIORS.neg.map(b => {
-                                                        const isSelected = currentDayBehaviors.includes(b.id);
+                                                        const bCount = currentDayBehaviors.filter(id => id === b.id).length;
+                                                        const isSelected = bCount > 0;
                                                         const isShaking = shakeButtonId === b.id;
                                                         return (
                                                             <button key={b.id} onClick={() => toggleBehaviorAndSave(b.id)} className={`flex items-center justify-between p-3 rounded-xl transition-all ${isSelected ? 'bg-red-100 border-2 border-red-500 shadow-inner scale-[0.98]' : 'bg-red-50 hover:bg-red-100 border-2 border-red-200 active:scale-[0.98]'} ${isShaking ? 'animate-shake bg-red-100 border-red-500' : ''}`}>
@@ -2110,7 +2264,10 @@
                                                                     <span className="text-xl">{b.emoji}</span>
                                                                     <span className="font-bold text-red-900 text-sm sm:text-base leading-tight pr-2">{b.label}</span>
                                                                 </div>
-                                                                <span className="font-black text-red-600 bg-white px-2 py-1 rounded-lg shadow-sm shrink-0">{b.points}</span>
+                                                                <div className="flex items-center gap-1 shrink-0">
+                                                                    {bCount > 1 && <span className="font-black text-white bg-blue-500 px-2 py-1 rounded-lg text-xs shadow-sm">x{bCount}</span>}
+                                                                    <span className="font-black text-red-600 bg-white px-2 py-1 rounded-lg shadow-sm">{b.points}</span>
+                                                                </div>
                                                             </button>
                                                         );
                                                     })}
@@ -2169,6 +2326,9 @@
                             </button>
                             <button onClick={() => setIsAlarmPlaying(!isAlarmPlaying)} className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-white shadow-md transition-transform active:scale-95 ${isAlarmPlaying ? 'bg-red-700 animate-pulse ring-4 ring-red-300' : 'bg-gradient-to-r from-red-500 to-red-600'}`}>
                                 <Icons.Bell size={20} className={isAlarmPlaying ? "animate-shake" : ""} /> {isAlarmPlaying ? 'DURDUR' : 'ACİL'}
+                            </button>
+                            <button onClick={() => { setBulkSelections([]); setActiveModal('bulkBehavior'); }} className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-white shadow-md transition-transform active:scale-95 bg-gradient-to-r from-purple-500 to-fuchsia-600">
+                                <Icons.Users size={20}/> Toplu Puan
                             </button>
                         </div>
                     </div>
