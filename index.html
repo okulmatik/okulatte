@@ -184,6 +184,49 @@
         .dm-modal-content::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 8px; }
         .dm-modal-content::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
         .dm-modal-content::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* ===== YUMURTA EVRİM BAHÇESİ ===== */
+        .dm-egg-garden { background: linear-gradient(180deg, #bae6fd 0%, #e0f2fe 45%, #dcfce7 100%); }
+        .dm-egg-card { background: rgba(255,255,255,0.78); border: 4px solid #fff; border-radius: 1.75rem; box-shadow: 0 8px 20px rgba(15,23,42,0.10); position: relative; cursor: pointer; transition: transform .2s; padding: 10px 8px 12px; display:flex; flex-direction:column; align-items:center; overflow:hidden; }
+        .dm-egg-card:hover { transform: translateY(-4px) scale(1.03); }
+        .dm-egg-svg { width: 100%; max-width: 110px; height: auto; overflow: visible; animation: dmEggFloat 3s ease-in-out infinite; transform-origin: 50% 100%; }
+        .dm-egg-card:nth-child(2n) .dm-egg-svg { animation-delay: -1s; }
+        .dm-egg-card:nth-child(3n) .dm-egg-svg { animation-delay: -2s; }
+        .dm-egg-golden { animation: dmEggWobble 2.2s ease-in-out infinite !important; filter: drop-shadow(0 0 8px rgba(251,191,36,.75)); }
+        .dm-egg-legend { animation: dmEggLegend 1.8s ease-in-out infinite !important; }
+        .dm-egg-bounce .dm-egg-svg { animation: dmEggBounce .7s ease-out !important; }
+        .dm-egg-spark { position:absolute; font-size: 1.1rem; pointer-events:none; animation: dmTwinkle 1.6s ease-in-out infinite; }
+        .dm-egg-legend-card { box-shadow: 0 0 0 4px #e9d5ff, 0 0 26px 6px rgba(168,85,247,.55); animation: dmAuraPulse 1.8s ease-in-out infinite; }
+        .dm-egg-bar { height: 10px; border-radius: 999px; background: #e2e8f0; overflow: hidden; width: 100%; }
+        .dm-egg-bar > div { height: 100%; border-radius: 999px; transition: width .8s ease; }
+        @keyframes dmEggFloat { 0%,100% { transform: translateY(0) rotate(-1.5deg); } 50% { transform: translateY(-6px) rotate(1.5deg); } }
+        @keyframes dmEggWobble { 0%,100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
+        @keyframes dmEggLegend { 0%,100% { transform: translateY(0) scale(1); filter: drop-shadow(0 0 10px #c084fc) drop-shadow(0 0 22px #a855f7); } 50% { transform: translateY(-7px) scale(1.06); filter: drop-shadow(0 0 20px #e9d5ff) drop-shadow(0 0 40px #d946ef); } }
+        @keyframes dmEggBounce { 0% { transform: scale(1); } 25% { transform: scale(.85,1.15) translateY(-14px); } 50% { transform: scale(1.12,.88); } 75% { transform: scale(.95,1.05) translateY(-5px); } 100% { transform: scale(1); } }
+        @keyframes dmTwinkle { 0%,100% { opacity: .15; transform: scale(.6) rotate(0deg); } 50% { opacity: 1; transform: scale(1.2) rotate(25deg); } }
+        @keyframes dmAuraPulse { 0%,100% { box-shadow: 0 0 0 4px #e9d5ff, 0 0 20px 4px rgba(168,85,247,.45); } 50% { box-shadow: 0 0 0 4px #f5d0fe, 0 0 36px 10px rgba(217,70,239,.7); } }
+        @media (prefers-reduced-motion: reduce) { .dm-egg-svg, .dm-egg-spark, .dm-egg-legend-card { animation: none !important; } }
+
+        /* ===== EFSANE ÇATLAMA & 9x4 IZGARA ===== */
+        .dm-egg-grid { display:grid; grid-template-columns:repeat(9,minmax(0,1fr)); grid-auto-rows:minmax(118px,1fr); gap:8px; height:100%; }
+        @media (max-width:900px) { .dm-egg-grid { grid-template-columns:repeat(4,minmax(0,1fr)); grid-auto-rows:170px; height:auto; } }
+        .dm-egg-grid .dm-egg-card { padding:4px 3px 6px; border-width:3px; border-radius:1.1rem; min-height:0; }
+        .dm-egg-fit { flex:1; min-height:0; width:100%; display:flex; justify-content:center; }
+        .dm-egg-fit svg { height:100%; width:100%; max-width:none; }
+        .dm-egg-name { font-weight:900; color:#1e293b; font-size:clamp(11px,1.15vw,15px); line-height:1.1; text-align:center; width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .dm-egg-sub { font-weight:800; color:#475569; font-size:clamp(9px,.95vw,12px); text-align:center; white-space:nowrap; }
+        .dm-egg-holding .dm-egg-svg, .dm-egg-holding .dm-creature-svg { animation: dmHoldShake 2.2s ease-in forwards !important; }
+        .dm-hold-bar { height:8px; border-radius:99px; background:linear-gradient(90deg,#f0abfc,#fde047); animation:dmHoldFill 2.2s linear forwards; }
+        .dm-creature-svg { width:100%; height:100%; overflow:visible; animation:dmEggFloat 2.4s ease-in-out infinite; }
+        .dm-confetti { position:absolute; top:-50px; pointer-events:none; animation:dmFall linear infinite; }
+        .dm-hatch-flash { position:absolute; inset:0; background:#fff; animation:dmFlash 1s ease-out forwards; pointer-events:none; z-index:5; }
+        .dm-pop { animation:dmPop .9s cubic-bezier(.3,1.4,.5,1) both; }
+        @keyframes dmHoldShake { 0%{transform:rotate(0)} 10%{transform:rotate(-3deg)} 20%{transform:rotate(3deg)} 30%{transform:rotate(-5deg)} 40%{transform:rotate(5deg)} 50%{transform:rotate(-7deg) scale(1.08)} 60%{transform:rotate(7deg) scale(1.08)} 70%{transform:rotate(-9deg) scale(1.12)} 80%{transform:rotate(9deg) scale(1.12);filter:brightness(1.3)} 90%{transform:rotate(-11deg) scale(1.18);filter:brightness(1.6)} 100%{transform:rotate(0) scale(1.25);filter:brightness(2.2)} }
+        @keyframes dmHoldFill { from{width:0} to{width:100%} }
+        @keyframes dmFall { to { transform:translateY(115vh) rotate(360deg); } }
+        @keyframes dmPop { 0%{transform:scale(0) rotate(-25deg)} 100%{transform:scale(1) rotate(0)} }
+        @keyframes dmFlash { 0%{opacity:1} 100%{opacity:0} }
+        .dm-face { transform: translate(var(--ex,0px), var(--ey,0px)); transition: transform .18s ease-out; }
     </style>
     
     <script type="module">
@@ -1498,6 +1541,163 @@
             .sig-box p { margin: 2px 0; font-size: 15pt; }
         `;
 
+
+        /* ===== YUMURTA EVRİM AŞAMALARI ===== */
+        const DM_EGG_STAGES = [
+            { min: -1000, name: 'Uyuyan Yumurta',   emoji: '😴', range: '0-9',   c1: '#f3f4f6', c2: '#b8bdc6', c3: '#7d8490', bar: '#9ca3af' },
+            { min: 10,    name: 'Uyanıyor',         emoji: '🥚', range: '10-14', c1: '#ffffff', c2: '#f8fafc', c3: '#b6c2d1', bar: '#94a3b8' },
+            { min: 15,    name: 'Isınıyor',         emoji: '☀️', range: '15-19', c1: '#fffde7', c2: '#fde68a', c3: '#e0a800', bar: '#facc15' },
+            { min: 20,    name: 'Büyüyor',          emoji: '🌱', range: '20-24', c1: '#dcfce7', c2: '#4ade80', c3: '#15803d', bar: '#22c55e' },
+            { min: 25,    name: 'Güçleniyor',       emoji: '💪', range: '25-29', c1: '#e0f2fe', c2: '#38bdf8', c3: '#0369a1', bar: '#0ea5e9' },
+            { min: 30,    name: 'Puantiyeler!',     emoji: '🎈', range: '30-34', c1: '#ffedd5', c2: '#fb923c', c3: '#c2410c', bar: '#f97316' },
+            { min: 35,    name: 'Çatlıyor!',        emoji: '🐣', range: '35-40', c1: '#fff6b0', c2: '#fbbf24', c3: '#a16207', bar: '#f59e0b' },
+            { min: 41,    name: 'EFSANE!',          emoji: '👑', range: '41+',   c1: '#f3e8ff', c2: '#a855f7', c3: '#581c87', bar: '#a855f7' }
+        ];
+        const dmGetEggStage = (score) => {
+            let idx = 0;
+            DM_EGG_STAGES.forEach((st, i) => { if (score >= st.min) idx = i; });
+            return idx;
+        };
+
+        const DmEgg = ({ stage, uid }) => {
+            const s = DM_EGG_STAGES[stage];
+            const path = "M50 6 C26 6 8 52 8 84 C8 110 26 126 50 126 C74 126 92 110 92 84 C92 52 74 6 50 6 Z";
+            const eye = "#1f2937";
+            const dots = [[36,48,5,'#ffffff'],[62,50,4,'#fde047'],[77,72,5,'#f472b6'],[22,80,4,'#60a5fa'],[78,102,4,'#bef264'],[28,104,5,'#fde047'],[50,117,4,'#ffffff'],[50,60,3,'#f472b6'],[68,30,3,'#ffffff']];
+            return (
+                <svg viewBox="-6 -6 112 146" className={`dm-egg-svg ${stage === 7 ? 'dm-egg-legend' : ''} ${stage === 6 ? 'dm-egg-golden' : ''}`} aria-hidden="true">
+                    <defs>
+                        <radialGradient id={`egg-g-${uid}`} cx="35%" cy="30%" r="85%">
+                            <stop offset="0%" stopColor={s.c1} />
+                            <stop offset="55%" stopColor={s.c2} />
+                            <stop offset="100%" stopColor={s.c3} />
+                        </radialGradient>
+                        <clipPath id={`egg-c-${uid}`}><path d={path} /></clipPath>
+                    </defs>
+                    <ellipse cx="50" cy="132" rx="34" ry="5" fill="rgba(0,0,0,0.16)" />
+                    <path d={path} fill={`url(#egg-g-${uid})`} stroke={s.c3} strokeWidth="2.5" />
+
+                    <g clipPath={`url(#egg-c-${uid})`}>
+                        {stage === 5 && dots.map((d, i) => <circle key={i} cx={d[0]} cy={d[1]} r={d[2]} fill={d[3]} opacity="0.95" />)}
+
+                        {stage === 6 && (
+                            <g fill="none" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M50 4 L43 24 L57 38 L41 54 L54 68" stroke="#78350f" strokeWidth="3" />
+                                <path d="M57 38 L72 44 L76 56" stroke="#78350f" strokeWidth="2.5" />
+                            </g>
+                        )}
+
+                        {stage === 7 && (
+                            <g fill="none" strokeLinecap="round" strokeLinejoin="round">
+                                <g stroke="#3b0764" strokeWidth="6.5">
+                                    <path d="M50 4 L42 24 L58 40 L40 58 L56 70 L46 82" />
+                                    <path d="M58 40 L76 46 L84 62" />
+                                    <path d="M40 58 L22 64 L14 78" />
+                                    <path d="M42 24 L26 30" />
+                                    <path d="M56 70 L74 80" />
+                                </g>
+                                <g stroke="#fffbe0" strokeWidth="3">
+                                    <path d="M50 4 L42 24 L58 40 L40 58 L56 70 L46 82" />
+                                    <path d="M58 40 L76 46 L84 62" />
+                                    <path d="M40 58 L22 64 L14 78" />
+                                    <path d="M42 24 L26 30" />
+                                    <path d="M56 70 L74 80" />
+                                </g>
+                            </g>
+                        )}
+                    </g>
+
+                    <ellipse cx="32" cy="40" rx="8" ry="15" fill="#fff" opacity="0.45" transform="rotate(22 32 40)" />
+
+                    <g className="dm-face">
+                    {stage === 0 && (<g fill="none" stroke={eye} strokeWidth="2.5" strokeLinecap="round">
+                        <path d="M35 84 Q40 88 45 84" /><path d="M55 84 Q60 88 65 84" /><path d="M46 95 L54 95" />
+                        <text x="72" y="62" fontSize="11" fontWeight="900" fill="#fff" stroke="none">z</text>
+                        <text x="79" y="52" fontSize="8" fontWeight="900" fill="#fff" stroke="none">z</text>
+                    </g>)}
+                    {(stage === 1 || stage === 2) && (<g>
+                        <circle cx="40" cy="84" r="3" fill={eye} /><circle cx="60" cy="84" r="3" fill={eye} />
+                        <path d="M43 93 Q50 99 57 93" fill="none" stroke={eye} strokeWidth="2.5" strokeLinecap="round" />
+                    </g>)}
+                    {(stage === 3 || stage === 4) && (<g>
+                        <circle cx="40" cy="84" r="4.2" fill={eye} /><circle cx="60" cy="84" r="4.2" fill={eye} />
+                        <circle cx="41.5" cy="82.5" r="1.4" fill="#fff" /><circle cx="61.5" cy="82.5" r="1.4" fill="#fff" />
+                        <circle cx="31" cy="93" r="4.5" fill="#fb7185" opacity="0.45" /><circle cx="69" cy="93" r="4.5" fill="#fb7185" opacity="0.45" />
+                        <path d="M42 93 Q50 102 58 93" fill="none" stroke={eye} strokeWidth="2.6" strokeLinecap="round" />
+                    </g>)}
+                    {(stage === 5 || stage === 6) && (<g>
+                        <path d="M35 86 Q40 78 45 86" fill="none" stroke={eye} strokeWidth="3" strokeLinecap="round" />
+                        <path d="M55 86 Q60 78 65 86" fill="none" stroke={eye} strokeWidth="3" strokeLinecap="round" />
+                        <circle cx="31" cy="95" r="4.5" fill="#fb7185" opacity="0.5" /><circle cx="69" cy="95" r="4.5" fill="#fb7185" opacity="0.5" />
+                        <path d="M41 93 Q50 106 59 93 Z" fill="#7f1d1d" stroke={eye} strokeWidth="2" strokeLinejoin="round" />
+                    </g>)}
+                    {stage === 7 && (<g>
+                        <text x="40" y="90" fontSize="16" textAnchor="middle" fill="#fde047" stroke="#3b0764" strokeWidth="1">★</text>
+                        <text x="60" y="90" fontSize="16" textAnchor="middle" fill="#fde047" stroke="#3b0764" strokeWidth="1">★</text>
+                        <circle cx="30" cy="99" r="4.5" fill="#f472b6" opacity="0.6" /><circle cx="70" cy="99" r="4.5" fill="#f472b6" opacity="0.6" />
+                        <path d="M40 97 Q50 110 60 97 Z" fill="#3b0764" stroke="#1e1b4b" strokeWidth="2" strokeLinejoin="round" />
+                    </g>)}
+                    </g>
+                </svg>
+            );
+        };
+
+
+        const DM_CREATURES = [
+            { key: 'dragon',  name: 'Efsane Ejderha' },
+            { key: 'cat',     name: 'Efsane Kedi' },
+            { key: 'bunny',   name: 'Efsane Tavşan' },
+            { key: 'bear',    name: 'Efsane Ayı' },
+            { key: 'owl',     name: 'Efsane Baykuş' },
+            { key: 'unicorn', name: 'Efsane Tek Boynuzlu' }
+        ];
+        const DmCreature = ({ kind, uid }) => {
+            const D = '#581c87', eye = '#1f2937';
+            const tri = (d, inner) => (<g><path d={d} fill="#a855f7" stroke={D} strokeWidth="2.5" strokeLinejoin="round" />{inner}</g>);
+            return (
+                <svg viewBox="0 0 100 100" className="dm-creature-svg" aria-hidden="true">
+                    <defs><radialGradient id={`cr-${uid}`} cx="35%" cy="30%" r="85%"><stop offset="0" stopColor="#f3e8ff" /><stop offset=".55" stopColor="#a855f7" /><stop offset="1" stopColor="#6b21a8" /></radialGradient></defs>
+                    <ellipse cx="50" cy="94" rx="30" ry="4" fill="rgba(0,0,0,.15)" />
+                    {kind === 'dragon' && (<g><path d="M18 62 Q0 50 8 34 Q22 42 26 56Z" fill="#c084fc" stroke={D} strokeWidth="2.5" strokeLinejoin="round" /><path d="M82 62 Q100 50 92 34 Q78 42 74 56Z" fill="#c084fc" stroke={D} strokeWidth="2.5" strokeLinejoin="round" />{tri("M28 38 L22 14 L42 30Z")}{tri("M72 38 L78 14 L58 30Z")}</g>)}
+                    {kind === 'cat' && (<g>{tri("M20 46 L24 16 L44 32Z")}{tri("M80 46 L76 16 L56 32Z")}<path d="M27 38 L28 25 L37 32Z" fill="#f9a8d4" /><path d="M73 38 L72 25 L63 32Z" fill="#f9a8d4" /></g>)}
+                    {kind === 'bunny' && (<g><ellipse cx="36" cy="22" rx="8" ry="20" fill="#a855f7" stroke={D} strokeWidth="2.5" /><ellipse cx="64" cy="22" rx="8" ry="20" fill="#a855f7" stroke={D} strokeWidth="2.5" /><ellipse cx="36" cy="24" rx="3.5" ry="13" fill="#f9a8d4" /><ellipse cx="64" cy="24" rx="3.5" ry="13" fill="#f9a8d4" /></g>)}
+                    {kind === 'bear' && (<g><circle cx="24" cy="36" r="11" fill="#a855f7" stroke={D} strokeWidth="2.5" /><circle cx="76" cy="36" r="11" fill="#a855f7" stroke={D} strokeWidth="2.5" /><circle cx="24" cy="36" r="5" fill="#f9a8d4" /><circle cx="76" cy="36" r="5" fill="#f9a8d4" /></g>)}
+                    {kind === 'owl' && (<g>{tri("M24 42 L26 14 L44 30Z")}{tri("M76 42 L74 14 L56 30Z")}</g>)}
+                    {kind === 'unicorn' && (<g>{tri("M26 40 L26 20 L42 32Z")}{tri("M74 40 L74 20 L58 32Z")}<path d="M50 2 L43 30 L57 30Z" fill="#fde047" stroke="#b45309" strokeWidth="2" strokeLinejoin="round" /></g>)}
+                    <ellipse cx="50" cy="62" rx="34" ry="31" fill={`url(#cr-${uid})`} stroke={D} strokeWidth="2.5" />
+                    <ellipse cx="50" cy="74" rx="17" ry="13" fill="#f5d0fe" opacity=".75" />
+                    <ellipse cx="34" cy="48" rx="6" ry="11" fill="#fff" opacity=".35" transform="rotate(20 34 48)" />
+                    {kind === 'owl' ? (<g><circle cx="38" cy="58" r="10" fill="#fff" stroke={D} strokeWidth="2" /><circle cx="62" cy="58" r="10" fill="#fff" stroke={D} strokeWidth="2" /><circle cx="38" cy="58" r="5" fill={eye} /><circle cx="62" cy="58" r="5" fill={eye} /><path d="M45 68 L55 68 L50 77Z" fill="#fb923c" stroke="#9a3412" strokeWidth="1.5" strokeLinejoin="round" /></g>) : (<g>
+                        <circle cx="38" cy="58" r="5" fill={eye} /><circle cx="62" cy="58" r="5" fill={eye} /><circle cx="39.8" cy="56" r="1.8" fill="#fff" /><circle cx="63.8" cy="56" r="1.8" fill="#fff" />
+                        <circle cx="28" cy="68" r="4.5" fill="#fb7185" opacity=".5" /><circle cx="72" cy="68" r="4.5" fill="#fb7185" opacity=".5" />
+                        <path d="M42 68 Q50 78 58 68" fill="none" stroke={eye} strokeWidth="2.6" strokeLinecap="round" /></g>)}
+                    <text x="86" y="26" fontSize="14">✨</text>
+                </svg>
+            );
+        };
+
+
+        const dmEggLook = (e) => {
+            document.querySelectorAll('.dm-egg-grid .dm-egg-card').forEach(card => {
+                const face = card.querySelector('.dm-face');
+                if (!face) return;
+                const r = card.getBoundingClientRect();
+                const nx = (e.clientX - (r.left + r.width / 2)) / r.width;
+                const ny = (e.clientY - (r.top + r.height / 2)) / r.height;
+                if (Math.abs(nx) <= 2.5 && Math.abs(ny) <= 2.5) {
+                    const len = Math.hypot(nx, ny) || 1;
+                    const k = Math.min(1, len * 1.5);
+                    face.style.setProperty('--ex', ((nx / len) * k * 6).toFixed(1) + 'px');
+                    face.style.setProperty('--ey', ((ny / len) * k * 4).toFixed(1) + 'px');
+                } else {
+                    face.style.setProperty('--ex', '0px'); face.style.setProperty('--ey', '0px');
+                }
+            });
+        };
+        const dmEggLookReset = () => {
+            document.querySelectorAll('.dm-egg-grid .dm-face').forEach(f => { f.style.setProperty('--ex', '0px'); f.style.setProperty('--ey', '0px'); });
+        };
+
         const DinamikMotiveApp = ({ onExit }) => {
             const [view, setView] = useState('loading'); 
             const [students, setStudents] = useState([]);
@@ -1525,6 +1725,31 @@
             
             const [activeBehaviorStudentId, setActiveBehaviorStudentId] = useState(null);
             const [shakeButtonId, setShakeButtonId] = useState(null);
+            const [bouncingEgg, setBouncingEgg] = useState(null);
+            const [holdingEgg, setHoldingEgg] = useState(null);
+            const [hatchShow, setHatchShow] = useState(null);
+            const [showLegends, setShowLegends] = useState(false);
+            const holdTimer = useRef(null);
+
+            const hatchEgg = (id) => {
+                const st = students.find(x => x.id === id);
+                if (!st || st.hatchedWeek === nextReset) return;
+                const owned = (st.legends || []).map(l => l.kind);
+                const free = DM_CREATURES.filter(c => !owned.includes(c.key));
+                const pool = free.length ? free : DM_CREATURES;
+                const kind = pool[Math.floor(Math.random() * pool.length)].key;
+                const icons = ['🎉','✨','⭐','🎊','💜','🌟'];
+                const confetti = Array.from({ length: 40 }, (_, i) => ({ e: icons[i % icons.length], l: Math.random() * 100, d: Math.random() * 3, t: 3 + Math.random() * 3 }));
+                setStudents(prev => prev.map(x => x.id === id ? { ...x, hatchedWeek: nextReset, legends: [...(x.legends || []), { kind, date: Date.now() }] } : x));
+                setHoldingEgg(null);
+                setHatchShow({ name: st.name, kind, confetti });
+            };
+            const startHold = (id) => {
+                clearTimeout(holdTimer.current);
+                setHoldingEgg(id);
+                holdTimer.current = setTimeout(() => hatchEgg(id), 2200);
+            };
+            const stopHold = () => { clearTimeout(holdTimer.current); setHoldingEgg(null); };
             
             const [bulkSelections, setBulkSelections] = useState([]);
 
@@ -2304,6 +2529,119 @@
                         </div>
                     )}
 
+                    {activeModal === 'eggs' && (() => {
+                        const list = [...students].sort((a, b) => a.name.localeCompare(b.name, 'tr')).map(st => {
+                            const score = dmCalculateProportionalScore(st).proportional;
+                            return { st, score, stage: dmGetEggStage(score), hatched: st.hatchedWeek === nextReset };
+                        });
+                        const totalLegends = students.reduce((a, x) => a + (x.legends || []).length, 0);
+                        return (
+                            <div onPointerMove={dmEggLook} onPointerLeave={dmEggLookReset} className="fixed inset-0 z-[100] dm-egg-garden flex flex-col animate-in">
+                                <div className="flex items-center justify-between gap-2 px-3 py-2 md:px-6 shrink-0">
+                                    <div className="min-w-0">
+                                        <h2 className="text-xl md:text-3xl font-black text-sky-900">🥚 Yumurta Evrim Bahçesi</h2>
+                                        <p className="text-sky-800 font-bold text-[11px] md:text-sm">Güzel davranışlar yumurtanı büyütür! Mor yumurta olunca öğretmenin seni çağırır ✨</p>
+                                    </div>
+                                    <div className="flex gap-2 shrink-0">
+                                        <button onClick={() => setShowLegends(true)} className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 md:px-5 md:py-2.5 rounded-2xl font-black shadow-lg active:scale-95 text-sm md:text-base">🏆 Efsane Hayvanlar ({totalLegends})</button>
+                                        <button onClick={() => { setShowLegends(false); setActiveModal(null); }} className="bg-red-500 hover:bg-red-600 text-white px-3 py-2 md:px-4 md:py-2.5 rounded-2xl font-black shadow-lg active:scale-95 flex items-center gap-1"><Icons.X size={18}/> <span className="hidden sm:inline">Kapat</span></button>
+                                    </div>
+                                </div>
+
+                                <div className="flex-1 min-h-0 overflow-y-auto px-2 md:px-5 pb-2">
+                                    {list.length === 0 && <p className="text-center text-sky-900 font-black text-xl mt-16">Henüz sınıfta öğrenci yok.</p>}
+                                    <div className="dm-egg-grid">
+                                        {list.map(({ st, score, stage, hatched }) => {
+                                            const info = DM_EGG_STAGES[stage];
+                                            const next = DM_EGG_STAGES[stage + 1];
+                                            const pct = stage === 7 ? 100 : stage === 0 ? Math.max(0, Math.min(100, score * 10)) : Math.max(0, Math.min(100, ((score - info.min) / (next.min - info.min)) * 100));
+                                            const canHatch = stage === 7 && !hatched;
+                                            const lastKind = hatched ? (st.legends || []).slice(-1)[0]?.kind : null;
+                                            const legCount = (st.legends || []).length;
+                                            return (
+                                                <div key={st.id}
+                                                    onPointerDown={canHatch ? () => startHold(st.id) : undefined}
+                                                    onPointerUp={canHatch ? stopHold : undefined}
+                                                    onPointerLeave={canHatch ? stopHold : undefined}
+                                                    onPointerCancel={canHatch ? stopHold : undefined}
+                                                    onContextMenu={(e) => e.preventDefault()}
+                                                    onClick={!canHatch ? () => { setBouncingEgg(st.id); setTimeout(() => setBouncingEgg(null), 750); } : undefined}
+                                                    style={canHatch ? { touchAction: 'none', userSelect: 'none', WebkitUserSelect: 'none' } : undefined}
+                                                    className={`dm-egg-card ${stage === 7 ? 'dm-egg-legend-card' : ''} ${holdingEgg === st.id ? 'dm-egg-holding' : ''} ${bouncingEgg === st.id ? 'dm-egg-bounce' : ''}`}>
+                                                    {stage >= 6 && <span className="dm-egg-spark" style={{ top: 4, left: 6, fontSize: '.8rem' }}>✨</span>}
+                                                    {legCount > 0 && <span className="absolute top-1 right-1.5 text-[10px] md:text-xs font-black bg-purple-600 text-white rounded-full px-1.5 z-10">🐾{legCount}</span>}
+                                                    <div className="dm-egg-fit">
+                                                        {hatched ? <DmCreature kind={lastKind} uid={`g${st.id}`} /> : <DmEgg stage={stage} uid={`s${st.id}`} />}
+                                                    </div>
+                                                    <div className="dm-egg-name">{st.name}</div>
+                                                    <div className="dm-egg-sub">
+                                                        {canHatch ? <span className="text-purple-700 animate-pulse">👆 Basılı tut!</span>
+                                                            : hatched ? <span className="text-purple-700">🐣 Yavrun çıktı!</span>
+                                                            : <>⭐{score} · {info.emoji} · 🎯{Math.max(0, next.min - score)} kaldı</>}
+                                                    </div>
+                                                    <div className="dm-egg-bar mt-0.5" style={{ height: 7 }}>
+                                                        {holdingEgg === st.id ? <div className="dm-hold-bar"></div> : <div style={{ width: `${pct}%`, background: info.bar }}></div>}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
+                                <div className="shrink-0 bg-white/80 backdrop-blur border-t-4 border-white px-2 py-1.5">
+                                    <div className="flex items-end justify-start md:justify-center gap-1 md:gap-4 overflow-x-auto">
+                                        {DM_EGG_STAGES.map((stg, i) => (
+                                            <div key={i} className="flex flex-col items-center shrink-0" style={{ width: 52 }}>
+                                                <div style={{ width: 32, height: 40 }}><DmEgg stage={i} uid={`lg${i}`} /></div>
+                                                <div className="text-[10px] font-black text-slate-700 leading-tight">{stg.range}</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {showLegends && (
+                                    <div className="absolute inset-0 z-20 bg-gradient-to-b from-purple-100 to-fuchsia-50 overflow-y-auto p-4 md:p-8">
+                                        <div className="flex justify-between items-center mb-4 max-w-5xl mx-auto">
+                                            <h3 className="text-2xl md:text-4xl font-black text-purple-900">🏆 Efsane Hayvanlar Hanesi</h3>
+                                            <button onClick={() => setShowLegends(false)} className="bg-red-500 text-white px-4 py-2 rounded-2xl font-black active:scale-95"><Icons.X size={18}/></button>
+                                        </div>
+                                        <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-3">
+                                            {students.filter(x => (x.legends || []).length > 0).sort((a, b) => (b.legends.length - a.legends.length) || a.name.localeCompare(b.name, 'tr')).map(x => (
+                                                <div key={x.id} className="bg-white rounded-3xl p-3 shadow-md border-4 border-purple-200">
+                                                    <div className="font-black text-lg text-purple-900 mb-1">👑 {x.name} <span className="text-sm text-purple-500">({x.legends.length})</span></div>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {x.legends.map((l, i) => (
+                                                            <div key={i} className="flex flex-col items-center" style={{ width: 70 }}>
+                                                                <div style={{ width: 60, height: 60 }}><DmCreature kind={l.kind} uid={`h${x.id}-${i}`} /></div>
+                                                                <div className="text-[10px] font-black text-slate-600 text-center leading-tight">{(DM_CREATURES.find(c => c.key === l.kind) || {}).name}</div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        {totalLegends === 0 && <p className="text-center text-purple-800 font-black text-xl mt-16">Henüz efsane hayvan yok. İlk efsane yumurtayı kim çatlatacak? 🥚✨</p>}
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })()}
+
+                    {hatchShow && (() => {
+                        const c = DM_CREATURES.find(x => x.key === hatchShow.kind);
+                        return (
+                            <div className="fixed inset-0 z-[130] flex flex-col items-center justify-center text-center p-4 overflow-hidden" style={{ background: 'radial-gradient(circle at 50% 40%, #a855f7 0%, #581c87 60%, #2e1065 100%)' }}>
+                                <div className="dm-hatch-flash"></div>
+                                {hatchShow.confetti.map((k, i) => <span key={i} className="dm-confetti text-2xl" style={{ left: `${k.l}%`, animationDelay: `${k.d}s`, animationDuration: `${k.t}s` }}>{k.e}</span>)}
+                                <div className="dm-pop" style={{ width: 'min(60vw,300px)', height: 'min(60vw,300px)' }}><DmCreature kind={hatchShow.kind} uid="hatch" /></div>
+                                <h2 className="text-3xl md:text-6xl font-black text-yellow-300 drop-shadow-lg mt-4">🎉 TEBRİKLER {hatchShow.name}! 🎉</h2>
+                                <p className="text-white font-black text-lg md:text-3xl mt-3">Efsane yumurtan çatladı ve içinden <span className="text-yellow-300">{c ? c.name : 'Efsane Dost'}</span> çıktı!</p>
+                                <p className="text-purple-100 font-bold text-base md:text-xl mt-2">Güzel davranışların seni bu noktaya taşıdı. Sen gerçek bir efsanesin! 💜</p>
+                                <button onClick={() => setHatchShow(null)} className="mt-6 bg-yellow-400 hover:bg-yellow-300 text-purple-900 font-black text-xl md:text-2xl px-8 py-3 rounded-3xl shadow-xl active:scale-95">Harika! 🥳</button>
+                            </div>
+                        );
+                    })()}
+
                     <div className="text-center mb-8 mt-16 w-full flex flex-col items-center px-4">
                         <div className="bg-blue-100 text-blue-800 px-4 py-1 rounded-full font-bold text-sm mb-4 inline-block shadow-sm">Bağlantı Güvenli</div>
                         <h1 className="text-4xl md:text-5xl font-black text-slate-800 tracking-tight mb-8">Sınıf Davranış Takip Sistemi</h1>
@@ -2345,6 +2683,9 @@
                             <button onClick={() => { setBulkSelections([]); setActiveModal('bulkBehavior'); }} className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-white shadow-md transition-transform active:scale-95 bg-gradient-to-r from-purple-500 to-fuchsia-600">
                                 <Icons.Users size={20}/> Toplu Puan
                             </button>
+                            <button onClick={() => setActiveModal('eggs')} className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-white shadow-md transition-transform active:scale-95 bg-gradient-to-r from-amber-400 to-orange-500 hover:scale-105">
+                                <span className="text-xl">🥚</span> Yumurtalar
+                            </button>
                         </div>
                     </div>
 
@@ -2378,6 +2719,15 @@
                                         </div>
                                     )}
                                     
+                                    {(() => {
+                                        const eggScore = scoreData.proportional;
+                                        const hatchedNow = student.hatchedWeek === nextReset && (student.legends || []).length > 0;
+                                        return (
+                                            <div onClick={(e) => { e.stopPropagation(); setActiveModal('eggs'); }} onContextMenu={(e) => e.stopPropagation()} title="Yumurtam" className="absolute bottom-1.5 right-1.5 cursor-pointer hover:scale-125 transition-transform bg-white/30 rounded-full px-1.5 pt-1 pb-0.5" style={{ width: 40, height: 46 }}>
+                                                {hatchedNow ? <DmCreature kind={student.legends.slice(-1)[0].kind} uid={`m${student.id}`} /> : <DmEgg stage={dmGetEggStage(eggScore)} uid={`m${student.id}`} />}
+                                            </div>
+                                        );
+                                    })()}
                                     <div onClick={(e) => toggleStudentAbsence(e, student.id)} className={`absolute bottom-2 left-2 p-1.5 rounded-lg cursor-pointer transition-all ${isAbsentToday ? 'text-amber-800' : 'bg-white/20 text-white hover:bg-white/40'}`}>
                                         {isAbsentToday ? <Icons.Lock size={22} /> : <Icons.Unlock size={22} className="opacity-40 hover:opacity-100" />}
                                     </div>
