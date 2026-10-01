@@ -1677,6 +1677,17 @@
         };
 
 
+
+        const dmIsFriday = () => { const d = new Date(); return d.getDay() === 5 && (d.getHours() * 60 + d.getMinutes()) >= 14 * 60 + 10; };
+        const DM_SUPPORT_MSGS = {
+            low: ['Yumurtan daha yeni uyanıyor ama içinde sana ait güzel bir güç var! Gelecek hafta her gün bir güzel davranış ekle, yumurtan hızla büyüyecek. Sen de efsane olabilirsin! 💪',
+                  'Her büyük yolculuk küçük bir adımla başlar. Bu hafta başladın, gelecek hafta daha da güçleneceksin. Sana inanıyoruz! 🌱'],
+            mid: ['Harika gidiyorsun! Yumurtan güçlendi ve rengini buldu. Biraz daha çaba ile mor efsane yumurtaya sen de ulaşabilirsin! 🚀',
+                  'Çabaların yumurtanda görünüyor! Gelecek hafta bir adım daha atarsan efsane yumurtaya yaklaşırsın. Vazgeçme! 💛'],
+            high: ['Çok az kaldı! Yumurtan neredeyse efsane seviyesinde. Gelecek hafta sıra sende olabilir, sen kesinlikle yapabilirsin! 🌟',
+                   'Kabuğunda çatlaklar ve ışık var, efsane olmak için hemen kapıdasın! Biraz daha güzel davranış ve o mor yumurta senin olacak! 👑']
+        };
+
         const dmEggLook = (e) => {
             document.querySelectorAll('.dm-egg-grid .dm-egg-card').forEach(card => {
                 const face = card.querySelector('.dm-face');
@@ -1731,18 +1742,31 @@
             const [showLegends, setShowLegends] = useState(false);
             const holdTimer = useRef(null);
 
+            const [, setEggTick] = useState(0);
+            useEffect(() => { const t = setInterval(() => setEggTick(x => x + 1), 10000); return () => clearInterval(t); }, []);
             const hatchEgg = (id) => {
                 const st = students.find(x => x.id === id);
                 if (!st || st.hatchedWeek === nextReset) return;
-                const owned = (st.legends || []).map(l => l.kind);
-                const free = DM_CREATURES.filter(c => !owned.includes(c.key));
-                const pool = free.length ? free : DM_CREATURES;
-                const kind = pool[Math.floor(Math.random() * pool.length)].key;
-                const icons = ['🎉','✨','⭐','🎊','💜','🌟'];
-                const confetti = Array.from({ length: 40 }, (_, i) => ({ e: icons[i % icons.length], l: Math.random() * 100, d: Math.random() * 3, t: 3 + Math.random() * 3 }));
-                setStudents(prev => prev.map(x => x.id === id ? { ...x, hatchedWeek: nextReset, legends: [...(x.legends || []), { kind, date: Date.now() }] } : x));
+                if (!dmIsFriday()) { setHoldingEgg(null); return; }
+                try { const snd = new Audio('assets/win.mp3'); snd.currentTime = 0; snd.play().catch(() => {}); } catch (e) {}
+                const score = dmCalculateProportionalScore(st).proportional;
+                const stage = dmGetEggStage(score);
+                const icons = stage === 7 ? ['🎉','✨','⭐','🎊','💜','🌟'] : ['⭐','✨','💛','🌈','🎈'];
+                const confetti = Array.from({ length: stage === 7 ? 40 : 24 }, (_, i) => ({ e: icons[i % icons.length], l: Math.random() * 100, d: Math.random() * 3, t: 3 + Math.random() * 3 }));
                 setHoldingEgg(null);
-                setHatchShow({ name: st.name, kind, confetti });
+                if (stage === 7) {
+                    const owned = (st.legends || []).map(l => l.kind);
+                    const free = DM_CREATURES.filter(c => !owned.includes(c.key));
+                    const pool = free.length ? free : DM_CREATURES;
+                    const kind = pool[Math.floor(Math.random() * pool.length)].key;
+                    setStudents(prev => prev.map(x => x.id === id ? { ...x, hatchedWeek: nextReset, hatchedType: 'legend', legends: [...(x.legends || []), { kind, date: Date.now() }] } : x));
+                    setHatchShow({ name: st.name, kind, confetti });
+                } else {
+                    const tier = stage <= 2 ? 'low' : stage <= 4 ? 'mid' : 'high';
+                    const arr = DM_SUPPORT_MSGS[tier];
+                    setStudents(prev => prev.map(x => x.id === id ? { ...x, hatchedWeek: nextReset, hatchedType: 'support' } : x));
+                    setHatchShow({ name: st.name, support: true, stage, left: 41 - score, msg: arr[Math.floor(Math.random() * arr.length)], confetti });
+                }
             };
             const startHold = (id) => {
                 clearTimeout(holdTimer.current);
@@ -2535,12 +2559,13 @@
                             return { st, score, stage: dmGetEggStage(score), hatched: st.hatchedWeek === nextReset };
                         });
                         const totalLegends = students.reduce((a, x) => a + (x.legends || []).length, 0);
+                        const canOpenEggs = dmIsFriday();
                         return (
                             <div onPointerMove={dmEggLook} onPointerLeave={dmEggLookReset} className="fixed inset-0 z-[100] dm-egg-garden flex flex-col animate-in">
                                 <div className="flex items-center justify-between gap-2 px-3 py-2 md:px-6 shrink-0">
                                     <div className="min-w-0">
                                         <h2 className="text-xl md:text-3xl font-black text-sky-900">🥚 Yumurta Evrim Bahçesi</h2>
-                                        <p className="text-sky-800 font-bold text-[11px] md:text-sm">Güzel davranışlar yumurtanı büyütür! Mor yumurta olunca öğretmenin seni çağırır ✨</p>
+                                        <p className="text-sky-800 font-bold text-[11px] md:text-sm">Güzel davranışlar yumurtanı büyütür! Cuma 14.10'dan sonra herkes yumurtasını açar: mor yumurta efsane hayvan, diğerleri sürpriz mesaj kazanır 💌</p>
                                     </div>
                                     <div className="flex gap-2 shrink-0">
                                         <button onClick={() => setShowLegends(true)} className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 md:px-5 md:py-2.5 rounded-2xl font-black shadow-lg active:scale-95 text-sm md:text-base">🏆 Efsane Hayvanlar ({totalLegends})</button>
@@ -2555,8 +2580,9 @@
                                             const info = DM_EGG_STAGES[stage];
                                             const next = DM_EGG_STAGES[stage + 1];
                                             const pct = stage === 7 ? 100 : stage === 0 ? Math.max(0, Math.min(100, score * 10)) : Math.max(0, Math.min(100, ((score - info.min) / (next.min - info.min)) * 100));
-                                            const canHatch = stage === 7 && !hatched;
-                                            const lastKind = hatched ? (st.legends || []).slice(-1)[0]?.kind : null;
+                                            const canHatch = canOpenEggs && !hatched;
+                                            const isSupport = hatched && st.hatchedType === 'support';
+                                            const lastKind = hatched && !isSupport ? (st.legends || []).slice(-1)[0]?.kind : null;
                                             const legCount = (st.legends || []).length;
                                             return (
                                                 <div key={st.id}
@@ -2571,12 +2597,13 @@
                                                     {stage >= 6 && <span className="dm-egg-spark" style={{ top: 4, left: 6, fontSize: '.8rem' }}>✨</span>}
                                                     {legCount > 0 && <span className="absolute top-1 right-1.5 text-[10px] md:text-xs font-black bg-purple-600 text-white rounded-full px-1.5 z-10">🐾{legCount}</span>}
                                                     <div className="dm-egg-fit">
-                                                        {hatched ? <DmCreature kind={lastKind} uid={`g${st.id}`} /> : <DmEgg stage={stage} uid={`s${st.id}`} />}
+                                                        {hatched && !isSupport ? <DmCreature kind={lastKind} uid={`g${st.id}`} /> : <DmEgg stage={stage} uid={`s${st.id}`} />}
                                                     </div>
                                                     <div className="dm-egg-name">{st.name}</div>
                                                     <div className="dm-egg-sub">
-                                                        {canHatch ? <span className="text-purple-700 animate-pulse">👆 Basılı tut!</span>
-                                                            : hatched ? <span className="text-purple-700">🐣 Yavrun çıktı!</span>
+                                                        {canHatch ? <span className={stage === 7 ? 'text-purple-700 animate-pulse' : 'text-amber-700 animate-pulse'}>👆 Basılı tut!</span>
+                                                            : hatched ? <span className="text-purple-700">{isSupport ? '💌 Mesajını aldı!' : '🐣 Yavrun çıktı!'}</span>
+                                                            : stage === 7 ? <span className="text-purple-700">⏰ Cuma 14.10'da açılır!</span>
                                                             : <>⭐{score} · {info.emoji} · 🎯{Math.max(0, next.min - score)} kaldı</>}
                                                     </div>
                                                     <div className="dm-egg-bar mt-0.5" style={{ height: 7 }}>
@@ -2628,6 +2655,23 @@
                     })()}
 
                     {hatchShow && (() => {
+                        if (hatchShow.support) {
+                            return (
+                                <div className="fixed inset-0 z-[130] flex flex-col items-center justify-center text-center p-4 overflow-hidden" style={{ background: 'radial-gradient(circle at 50% 40%, #fef9c3 0%, #bae6fd 60%, #a5b4fc 100%)' }}>
+                                    <div className="dm-hatch-flash"></div>
+                                    {hatchShow.confetti.map((k, i) => <span key={i} className="dm-confetti text-2xl" style={{ left: `${k.l}%`, animationDelay: `${k.d}s`, animationDuration: `${k.t}s` }}>{k.e}</span>)}
+                                    <div className="dm-pop relative" style={{ width: 'min(40vw,200px)', height: 'min(50vw,250px)' }}>
+                                        <DmEgg stage={hatchShow.stage} uid="sup" />
+                                        <span className="absolute -top-3 -right-6 text-5xl animate-bounce">💌</span>
+                                    </div>
+                                    <h2 className="text-2xl md:text-5xl font-black text-indigo-900 mt-4">💛 {hatchShow.name}, yumurtan sana bir mesaj gönderdi!</h2>
+                                    <p className="text-indigo-900 font-black text-lg md:text-3xl mt-3 max-w-4xl">{hatchShow.msg}</p>
+                                    {hatchShow.stage >= 4 && <p className="text-purple-800 font-bold text-base md:text-xl mt-2">🎯 Efsane yumurta için sadece {hatchShow.left} puan kalmıştı!</p>}
+                                    <p className="text-indigo-700 font-bold text-sm md:text-lg mt-2">Her yeni hafta, yeni bir yumurta ve yeni bir şans! 🥚</p>
+                                    <button onClick={() => setHatchShow(null)} className="mt-5 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xl md:text-2xl px-8 py-3 rounded-3xl shadow-xl active:scale-95">Yeni haftada görüşürüz! 💪</button>
+                                </div>
+                            );
+                        }
                         const c = DM_CREATURES.find(x => x.key === hatchShow.kind);
                         return (
                             <div className="fixed inset-0 z-[130] flex flex-col items-center justify-center text-center p-4 overflow-hidden" style={{ background: 'radial-gradient(circle at 50% 40%, #a855f7 0%, #581c87 60%, #2e1065 100%)' }}>
@@ -2721,7 +2765,7 @@
                                     
                                     {(() => {
                                         const eggScore = scoreData.proportional;
-                                        const hatchedNow = student.hatchedWeek === nextReset && (student.legends || []).length > 0;
+                                        const hatchedNow = student.hatchedWeek === nextReset && student.hatchedType !== 'support' && (student.legends || []).length > 0;
                                         return (
                                             <div onClick={(e) => { e.stopPropagation(); setActiveModal('eggs'); }} onContextMenu={(e) => e.stopPropagation()} title="Yumurtam" className="absolute bottom-1.5 right-1.5 cursor-pointer hover:scale-125 transition-transform bg-white/30 rounded-full px-1.5 pt-1 pb-0.5" style={{ width: 40, height: 46 }}>
                                                 {hatchedNow ? <DmCreature kind={student.legends.slice(-1)[0].kind} uid={`m${student.id}`} /> : <DmEgg stage={dmGetEggStage(eggScore)} uid={`m${student.id}`} />}
