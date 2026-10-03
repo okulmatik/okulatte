@@ -1420,19 +1420,15 @@
                 else { actualScore += (daily[i] || 0); }
             }
             const attendedDays = 5 - absentCount;
-            if (attendedDays === 0) return { proportional: 0, actualScore, attendedDays, maxPossible: 0 };
-            
-            if (attendedDays === 5) {
-                return { proportional: actualScore, actualScore, attendedDays, maxPossible: 50 };
-            }
-            
-            const maxPossible = attendedDays * 10;
-            let proportional = Math.round((actualScore / maxPossible) * 50);
-            
+            if (attendedDays === 0) return { proportional: 0, actualScore, attendedDays, maxPossible: 0, absentCredit: 0 };
+
+            // Gelmediği (kilitlenen) her gün için sabit 5 puan eklenir
+            const absentCredit = absentCount * 5;
+            let proportional = actualScore + absentCredit;
             if (proportional > 50) proportional = 50;
             if (proportional < -50) proportional = -50;
-            
-            return { proportional, actualScore, attendedDays, maxPossible };
+
+            return { proportional, actualScore, attendedDays, maxPossible: attendedDays * 10, absentCredit };
         };
 
         const generateStudentReportHTML = (student, currentDate, currentWeekId, updateStudentMsgState) => {
@@ -1443,7 +1439,6 @@
             
             let performanceSummary = `<p style="font-weight: bold; color: #000;">Haftalık Davranış Puanı: ${haftalikPuan} / 50</p>`;
             if (scoreData.attendedDays > 0 && scoreData.attendedDays < 5) {
-                performanceSummary += `<p style="font-size: 11pt; color: #444; margin-top: 4px;">* Öğrencimiz bu hafta <strong>${scoreData.attendedDays} gün</strong> okula gelmiş ve ${scoreData.maxPossible} üzerinden <strong>${scoreData.actualScore} puan</strong> almıştır. Bu performans, tam haftalık (50 puanlık) değerlendirme sistemine göre <strong>${haftalikPuan} puana</strong> eşdeğerdir.</p>`;
             } else if (scoreData.attendedDays === 0) {
                 performanceSummary = `<p style="font-weight: bold; color: #d97706;">Öğrenci bu hafta okula gelmemiştir.</p>`;
                 haftalikPuan = 0;
@@ -1559,6 +1554,13 @@
             return idx;
         };
 
+        const dmGetStudentStage = (st) => {
+            const d = dmCalculateProportionalScore(st);
+            let stage = dmGetEggStage(d.proportional);
+            if (stage === 7 && d.attendedDays < 4) stage = 6; // Efsane için en az 4 gün gelmiş olmak şart
+            return stage;
+        };
+
         const DmEgg = ({ stage, uid }) => {
             const s = DM_EGG_STAGES[stage];
             const path = "M50 6 C26 6 8 52 8 84 C8 110 26 126 50 126 C74 126 92 110 92 84 C92 52 74 6 50 6 Z";
@@ -1644,39 +1646,111 @@
 
 
         const DM_CREATURES = [
-            { key: 'dragon',  name: 'Efsane Ejderha' },
-            { key: 'cat',     name: 'Efsane Kedi' },
-            { key: 'bunny',   name: 'Efsane Tavşan' },
-            { key: 'bear',    name: 'Efsane Ayı' },
-            { key: 'owl',     name: 'Efsane Baykuş' },
-            { key: 'unicorn', name: 'Efsane Tek Boynuzlu' }
+            { key: 'turtle', name: 'Efsane Kaplumbağa' }, { key: 'panda', name: 'Efsane Panda' },
+            { key: 'bunny', name: 'Efsane Tavşan' },     { key: 'dog', name: 'Efsane Köpek' },
+            { key: 'cat', name: 'Efsane Kedi' },         { key: 'fish', name: 'Efsane Balık' },
+            { key: 'bird', name: 'Efsane Kuş' },         { key: 'rooster', name: 'Efsane Horoz' },
+            { key: 'wolf', name: 'Efsane Kurt' },        { key: 'fox', name: 'Efsane Tilki' },
+            { key: 'penguin', name: 'Efsane Penguen' },  { key: 'dragon', name: 'Efsane Ejderha' },
+            { key: 'owl', name: 'Efsane Baykuş' },       { key: 'unicorn', name: 'Efsane Tek Boynuzlu' },
+            { key: 'bear', name: 'Efsane Ayı' }
         ];
+        const dmImgFail = {};
         const DmCreature = ({ kind, uid }) => {
-            const D = '#581c87', eye = '#1f2937';
-            const tri = (d, inner) => (<g><path d={d} fill="#a855f7" stroke={D} strokeWidth="2.5" strokeLinejoin="round" />{inner}</g>);
+            // İsterseniz assets/efsane/<kind>.png dosyası koyun; varsa o görsel kullanılır, yoksa çizim görünür.
+            const [imgOk, setImgOk] = useState(!dmImgFail[kind]);
+            if (imgOk) return <img src={`assets/efsane/${kind}.png`} alt="" className="dm-creature-svg" style={{ objectFit: 'contain' }} onError={() => { dmImgFail[kind] = true; setImgOk(false); }} />;
+            const D = '#581c87', eye = '#1f2937', V = '#a855f7', grad = `url(#cr-${uid})`;
+            const st = { stroke: D, strokeWidth: 2.5, strokeLinejoin: 'round' };
+            const tri = (d, f = V) => <path d={d} fill={f} {...st} />;
+            const ell = (cx, cy, rx, ry, f = V, rot) => <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill={f} transform={rot} {...st} />;
+            const eyes = (y = 58, dx = 12) => (<g><circle cx={50 - dx} cy={y} r="5" fill={eye} /><circle cx={50 + dx} cy={y} r="5" fill={eye} /><circle cx={50 - dx + 1.8} cy={y - 2} r="1.8" fill="#fff" /><circle cx={50 + dx + 1.8} cy={y - 2} r="1.8" fill="#fff" /></g>);
+            const cheeks = (y = 68) => (<g><circle cx="28" cy={y} r="4.5" fill="#fb7185" opacity=".5" /><circle cx="72" cy={y} r="4.5" fill="#fb7185" opacity=".5" /></g>);
+            const smile = (y = 68) => <path d={`M42 ${y} Q50 ${y + 10} 58 ${y}`} fill="none" stroke={eye} strokeWidth="2.6" strokeLinecap="round" />;
+            const nose = (y = 64) => <ellipse cx="50" cy={y} rx="4" ry="3" fill={eye} />;
+            const defs = <defs><radialGradient id={`cr-${uid}`} cx="35%" cy="30%" r="85%"><stop offset="0" stopColor="#f3e8ff" /><stop offset=".55" stopColor="#a855f7" /><stop offset="1" stopColor="#6b21a8" /></radialGradient></defs>;
+            const spark = <text x="82" y="22" fontSize="14">✨</text>;
+
+            if (kind === 'fish') return (
+                <svg viewBox="0 0 100 100" className="dm-creature-svg" aria-hidden="true">{defs}
+                    {tri("M72 56 L96 34 L90 56 L96 78Z", '#c084fc')}{tri("M32 36 Q46 12 64 36Z", '#c084fc')}
+                    <ellipse cx="46" cy="56" rx="34" ry="26" fill={grad} {...st} />
+                    <ellipse cx="44" cy="68" rx="20" ry="9" fill="#f5d0fe" opacity=".75" />
+                    <g fill="none" stroke="#e9d5ff" strokeWidth="2" strokeLinecap="round"><path d="M54 46 Q60 52 54 58" /><path d="M62 54 Q68 60 62 66" /><path d="M46 52 Q52 58 46 64" /></g>
+                    <path d="M32 44 Q27 56 32 68" fill="none" stroke={D} strokeWidth="2" />
+                    <circle cx="26" cy="52" r="5" fill={eye} /><circle cx="27.8" cy="50" r="1.8" fill="#fff" /><circle cx="22" cy="62" r="4" fill="#fb7185" opacity=".5" />
+                    <path d="M16 60 Q22 66 28 62" fill="none" stroke={eye} strokeWidth="2.4" strokeLinecap="round" />
+                    <circle cx="12" cy="34" r="4" fill="none" stroke="#e9d5ff" strokeWidth="2" /><circle cx="20" cy="22" r="3" fill="none" stroke="#e9d5ff" strokeWidth="2" />{spark}
+                </svg>);
+            if (kind === 'turtle') return (
+                <svg viewBox="0 0 100 100" className="dm-creature-svg" aria-hidden="true">{defs}
+                    <ellipse cx="50" cy="94" rx="32" ry="4" fill="rgba(0,0,0,.15)" />
+                    {ell(20, 84, 10, 7, '#c084fc')}{ell(80, 84, 10, 7, '#c084fc')}
+                    <path d="M10 72 Q10 18 50 18 Q90 18 90 72 Z" fill="#7e22ce" {...st} />
+                    <polygon points="40,38 60,38 68,52 60,66 40,66 32,52" fill={V} stroke="#e9d5ff" strokeWidth="2" strokeLinejoin="round" />
+                    <path d="M50 18 L50 38 M32 52 L18 46 M68 52 L82 46 M40 66 L28 72 M60 66 L72 72" stroke="#e9d5ff" strokeWidth="2" fill="none" strokeLinecap="round" />
+                    <circle cx="50" cy="52" r="4" fill="#fde047" />
+                    <ellipse cx="50" cy="76" rx="21" ry="16" fill="#d8b4fe" {...st} />
+                    <circle cx="42" cy="74" r="3.6" fill={eye} /><circle cx="58" cy="74" r="3.6" fill={eye} /><circle cx="43.2" cy="72.8" r="1.2" fill="#fff" /><circle cx="59.2" cy="72.8" r="1.2" fill="#fff" />
+                    <circle cx="35" cy="81" r="3.5" fill="#fb7185" opacity=".5" /><circle cx="65" cy="81" r="3.5" fill="#fb7185" opacity=".5" />
+                    <path d="M45 80 Q50 86 55 80" fill="none" stroke={eye} strokeWidth="2.4" strokeLinecap="round" />{spark}
+                </svg>);
+
+            let back = null, fill = grad, over = null;
+            let belly = <ellipse cx="50" cy="74" rx="17" ry="13" fill="#f5d0fe" opacity=".75" />;
+            let face = <g>{eyes()}{cheeks()}{smile()}</g>;
+            switch (kind) {
+                case 'dragon': back = <g><path d="M18 62 Q0 50 8 34 Q22 42 26 56Z" fill="#c084fc" {...st} /><path d="M82 62 Q100 50 92 34 Q78 42 74 56Z" fill="#c084fc" {...st} />{tri("M28 38 L22 14 L42 30Z")}{tri("M72 38 L78 14 L58 30Z")}</g>; break;
+                case 'cat': back = <g>{tri("M20 46 L24 16 L44 32Z")}{tri("M80 46 L76 16 L56 32Z")}<path d="M27 38 L28 25 L37 32Z" fill="#f9a8d4" /><path d="M73 38 L72 25 L63 32Z" fill="#f9a8d4" /></g>;
+                    over = <g stroke={D} strokeWidth="1.6" strokeLinecap="round"><path d="M12 64 L30 67" /><path d="M12 73 L30 71" /><path d="M88 64 L70 67" /><path d="M88 73 L70 71" /></g>; break;
+                case 'bunny': back = <g>{ell(36, 22, 8, 20)}{ell(64, 22, 8, 20)}<ellipse cx="36" cy="24" rx="3.5" ry="13" fill="#f9a8d4" /><ellipse cx="64" cy="24" rx="3.5" ry="13" fill="#f9a8d4" /></g>; break;
+                case 'bear': back = <g>{ell(24, 36, 11, 11)}{ell(76, 36, 11, 11)}<circle cx="24" cy="36" r="5" fill="#f9a8d4" /><circle cx="76" cy="36" r="5" fill="#f9a8d4" /></g>; break;
+                case 'panda': fill = '#f5f3ff'; belly = null;
+                    back = <g>{ell(24, 36, 11, 11, '#3b0764')}{ell(76, 36, 11, 11, '#3b0764')}</g>;
+                    face = <g><ellipse cx="37" cy="58" rx="8" ry="10" fill="#3b0764" transform="rotate(20 37 58)" /><ellipse cx="63" cy="58" rx="8" ry="10" fill="#3b0764" transform="rotate(-20 63 58)" />
+                        <circle cx="37" cy="57" r="3.6" fill="#fff" /><circle cx="63" cy="57" r="3.6" fill="#fff" /><circle cx="37.6" cy="57.4" r="1.8" fill={eye} /><circle cx="62.4" cy="57.4" r="1.8" fill={eye} />
+                        {nose(68)}<path d="M44 73 Q50 80 56 73" fill="none" stroke={eye} strokeWidth="2.4" strokeLinecap="round" />{cheeks(72)}</g>; break;
+                case 'dog': back = <g>{ell(15, 54, 10, 18, '#7e22ce', 'rotate(15 15 54)')}{ell(85, 54, 10, 18, '#7e22ce', 'rotate(-15 85 54)')}</g>; belly = null;
+                    over = <ellipse cx="50" cy="72" rx="16" ry="12" fill="#f5d0fe" />;
+                    face = <g>{eyes(54)}{nose(66)}<path d="M44 74 Q50 80 56 74" fill="none" stroke={eye} strokeWidth="2.4" strokeLinecap="round" /><path d="M47 77 Q50 88 53 77Z" fill="#fb7185" /></g>; break;
+                case 'wolf': back = <g>{tri("M22 46 L26 8 L46 32Z")}{tri("M78 46 L74 8 L54 32Z")}</g>; belly = null;
+                    over = <g>{tri("M14 70 L28 60 L24 78Z", '#c084fc')}{tri("M86 70 L72 60 L76 78Z", '#c084fc')}<ellipse cx="50" cy="72" rx="15" ry="11" fill="#f5d0fe" /></g>;
+                    face = <g><circle cx="38" cy="56" r="5.5" fill="#fde047" /><circle cx="62" cy="56" r="5.5" fill="#fde047" /><circle cx="38" cy="56" r="2.6" fill={eye} /><circle cx="62" cy="56" r="2.6" fill={eye} />{nose(66)}<path d="M42 74 Q50 82 58 74" fill="none" stroke={eye} strokeWidth="2.4" strokeLinecap="round" /><path d="M44 77 L46 82 L48 77Z" fill="#fff" /></g>; break;
+                case 'fox': back = <g>{ell(88, 76, 11, 19, '#c084fc', 'rotate(-35 88 76)')}<circle cx="94" cy="60" r="6" fill="#fff" />{tri("M20 46 L22 10 L46 32Z")}{tri("M80 46 L78 10 L54 32Z")}<path d="M22 10 L29 24 L20 27Z" fill={D} /><path d="M78 10 L71 24 L80 27Z" fill={D} /></g>;
+                    over = <g><path d="M16 64 L38 76 L22 90Z" fill="#fff" opacity=".92" /><path d="M84 64 L62 76 L78 90Z" fill="#fff" opacity=".92" /></g>;
+                    face = <g>{eyes(56)}{nose(66)}<path d="M44 72 Q50 78 56 72" fill="none" stroke={eye} strokeWidth="2.4" strokeLinecap="round" /></g>; break;
+                case 'bird': back = <g>{ell(44, 26, 4, 9, '#c084fc', 'rotate(-20 44 26)')}{ell(50, 23, 4, 10, '#c084fc')}{ell(56, 26, 4, 9, '#c084fc', 'rotate(20 56 26)')}</g>;
+                    over = <g>{ell(18, 68, 8, 15, '#9333ea', 'rotate(20 18 68)')}{ell(82, 68, 8, 15, '#9333ea', 'rotate(-20 82 68)')}</g>;
+                    face = <g>{eyes(56)}{cheeks()}<path d="M44 63 L56 63 L50 73Z" fill="#fb923c" stroke="#9a3412" strokeWidth="1.5" strokeLinejoin="round" /></g>; break;
+                case 'rooster': back = <g>{ell(78, 40, 7, 20, '#fbbf24', 'rotate(30 78 40)')}{ell(86, 54, 6, 18, '#f472b6', 'rotate(50 86 54)')}{ell(70, 36, 6, 18, '#c084fc', 'rotate(10 70 36)')}<circle cx="42" cy="30" r="7" fill="#ef4444" {...st} /><circle cx="50" cy="24" r="8" fill="#ef4444" {...st} /><circle cx="58" cy="30" r="7" fill="#ef4444" {...st} /></g>;
+                    face = <g>{eyes(56)}{cheeks()}<ellipse cx="50" cy="77" rx="4" ry="6" fill="#ef4444" stroke={D} strokeWidth="1.5" /><path d="M43 63 L57 63 L50 73Z" fill="#fbbf24" stroke="#9a3412" strokeWidth="1.5" strokeLinejoin="round" /></g>; break;
+                case 'penguin': fill = '#5b21b6'; belly = <ellipse cx="50" cy="72" rx="22" ry="20" fill="#fff" />;
+                    back = <g>{ell(36, 92, 9, 4, '#fb923c')}{ell(64, 92, 9, 4, '#fb923c')}{ell(14, 66, 7, 16, '#4c1d95', 'rotate(15 14 66)')}{ell(86, 66, 7, 16, '#4c1d95', 'rotate(-15 86 66)')}</g>;
+                    over = <ellipse cx="50" cy="58" rx="25" ry="15" fill="#fff" />;
+                    face = <g>{eyes(55)}{cheeks(64)}<path d="M44 62 L56 62 L50 71Z" fill="#fb923c" stroke="#9a3412" strokeWidth="1.5" strokeLinejoin="round" /></g>; break;
+                case 'owl': back = <g>{tri("M24 42 L26 14 L44 30Z")}{tri("M76 42 L74 14 L56 30Z")}</g>;
+                    face = <g><circle cx="38" cy="58" r="10" fill="#fff" stroke={D} strokeWidth="2" /><circle cx="62" cy="58" r="10" fill="#fff" stroke={D} strokeWidth="2" /><circle cx="38" cy="58" r="5" fill={eye} /><circle cx="62" cy="58" r="5" fill={eye} /><path d="M45 68 L55 68 L50 77Z" fill="#fb923c" stroke="#9a3412" strokeWidth="1.5" strokeLinejoin="round" /></g>; break;
+                case 'unicorn': back = <g>{tri("M26 40 L26 20 L42 32Z")}{tri("M74 40 L74 20 L58 32Z")}<path d="M50 2 L43 30 L57 30Z" fill="#fde047" stroke="#b45309" strokeWidth="2" strokeLinejoin="round" /></g>; break;
+                default: break;
+            }
             return (
-                <svg viewBox="0 0 100 100" className="dm-creature-svg" aria-hidden="true">
-                    <defs><radialGradient id={`cr-${uid}`} cx="35%" cy="30%" r="85%"><stop offset="0" stopColor="#f3e8ff" /><stop offset=".55" stopColor="#a855f7" /><stop offset="1" stopColor="#6b21a8" /></radialGradient></defs>
+                <svg viewBox="0 0 100 100" className="dm-creature-svg" aria-hidden="true">{defs}
                     <ellipse cx="50" cy="94" rx="30" ry="4" fill="rgba(0,0,0,.15)" />
-                    {kind === 'dragon' && (<g><path d="M18 62 Q0 50 8 34 Q22 42 26 56Z" fill="#c084fc" stroke={D} strokeWidth="2.5" strokeLinejoin="round" /><path d="M82 62 Q100 50 92 34 Q78 42 74 56Z" fill="#c084fc" stroke={D} strokeWidth="2.5" strokeLinejoin="round" />{tri("M28 38 L22 14 L42 30Z")}{tri("M72 38 L78 14 L58 30Z")}</g>)}
-                    {kind === 'cat' && (<g>{tri("M20 46 L24 16 L44 32Z")}{tri("M80 46 L76 16 L56 32Z")}<path d="M27 38 L28 25 L37 32Z" fill="#f9a8d4" /><path d="M73 38 L72 25 L63 32Z" fill="#f9a8d4" /></g>)}
-                    {kind === 'bunny' && (<g><ellipse cx="36" cy="22" rx="8" ry="20" fill="#a855f7" stroke={D} strokeWidth="2.5" /><ellipse cx="64" cy="22" rx="8" ry="20" fill="#a855f7" stroke={D} strokeWidth="2.5" /><ellipse cx="36" cy="24" rx="3.5" ry="13" fill="#f9a8d4" /><ellipse cx="64" cy="24" rx="3.5" ry="13" fill="#f9a8d4" /></g>)}
-                    {kind === 'bear' && (<g><circle cx="24" cy="36" r="11" fill="#a855f7" stroke={D} strokeWidth="2.5" /><circle cx="76" cy="36" r="11" fill="#a855f7" stroke={D} strokeWidth="2.5" /><circle cx="24" cy="36" r="5" fill="#f9a8d4" /><circle cx="76" cy="36" r="5" fill="#f9a8d4" /></g>)}
-                    {kind === 'owl' && (<g>{tri("M24 42 L26 14 L44 30Z")}{tri("M76 42 L74 14 L56 30Z")}</g>)}
-                    {kind === 'unicorn' && (<g>{tri("M26 40 L26 20 L42 32Z")}{tri("M74 40 L74 20 L58 32Z")}<path d="M50 2 L43 30 L57 30Z" fill="#fde047" stroke="#b45309" strokeWidth="2" strokeLinejoin="round" /></g>)}
-                    <ellipse cx="50" cy="62" rx="34" ry="31" fill={`url(#cr-${uid})`} stroke={D} strokeWidth="2.5" />
-                    <ellipse cx="50" cy="74" rx="17" ry="13" fill="#f5d0fe" opacity=".75" />
+                    {back}
+                    <ellipse cx="50" cy="62" rx="34" ry="31" fill={fill} {...st} />
+                    {belly}
                     <ellipse cx="34" cy="48" rx="6" ry="11" fill="#fff" opacity=".35" transform="rotate(20 34 48)" />
-                    {kind === 'owl' ? (<g><circle cx="38" cy="58" r="10" fill="#fff" stroke={D} strokeWidth="2" /><circle cx="62" cy="58" r="10" fill="#fff" stroke={D} strokeWidth="2" /><circle cx="38" cy="58" r="5" fill={eye} /><circle cx="62" cy="58" r="5" fill={eye} /><path d="M45 68 L55 68 L50 77Z" fill="#fb923c" stroke="#9a3412" strokeWidth="1.5" strokeLinejoin="round" /></g>) : (<g>
-                        <circle cx="38" cy="58" r="5" fill={eye} /><circle cx="62" cy="58" r="5" fill={eye} /><circle cx="39.8" cy="56" r="1.8" fill="#fff" /><circle cx="63.8" cy="56" r="1.8" fill="#fff" />
-                        <circle cx="28" cy="68" r="4.5" fill="#fb7185" opacity=".5" /><circle cx="72" cy="68" r="4.5" fill="#fb7185" opacity=".5" />
-                        <path d="M42 68 Q50 78 58 68" fill="none" stroke={eye} strokeWidth="2.6" strokeLinecap="round" /></g>)}
-                    <text x="86" y="26" fontSize="14">✨</text>
+                    {over}{face}{spark}
                 </svg>
             );
         };
 
-
+        const DM_STICKER_COUNT = 10; // assets/stickers/1.svg ... 10.svg
+        const DmSticker = ({ id, size = 90 }) => {
+            const [ok, setOk] = useState(true);
+            if (!ok) return <span style={{ fontSize: size * 0.7 }}>🏅</span>;
+            return <img src={`assets/stickers/${id}.svg`} alt="sticker" style={{ width: size, height: size, objectFit: 'contain' }} onError={() => setOk(false)} />;
+        };
 
         const dmIsFriday = () => { const d = new Date(); return d.getDay() === 5 && (d.getHours() * 60 + d.getMinutes()) >= 14 * 60 + 10; };
         const DM_SUPPORT_MSGS = {
@@ -1750,22 +1824,36 @@
                 if (!dmIsFriday()) { setHoldingEgg(null); return; }
                 try { const snd = new Audio('assets/win.mp3'); snd.currentTime = 0; snd.play().catch(() => {}); } catch (e) {}
                 const score = dmCalculateProportionalScore(st).proportional;
-                const stage = dmGetEggStage(score);
+                const stage = dmGetStudentStage(st);
                 const icons = stage === 7 ? ['🎉','✨','⭐','🎊','💜','🌟'] : ['⭐','✨','💛','🌈','🎈'];
                 const confetti = Array.from({ length: stage === 7 ? 40 : 24 }, (_, i) => ({ e: icons[i % icons.length], l: Math.random() * 100, d: Math.random() * 3, t: 3 + Math.random() * 3 }));
                 setHoldingEgg(null);
                 if (stage === 7) {
                     const owned = (st.legends || []).map(l => l.kind);
-                    const free = DM_CREATURES.filter(c => !owned.includes(c.key));
-                    const pool = free.length ? free : DM_CREATURES;
+                    const usedNow = students.filter(x => x.id !== id && x.hatchedWeek === nextReset && x.hatchedType !== 'support').map(x => (x.legends || []).slice(-1)[0]?.kind);
+                    let pool = DM_CREATURES.filter(c => !owned.includes(c.key) && !usedNow.includes(c.key));
+                    if (!pool.length) pool = DM_CREATURES.filter(c => !owned.includes(c.key));
+                    if (!pool.length) pool = DM_CREATURES.filter(c => !usedNow.includes(c.key));
+                    if (!pool.length) pool = DM_CREATURES;
                     const kind = pool[Math.floor(Math.random() * pool.length)].key;
                     setStudents(prev => prev.map(x => x.id === id ? { ...x, hatchedWeek: nextReset, hatchedType: 'legend', legends: [...(x.legends || []), { kind, date: Date.now() }] } : x));
                     setHatchShow({ name: st.name, kind, confetti });
                 } else {
                     const tier = stage <= 2 ? 'low' : stage <= 4 ? 'mid' : 'high';
                     const arr = DM_SUPPORT_MSGS[tier];
-                    setStudents(prev => prev.map(x => x.id === id ? { ...x, hatchedWeek: nextReset, hatchedType: 'support' } : x));
-                    setHatchShow({ name: st.name, support: true, stage, left: 41 - score, msg: arr[Math.floor(Math.random() * arr.length)], confetti });
+                    let stickerId = null;
+                    if (score >= 30 && score <= 40) {
+                        const ids = Array.from({ length: DM_STICKER_COUNT }, (_, i) => i + 1);
+                        const ownedS = (st.stickers || []).map(x => x.id);
+                        const usedS = students.filter(x => x.id !== id && x.hatchedWeek === nextReset && x.stickerId).map(x => x.stickerId);
+                        let sp = ids.filter(n => !ownedS.includes(n) && !usedS.includes(n));
+                        if (!sp.length) sp = ids.filter(n => !usedS.includes(n));
+                        if (!sp.length) sp = ids.filter(n => !ownedS.includes(n));
+                        if (!sp.length) sp = ids;
+                        stickerId = sp[Math.floor(Math.random() * sp.length)];
+                    }
+                    setStudents(prev => prev.map(x => x.id === id ? { ...x, hatchedWeek: nextReset, hatchedType: 'support', stickerId: stickerId, stickers: stickerId ? [...(x.stickers || []), { id: stickerId, date: Date.now() }] : (x.stickers || []) } : x));
+                    setHatchShow({ name: st.name, support: true, stage, left: 41 - score, sticker: stickerId, msg: arr[Math.floor(Math.random() * arr.length)], confetti });
                 }
             };
             const startHold = (id) => {
@@ -2556,7 +2644,7 @@
                     {activeModal === 'eggs' && (() => {
                         const list = [...students].sort((a, b) => a.name.localeCompare(b.name, 'tr')).map(st => {
                             const score = dmCalculateProportionalScore(st).proportional;
-                            return { st, score, stage: dmGetEggStage(score), hatched: st.hatchedWeek === nextReset };
+                            return { st, score, stage: dmGetStudentStage(st), hatched: st.hatchedWeek === nextReset };
                         });
                         const totalLegends = students.reduce((a, x) => a + (x.legends || []).length, 0);
                         const canOpenEggs = dmIsFriday();
@@ -2595,6 +2683,7 @@
                                                     style={canHatch ? { touchAction: 'none', userSelect: 'none', WebkitUserSelect: 'none' } : undefined}
                                                     className={`dm-egg-card ${stage === 7 ? 'dm-egg-legend-card' : ''} ${holdingEgg === st.id ? 'dm-egg-holding' : ''} ${bouncingEgg === st.id ? 'dm-egg-bounce' : ''}`}>
                                                     {stage >= 6 && <span className="dm-egg-spark" style={{ top: 4, left: 6, fontSize: '.8rem' }}>✨</span>}
+                                                    {hatched && isSupport && st.stickerId && <span className="absolute top-0.5 left-1 z-10"><DmSticker id={st.stickerId} size={26} /></span>}
                                                     {legCount > 0 && <span className="absolute top-1 right-1.5 text-[10px] md:text-xs font-black bg-purple-600 text-white rounded-full px-1.5 z-10">🐾{legCount}</span>}
                                                     <div className="dm-egg-fit">
                                                         {hatched && !isSupport ? <DmCreature kind={lastKind} uid={`g${st.id}`} /> : <DmEgg stage={stage} uid={`s${st.id}`} />}
@@ -2666,6 +2755,12 @@
                                     </div>
                                     <h2 className="text-2xl md:text-5xl font-black text-indigo-900 mt-4">💛 {hatchShow.name}, yumurtan sana bir mesaj gönderdi!</h2>
                                     <p className="text-indigo-900 font-black text-lg md:text-3xl mt-3 max-w-4xl">{hatchShow.msg}</p>
+                                    {hatchShow.sticker && (
+                                        <div className="mt-3 flex items-center gap-3 bg-white/70 rounded-3xl px-4 py-2 shadow-lg dm-pop">
+                                            <DmSticker id={hatchShow.sticker} size={90} />
+                                            <div className="text-left"><div className="text-lg md:text-2xl font-black text-orange-600">🎁 Ayrıcalık: Sticker kazandın!</div><div className="text-sm md:text-base font-bold text-indigo-800">Çalışkanlığın için sana özel!</div></div>
+                                        </div>
+                                    )}
                                     {hatchShow.stage >= 4 && <p className="text-purple-800 font-bold text-base md:text-xl mt-2">🎯 Efsane yumurta için sadece {hatchShow.left} puan kalmıştı!</p>}
                                     <p className="text-indigo-700 font-bold text-sm md:text-lg mt-2">Her yeni hafta, yeni bir yumurta ve yeni bir şans! 🥚</p>
                                     <button onClick={() => setHatchShow(null)} className="mt-5 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xl md:text-2xl px-8 py-3 rounded-3xl shadow-xl active:scale-95">Yeni haftada görüşürüz! 💪</button>
@@ -2751,7 +2846,7 @@
                             return (
                                 <div key={student.id} className={`dm-student-card ${colorClass} ${shakingCards[student.id] ? 'dm-shake-anim' : ''}`} onClick={(e) => openBehaviorModal(e, student.id)} onContextMenu={(e) => openBehaviorModal(e, student.id)}>
                                     
-                                    {scoreData.proportional >= 40 && <div className="dm-crown-icon">👑</div>}
+                                    {scoreData.proportional >= 41 && scoreData.attendedDays >= 4 && <div className="dm-crown-icon">👑</div>}
                                     
                                     <div className="text-xl font-extrabold tracking-wide mb-2 drop-shadow-md break-words w-full px-1">{student.name}</div>
                                     
@@ -2768,7 +2863,7 @@
                                         const hatchedNow = student.hatchedWeek === nextReset && student.hatchedType !== 'support' && (student.legends || []).length > 0;
                                         return (
                                             <div onClick={(e) => { e.stopPropagation(); setActiveModal('eggs'); }} onContextMenu={(e) => e.stopPropagation()} title="Yumurtam" className="absolute bottom-1.5 right-1.5 cursor-pointer hover:scale-125 transition-transform bg-white/30 rounded-full px-1.5 pt-1 pb-0.5" style={{ width: 40, height: 46 }}>
-                                                {hatchedNow ? <DmCreature kind={student.legends.slice(-1)[0].kind} uid={`m${student.id}`} /> : <DmEgg stage={dmGetEggStage(eggScore)} uid={`m${student.id}`} />}
+                                                {hatchedNow ? <DmCreature kind={student.legends.slice(-1)[0].kind} uid={`m${student.id}`} /> : <DmEgg stage={dmGetStudentStage(student)} uid={`m${student.id}`} />}
                                             </div>
                                         );
                                     })()}
@@ -2981,7 +3076,282 @@
                                 <p className="text-slate-500 font-bold text-xs md:text-sm tracking-widest mt-1">Sınıf Davranış Takibi</p>
                             </div>
                         </button>
+                        <button onClick={() => onLaunch('sinifAraclari')} className="group relative w-64 h-72 md:w-80 md:h-[22rem] bg-white rounded-3xl md:rounded-[3rem] border-[6px] md:border-[8px] border-orange-400 shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all flex flex-col items-center justify-center gap-3 md:gap-4">
+                            <div className="bg-orange-100 p-4 md:p-6 rounded-full text-5xl md:text-6xl group-hover:scale-110 transition-transform">🛠️</div>
+                            <div className="text-center">
+                                <h2 className="text-2xl md:text-3xl font-black text-slate-700">SINIF ARAÇLARI</h2>
+                                <p className="text-slate-500 font-bold text-xs md:text-sm tracking-widest mt-1">Akıllı Tahta Yardımcıları</p>
+                            </div>
+                        </button>
                     </div>
+                </div>
+            );
+        };
+
+
+        /* ===== SINIF ARAÇLARI: YER DEĞİŞTİRME KURASI ===== */
+        const dmHungarian = (a) => {
+            const n = a.length, u = Array(n + 1).fill(0), v = Array(n + 1).fill(0), pp = Array(n + 1).fill(0), way = Array(n + 1).fill(0);
+            for (let i = 1; i <= n; i++) {
+                pp[0] = i; let j0 = 0; const minv = Array(n + 1).fill(Infinity), used = Array(n + 1).fill(false);
+                do {
+                    used[j0] = true; const i0 = pp[j0]; let delta = Infinity, j1 = 0;
+                    for (let j = 1; j <= n; j++) if (!used[j]) {
+                        const cur = a[i0 - 1][j - 1] - u[i0] - v[j];
+                        if (cur < minv[j]) { minv[j] = cur; way[j] = j0; }
+                        if (minv[j] < delta) { delta = minv[j]; j1 = j; }
+                    }
+                    for (let j = 0; j <= n; j++) { if (used[j]) { u[pp[j]] += delta; v[j] -= delta; } else minv[j] -= delta; }
+                    j0 = j1;
+                } while (pp[j0] !== 0);
+                do { const j1 = way[j0]; pp[j0] = pp[j1]; j0 = j1; } while (j0);
+            }
+            const res = Array(n); for (let j = 1; j <= n; j++) res[pp[j] - 1] = j - 1; return res;
+        };
+
+        // Sıra arkadaşları (aynı sıradakiler) birlikte taşınır; ön<->arka, sol<->sağ çapraz bölgeye gider.
+        const dmComputeDraw = (desks, hist, pairMix) => {
+            const n = desks.length;
+            const xs = desks.map(d => d.x), ys = desks.map(d => d.y);
+            const xm = (Math.min(...xs) + Math.max(...xs)) / 2, ym = (Math.min(...ys) + Math.max(...ys)) / 2;
+            const zone = (d) => (d.y < ym ? 0 : 2) + (d.x < xm ? 0 : 1); // 0 ön-sol, 1 ön-sağ, 2 arka-sol, 3 arka-sağ
+            const cost = desks.map((di, i) => desks.map((dj, j) => {
+                if (!di.s.some(x => x != null)) return Math.random() * 0.1;
+                if (i === j && n > 1) return 1e6;
+                const zi = zone(di), zj = zone(dj);
+                const base = zj === 3 - zi ? 0 : (Math.floor(zj / 2) !== Math.floor(zi / 2) ? 3 : 8);
+                const pen = di.s.reduce((a, sid) => a + ((sid != null && (hist[sid] || []).includes(dj.id)) ? 4 : 0), 0);
+                return base + pen + Math.random() * 1.5;
+            }));
+            const res = dmHungarian(cost);
+            const out = desks.map(d => ({ ...d, s: [null, null] }));
+            res.forEach((j, i) => { out[j].s = [...desks[i].s]; });
+            if (pairMix) {
+                const two = out.filter(d => d.s[0] != null && d.s[1] != null);
+                if (two.length > 1) {
+                    const seconds = two.map(d => d.s[1]);
+                    const shift = 1 + Math.floor(Math.random() * (two.length - 1));
+                    two.forEach((d, k) => { d.s[1] = seconds[(k + shift) % two.length]; });
+                }
+            }
+            return out;
+        };
+
+        const SeatMap = ({ desks, names, dark, edit, sel, onSlot, onDown, onDel, lit = [], hide, mapRef }) => (
+            <div className="relative w-full select-none" style={{ paddingTop: '56%' }}>
+                <div ref={mapRef} className="absolute inset-0 rounded-2xl overflow-hidden" style={{ background: dark ? '#0f172a' : '#fff', border: `4px solid ${dark ? '#334155' : '#1e293b'}` }}>
+                    <div className="absolute font-black text-center rounded-md border-4 flex items-center justify-center" style={{ left: '35%', width: '30%', top: 0, height: '7%', borderColor: dark ? '#64748b' : '#1e293b', color: dark ? '#cbd5e1' : '#1e293b', fontSize: 'clamp(10px,1.6vw,22px)' }}>tahta</div>
+                    <div className="absolute font-black bg-slate-900 text-white rounded px-2 flex items-center" style={{ left: '2%', top: '2%', height: '7%', fontSize: 'clamp(10px,1.5vw,20px)' }}>öğretmen</div>
+                    {desks.map(d => {
+                        const isLit = lit.includes(d.id);
+                        return (
+                            <div key={d.id} onPointerDown={edit ? (e) => onDown(e, d) : undefined}
+                                className="absolute rounded-xl flex items-stretch overflow-hidden"
+                                style={{ left: `${d.x}%`, top: `${d.y}%`, width: '16%', height: '11%', touchAction: edit ? 'none' : 'auto', cursor: edit ? 'grab' : 'default', transition: 'all .15s',
+                                    background: dark ? (isLit ? '#fde047' : '#1e293b') : '#fff', border: `3px solid ${dark ? (isLit ? '#facc15' : '#475569') : '#1e293b'}`,
+                                    boxShadow: isLit ? '0 0 24px 8px rgba(253,224,71,.85)' : undefined, color: dark ? (isLit ? '#1e293b' : '#e2e8f0') : '#1e293b' }}>
+                                {[0, 1].map(i => {
+                                    const sid = d.s[i]; const nm = sid != null ? names[String(sid)] : null;
+                                    const isSel = sel && sel.id === d.id && sel.i === i;
+                                    return (
+                                        <div key={i} onClick={edit ? (e) => { e.stopPropagation(); onSlot(d, i); } : undefined}
+                                            className="flex-1 flex items-center justify-center text-center font-black leading-tight px-0.5 overflow-hidden"
+                                            style={{ fontSize: 'clamp(9px,1.2vw,17px)', borderRight: i === 0 ? `2px solid ${dark ? '#475569' : '#cbd5e1'}` : undefined, background: isSel ? '#bfdbfe' : undefined, wordBreak: 'break-word' }}>
+                                            {nm ? (hide && hide(d) ? '?' : nm) : ''}
+                                        </div>
+                                    );
+                                })}
+                                {edit && <button onPointerDown={(e) => e.stopPropagation()} onClick={() => onDel(d.id)} className="absolute top-0 right-0 bg-red-500 text-white rounded-bl-lg text-[10px] leading-none w-4 h-4 font-black">✕</button>}
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+        );
+
+        const SeatDrawTool = () => {
+            const [students, setStudents] = useState([]);
+            const [desks, setDesks] = useState([]);
+            const [hist, setHist] = useState({});
+            const [pairMix, setPairMix] = useState(false);
+            const [loaded, setLoaded] = useState(false);
+            const [edit, setEdit] = useState(false);
+            const [sel, setSel] = useState(null);
+            const [cols, setCols] = useState(4);
+            const [rows, setRows] = useState(4);
+            const [phase, setPhase] = useState('idle');
+            const [count, setCount] = useState(10);
+            const [lit, setLit] = useState([]);
+            const [nd, setNd] = useState([]);
+            const [revealed, setRevealed] = useState(0);
+            const [confetti, setConfetti] = useState([]);
+            const mapRef = useRef(null); const dragRef = useRef(null); const saveT = useRef(null);
+            const ref = (name, d) => window.fb.doc(window.fb.db, 'artifacts', window.fb.appId, 'users', window.fb.auth.currentUser.uid, name, d);
+
+            useEffect(() => {
+                (async () => {
+                    try {
+                        if (window.fb.auth.currentUser) {
+                            const a = await window.fb.getDoc(ref('dinamikMotiveData', 'state'));
+                            if (a.exists()) setStudents((a.data().students || []).map(x => ({ id: x.id, name: x.name })));
+                            const b = await window.fb.getDoc(ref('sinifAraclari', 'yerlesim'));
+                            if (b.exists()) { const d = b.data(); setDesks(d.desks || []); setHist(d.hist || {}); setPairMix(!!d.pairMix); }
+                        }
+                    } catch (e) { console.error(e); }
+                    setLoaded(true);
+                })();
+            }, []);
+            useEffect(() => {
+                if (!loaded || !window.fb.auth.currentUser) return;
+                clearTimeout(saveT.current);
+                saveT.current = setTimeout(() => { window.fb.setDoc(ref('sinifAraclari', 'yerlesim'), { desks, hist, pairMix }).catch(console.error); }, 700);
+            }, [desks, hist, pairMix, loaded]);
+            useEffect(() => {
+                const mv = (e) => {
+                    const dr = dragRef.current; if (!dr || !mapRef.current) return;
+                    const r = mapRef.current.getBoundingClientRect();
+                    const x = Math.max(0, Math.min(84, (e.clientX - r.left) / r.width * 100 - dr.dx));
+                    const y = Math.max(8, Math.min(89, (e.clientY - r.top) / r.height * 100 - dr.dy));
+                    setDesks(ds => ds.map(q => q.id === dr.id ? { ...q, x, y } : q));
+                };
+                const up = () => { dragRef.current = null; };
+                window.addEventListener('pointermove', mv); window.addEventListener('pointerup', up);
+                return () => { window.removeEventListener('pointermove', mv); window.removeEventListener('pointerup', up); };
+            }, []);
+
+            const names = {}; students.forEach(x => { names[String(x.id)] = x.name; });
+            const seated = new Set(); desks.forEach(d => d.s.forEach(x => { if (x != null) seated.add(String(x)); }));
+            const unseated = students.filter(x => !seated.has(String(x.id))).sort((a, b) => a.name.localeCompare(b.name, 'tr'));
+            const occupied = desks.filter(d => d.s.some(x => x != null)).length;
+
+            const onDown = (e, d) => { const r = mapRef.current.getBoundingClientRect(); dragRef.current = { id: d.id, dx: (e.clientX - r.left) / r.width * 100 - d.x, dy: (e.clientY - r.top) / r.height * 100 - d.y }; };
+            const addDesk = () => setDesks(ds => [...ds, { id: 'd' + Date.now(), x: 42, y: 45, s: [null, null] }]);
+            const makeTemplate = () => {
+                if (desks.length && !confirm('Mevcut plan silinip şablon oluşturulacak. Emin misiniz?')) return;
+                const c = Math.max(1, Math.min(6, cols)), r = Math.max(1, Math.min(8, rows)); const list = [];
+                for (let i = 0; i < c; i++) for (let j = 0; j < r; j++) list.push({ id: `d${i}_${j}_${Date.now()}`, x: c > 1 ? 3 + i * (78 / (c - 1)) : 40, y: 14 + j * (78 / r), s: [null, null] });
+                setDesks(list); setSel(null);
+            };
+            const onSlot = (d, i) => {
+                if (d.s[i] != null) setDesks(ds => ds.map(q => q.id === d.id ? { ...q, s: q.s.map((v, k) => k === i ? null : v) } : q));
+                else setSel({ id: d.id, i });
+            };
+            const assign = (sid) => {
+                let tgt = sel;
+                if (!tgt) { for (const d of desks) { const k = d.s.findIndex(v => v == null); if (k >= 0) { tgt = { id: d.id, i: k }; break; } } }
+                if (!tgt) return;
+                setDesks(ds => ds.map(q => q.id === tgt.id ? { ...q, s: q.s.map((v, k) => k === tgt.i ? sid : v) } : q));
+                setSel(null);
+            };
+            const autoFill = () => {
+                const order = [...desks].sort((a, b) => (Math.round(a.x / 10) - Math.round(b.x / 10)) || (a.y - b.y));
+                const q = [...unseated]; const fill = {};
+                order.forEach(d => { fill[d.id] = d.s.map(v => v != null ? v : (q.length ? q.shift().id : null)); });
+                setDesks(ds => ds.map(d => ({ ...d, s: fill[d.id] })));
+            };
+
+            const start = () => { setNd(dmComputeDraw(desks, hist, pairMix)); setRevealed(0); setLit([]); setCount(10); setConfetti([]); setPhase('anim'); };
+            useEffect(() => {
+                if (phase !== 'anim') return;
+                const t = setInterval(() => setCount(c => (c <= 1 ? 0 : c - 1)), 1000);
+                return () => clearInterval(t);
+            }, [phase]);
+            useEffect(() => {
+                if (phase !== 'anim') return;
+                if (count === 0) { setPhase('reveal'); return; }
+                const t = setInterval(() => setLit(count >= 9 ? [] : desks.filter(() => Math.random() < 0.15 + (9 - count) * 0.07).map(d => d.id)), 200);
+                return () => clearInterval(t);
+            }, [phase, count]);
+            useEffect(() => {
+                if (phase !== 'reveal') return;
+                setLit([]);
+                try { const snd = new Audio('assets/win.mp3'); snd.play().catch(() => {}); } catch (e) {}
+                setConfetti(Array.from({ length: 40 }, (_, i) => ({ e: ['🎉', '✨', '⭐', '🎊', '💜'][i % 5], l: Math.random() * 100, d: Math.random() * 2, t: 3 + Math.random() * 3 })));
+                const t = setInterval(() => setRevealed(r => r + 1), 350);
+                return () => clearInterval(t);
+            }, [phase]);
+            useEffect(() => { if (phase === 'reveal' && revealed >= nd.length) setPhase('done'); }, [revealed, phase, nd]);
+
+            const revealOrder = [...nd].sort((a, b) => (a.y - b.y) || (a.x - b.x)).map(d => d.id);
+            const revealedIds = new Set(revealOrder.slice(0, revealed));
+            const save = () => {
+                const h = { ...hist };
+                desks.forEach(d => d.s.forEach(sid => { if (sid != null) h[sid] = [d.id, ...(h[sid] || [])].slice(0, 2); }));
+                setHist(h); setDesks(nd); setPhase('idle');
+            };
+
+            if (!loaded) return <div className="p-10 text-center font-bold text-slate-500 animate-pulse">Yükleniyor...</div>;
+            const overlay = phase !== 'idle';
+            return (
+                <div className="px-3 md:px-6 pb-8 max-w-[1200px] mx-auto">
+                    <div className="flex flex-wrap items-center gap-2 mb-3">
+                        <button onClick={() => { setEdit(!edit); setSel(null); }} className={`px-4 py-2 rounded-xl font-black shadow ${edit ? 'bg-emerald-500 text-white' : 'bg-white text-slate-700 border-2 border-slate-200'}`}>{edit ? '✅ Düzenlemeyi Bitir' : '✏️ Planı Düzenle'}</button>
+                        {edit && (<>
+                            <button onClick={addDesk} className="px-4 py-2 rounded-xl font-black bg-blue-500 text-white shadow">➕ Sıra Ekle</button>
+                            <button onClick={autoFill} className="px-4 py-2 rounded-xl font-black bg-purple-500 text-white shadow">🪄 Boşlukları Doldur</button>
+                            <span className="flex items-center gap-1 bg-white rounded-xl px-2 py-1 border-2 border-slate-200 font-bold text-sm">
+                                <input type="number" min="1" max="6" value={cols} onChange={e => setCols(parseInt(e.target.value) || 1)} className="w-12 border rounded px-1" /> sütun ×
+                                <input type="number" min="1" max="8" value={rows} onChange={e => setRows(parseInt(e.target.value) || 1)} className="w-12 border rounded px-1" /> sıra
+                                <button onClick={makeTemplate} className="ml-1 px-3 py-1 rounded-lg bg-slate-700 text-white font-black">Şablon</button>
+                            </span>
+                            <button onClick={() => { if (confirm('Tüm öğrenciler sıralardan kaldırılsın mı?')) setDesks(ds => ds.map(d => ({ ...d, s: [null, null] }))); }} className="px-4 py-2 rounded-xl font-black bg-red-100 text-red-600">🧹 Yerleşimi Temizle</button>
+                        </>)}
+                    </div>
+                    {edit && <p className="text-sm font-bold text-slate-500 mb-2">Sıraları sürükleyerek yerleştirin. Boş yere dokunup aşağıdan öğrenci seçin; dolu yere dokunursanız öğrenci sıradan kalkar. Sıra arkadaşlarınız aynı sırada kalır.</p>}
+                    <SeatMap desks={desks} names={names} edit={edit} sel={sel} onSlot={onSlot} onDown={onDown} onDel={(id) => setDesks(ds => ds.filter(d => d.id !== id))} mapRef={mapRef} />
+                    {edit && (
+                        <div className="mt-3 bg-white rounded-2xl p-3 border-2 border-slate-200">
+                            <div className="font-black text-slate-600 text-sm mb-2">Sırası olmayan öğrenciler ({unseated.length}) {students.length === 0 && '— Dinamik Motive listesinde öğrenci bulunamadı.'}</div>
+                            <div className="flex flex-wrap gap-2">{unseated.map(x => <button key={x.id} onClick={() => assign(x.id)} className="px-3 py-1 rounded-full bg-blue-100 text-blue-800 font-black hover:bg-blue-200 active:scale-95">{x.name}</button>)}</div>
+                        </div>
+                    )}
+                    {!edit && (
+                        <div className="mt-5 flex flex-col items-center gap-3">
+                            <label className="flex items-center gap-2 font-bold text-slate-600"><input type="checkbox" checked={pairMix} onChange={e => setPairMix(e.target.checked)} className="w-5 h-5" /> Sıra arkadaşları da karışsın</label>
+                            <button disabled={occupied < 2} onClick={start} className="px-10 py-4 rounded-3xl font-black text-2xl md:text-4xl text-white shadow-xl bg-gradient-to-r from-orange-500 to-pink-500 active:scale-95 disabled:opacity-40">🎲 YERLEŞİM YAP</button>
+                            {occupied < 2 && <p className="text-slate-500 font-bold text-sm">Önce "Planı Düzenle" ile sıraları ve öğrencileri yerleştirin.</p>}
+                        </div>
+                    )}
+
+                    {overlay && (
+                        <div className="fixed inset-0 z-[200] bg-slate-900 flex flex-col items-center justify-center p-3 overflow-hidden">
+                            {phase !== 'anim' && confetti.map((k, i) => <span key={i} className="dm-confetti text-2xl" style={{ left: `${k.l}%`, animationDelay: `${k.d}s`, animationDuration: `${k.t}s` }}>{k.e}</span>)}
+                            <h2 className="text-white font-black text-2xl md:text-4xl mb-3">{phase === 'anim' ? 'Yeni yerler belirleniyor...' : phase === 'reveal' ? '🎉 Yeni yerler!' : '🎉 Yeni yerleşim hazır!'}</h2>
+                            <div className="relative w-full" style={{ maxWidth: 1100 }}>
+                                <SeatMap dark desks={phase === 'anim' ? desks : nd} names={names} lit={lit} hide={phase === 'anim' ? () => true : (d) => !revealedIds.has(d.id)} />
+                                {phase === 'anim' && <div className="absolute inset-0 flex items-center justify-center pointer-events-none font-black text-yellow-300" style={{ fontSize: '22vw', textShadow: '0 0 40px #facc15' }}>{count}</div>}
+                            </div>
+                            {phase === 'done' && (
+                                <div className="flex flex-wrap justify-center gap-3 mt-4">
+                                    <button onClick={save} className="px-6 py-3 rounded-2xl font-black text-xl bg-emerald-500 text-white shadow-lg active:scale-95">✅ Onayla ve Kaydet</button>
+                                    <button onClick={start} className="px-6 py-3 rounded-2xl font-black text-xl bg-yellow-400 text-slate-900 shadow-lg active:scale-95">🎲 Yeniden Çek</button>
+                                    <button onClick={() => setPhase('idle')} className="px-6 py-3 rounded-2xl font-black text-xl bg-slate-600 text-white shadow-lg active:scale-95">✖ Vazgeç</button>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const SinifAraclariApp = ({ onExit }) => {
+            const [tool, setTool] = useState(null);
+            return (
+                <div className="w-full h-full bg-slate-50 font-['Nunito'] overflow-y-auto">
+                    <div className="flex items-center gap-3 p-4">
+                        <button onClick={tool ? () => setTool(null) : onExit} className="bg-white px-4 py-2 rounded-xl shadow border-2 border-slate-200 font-black text-slate-700 active:scale-95">← {tool ? 'Araçlar' : 'Ana Sayfa'}</button>
+                        <h1 className="text-2xl md:text-4xl font-black text-slate-800">🛠️ Sınıf Araçları</h1>
+                    </div>
+                    {!tool && (
+                        <div className="p-4 flex flex-wrap gap-5 justify-center">
+                            <button onClick={() => setTool('seat')} className="w-64 md:w-72 bg-white rounded-3xl border-[6px] border-orange-400 shadow-xl p-6 flex flex-col items-center gap-3 hover:scale-105 transition-transform">
+                                <div className="text-6xl">🪑</div>
+                                <h2 className="text-xl md:text-2xl font-black text-slate-700 text-center">YER DEĞİŞTİRME KURASI</h2>
+                                <p className="text-slate-500 font-bold text-sm text-center">Sıra arkadaşları bozulmadan çapraz yer değişimi</p>
+                            </button>
+                        </div>
+                    )}
+                    {tool === 'seat' && <SeatDrawTool />}
                 </div>
             );
         };
@@ -3011,6 +3381,7 @@
                 if (currentApp === 'abcmatik') return <AbcmatikApp onExit={() => setCurrentApp('portal')} />;
                 if (currentApp === 'carpmatik') return <CarpmatikApp onExit={() => setCurrentApp('portal')} />;
                 if (currentApp === 'dinamikMotive') return <DinamikMotiveApp onExit={() => setCurrentApp('portal')} />;
+                if (currentApp === 'sinifAraclari') return <SinifAraclariApp onExit={() => setCurrentApp('portal')} />;
                 return <PortalApp onLaunch={setCurrentApp} onLogout={handleLogout} />;
             };
 
