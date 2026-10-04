@@ -227,6 +227,9 @@
         @keyframes dmPop { 0%{transform:scale(0) rotate(-25deg)} 100%{transform:scale(1) rotate(0)} }
         @keyframes dmFlash { 0%{opacity:1} 100%{opacity:0} }
         .dm-face { transform: translate(var(--ex,0px), var(--ey,0px)); transition: transform .18s ease-out; }
+        .dm-seatmap { container-type: inline-size; }
+        .dm-slot { font-size: max(8px, min(calc(var(--fs) * 0.76vw), 20px)); }
+        @supports (width: 1cqw) { .dm-slot { font-size: max(8px, min(calc(var(--fs) * 1cqw), 20px)); } }
     </style>
     
     <script type="module">
@@ -3113,7 +3116,7 @@
         };
 
         // Sıra arkadaşları (aynı sıradakiler) birlikte taşınır; ön<->arka, sol<->sağ çapraz bölgeye gider.
-        const dmComputeDraw = (desks, hist, pairMix) => {
+        const dmComputeDrawBasic = (desks, hist, pairMix) => {
             const n = desks.length;
             const xs = desks.map(d => d.x), ys = desks.map(d => d.y);
             const xm = (Math.min(...xs) + Math.max(...xs)) / 2, ym = (Math.min(...ys) + Math.max(...ys)) / 2;
@@ -3140,9 +3143,103 @@
             return out;
         };
 
-        const SeatMap = ({ desks, names, dark, edit, sel, onSlot, onDown, onDel, lit = [], hide, mapRef }) => (
+        // Sıraları satırlara ayırır (y konumuna göre). Ön bölge = satırların ilk yarısı.
+        const dmDeskRows = (desks) => {
+            const sorted = [...desks].sort((a, b) => a.y - b.y);
+            const rowOf = {}; let r = -1, prev = -100;
+            sorted.forEach(d => { if (d.y - prev > 7) r++; rowOf[d.id] = r; prev = d.y; });
+            const R = r + 1;
+            return { rowOf, R, frontRows: Math.max(1, Math.floor(R / 2)) };
+        };
+
+        const dmColOf = (desks) => {
+            const colOf = {}; let c = -1, prev = -100;
+            [...desks].sort((a, b) => a.x - b.x).forEach(d => { if (d.x - prev > 9) c++; colOf[d.id] = c; prev = d.x; });
+            return colOf;
+        };
+
+        // Yer değiştirme: ön yarı arka yarıya, arka yarı ön yarıya; herkes başka sütuna gider.
+        // Sıra sayısı tekse işaretli "eşi olmayan" sıra, sütununun en ön sırasına geçer ve o sıra kilitlenir.
+        const dmComputeDraw = (desks, hist, pairMix, wait, avoid, stat) => {
+            const n = desks.length;
+            const { rowOf, R, frontRows } = dmDeskRows(desks);
+            if (n < 4 || R < 2) return dmComputeDrawBasic(desks, hist, pairMix);
+            const colOf = dmColOf(desks);
+            const shuffle = (a) => { const b = [...a]; for (let i = b.length - 1; i > 0; i--) { const k = Math.floor(Math.random() * (i + 1)); [b[i], b[k]] = [b[k], b[i]]; } return b; };
+            const byRow = (arr) => arr.map(d => ({ d, r: Math.random() })).sort((a, b) => (rowOf[a.d.id] - rowOf[b.d.id]) || (a.r - b.r)).map(x => x.d);
+            let U = null, F = null;
+            if (n % 2 === 1) {
+                U = desks.find(d => d.odd) || [...desks].sort((a, b) => (rowOf[b.id] - rowOf[a.id]) || (b.x - a.x))[0];
+                F = desks.filter(d => colOf[d.id] === colOf[U.id]).sort((a, b) => a.y - b.y)[0];
+                if (F.id === U.id) return dmComputeDrawBasic(desks, hist, pairMix);
+            }
+            const G = desks.filter(d => !U || d.id !== U.id);                 // kuraya giren ikililer (evleri)
+            const T = desks.filter(d => !F || d.id !== F.id);                 // hedef sıralar
+            const half = G.length / 2;
+            const gSorted = byRow(G), typeF = gSorted.slice(0, half), typeB = gSorted.slice(half);
+            const tSorted = byRow(T), FHt = tSorted.slice(0, half), BHt = tSorted.slice(half);
+            const isFt = {}; typeF.forEach(d => { isFt[d.id] = true; });
+            const wOf = (d) => Math.max(0, ...d.s.filter(x => x != null).map(x => (wait && wait[x] != null) ? wait[x] : (rowOf[d.id] < frontRows ? 0 : 1)));
+            const gkey = (d) => d.s.filter(x => x != null).join('|');
+            const maxBH = Math.max(...BHt.map(d => rowOf[d.id]));
+            const lastStart = Math.max(frontRows, R - 2);
+            const statR0 = (stat && stat.r0) || {}, statRL = (stat && stat.rl) || {};
+            const cnt = (d, m) => Math.max(0, ...d.s.filter(x => x != null).map(x => m[x] || 0));
+            // Adalet: en ön satırı (1. satır) en az oturmuş ikililer, en arka iki satırı en az oturmuş ikililer alır.
+            const row0T = FHt.filter(t => rowOf[t.id] === 0), lastT = BHt.filter(t => rowOf[t.id] >= lastStart);
+            const rank = (arr, key) => arr.map(d => ({ d, k: key(d) + Math.random() * 1.3 })).sort((x, y) => x.k - y.k).map(x => x.d);
+            const S0 = rank(typeB, d => (wOf(d) >= 2 ? -100 : 0) + cnt(d, statR0)).slice(0, row0T.length);
+            const SL = rank(typeF, d => cnt(d, statRL)).slice(0, lastT.length);
+            const inS0 = new Set(S0.map(d => d.id)), inSL = new Set(SL.map(d => d.id));
+            const sample = (strict) => {
+                const asg = {}; const free = new Set(T.map(d => d.id));
+                const put = (g, pool) => {
+                    const opts = pool.filter(t => free.has(t.id) && t.id !== g.id && (!strict || colOf[t.id] !== colOf[g.id]));
+                    if (!opts.length) return false;
+                    const t = opts[Math.floor(Math.random() * opts.length)]; asg[g.id] = t.id; free.delete(t.id); return true;
+                };
+                for (const g of shuffle(S0)) if (!put(g, row0T)) return null;
+                for (const g of shuffle(SL)) if (!put(g, lastT)) return null;
+                for (const g of shuffle(G.filter(d => !inS0.has(d.id) && !inSL.has(d.id)))) {
+                    const base = isFt[g.id] ? BHt : FHt;
+                    const keep = base.filter(t => !(isFt[g.id] ? (lastT.includes(t) && SL.length === lastT.length) : (row0T.includes(t) && S0.length === row0T.length)));
+                    if (!put(g, keep)) return null;
+                }
+                return asg;
+            };
+            const penalty = (asg, strict) => G.reduce((sum, g) => {
+                const t = asg[g.id]; let m = 0;
+                g.s.forEach(sid => { if (sid == null) return; const h = hist[sid] || []; if (h[0] === t) m = Math.max(m, 3); else if (h[1] === t) m = Math.max(m, 1.5); });
+                if (avoid && avoid[gkey(g)] === t) m += 2;
+                if (isFt[g.id] && rowOf[g.id] === 0 && rowOf[t] < maxBH - 1) m += 0.8;       // en öndekiler mümkünse arkaya (hafif tercih)
+                if (!strict && colOf[t] === colOf[g.id]) m += 5;
+                return sum + m;
+            }, 0);
+            let pool = [], best = Infinity;
+            [true, false].forEach(strict => {
+                if (pool.length) return;
+                for (let k = 0; k < 800; k++) { const a = sample(strict); if (!a) continue; const pn = penalty(a, strict); pool.push({ a, pn }); if (pn < best) best = pn; }
+            });
+            if (!pool.length) return dmComputeDrawBasic(desks, hist, pairMix);
+            const ok = pool.filter(x => x.pn <= best + 1.2);
+            const asg = ok[Math.floor(Math.random() * ok.length)].a;
+            const byId = {}; desks.forEach(d => { byId[d.id] = d; });
+            const out = desks.map(d => ({ ...d, s: [null, null] }));
+            const outOf = {}; out.forEach(d => { outOf[d.id] = d; });
+            G.forEach(g => { outOf[asg[g.id]].s = [...g.s]; });
+            if (U) outOf[F.id].s = [...U.s];
+            if (pairMix) {
+                for (let r = 0; r < R; r++) {
+                    const two = out.filter(d => rowOf[d.id] === r && (!F || d.id !== F.id) && d.s[0] != null && d.s[1] != null);
+                    if (two.length > 1) { const sec = two.map(d => d.s[1]); const sh = 1 + Math.floor(Math.random() * (two.length - 1)); two.forEach((d, k) => { d.s[1] = sec[(k + sh) % two.length]; }); }
+                }
+            }
+            return out;
+        };
+
+        const SeatMap = ({ desks, names, dark, edit, sel, onSlot, onDown, onDel, lit = [], hide, mapRef, onOdd }) => (
             <div className="relative w-full select-none" style={{ paddingTop: '56%' }}>
-                <div ref={mapRef} className="absolute inset-0 rounded-2xl overflow-hidden" style={{ background: dark ? '#0f172a' : '#fff', border: `4px solid ${dark ? '#334155' : '#1e293b'}` }}>
+                <div ref={mapRef} className="dm-seatmap absolute inset-0 rounded-2xl overflow-hidden" style={{ background: dark ? '#0f172a' : '#fff', border: `4px solid ${dark ? '#334155' : '#1e293b'}` }}>
                     <div className="absolute font-black text-center rounded-md border-4 flex items-center justify-center" style={{ left: '35%', width: '30%', top: 0, height: '7%', borderColor: dark ? '#64748b' : '#1e293b', color: dark ? '#cbd5e1' : '#1e293b', fontSize: 'clamp(10px,1.6vw,22px)' }}>tahta</div>
                     <div className="absolute font-black bg-slate-900 text-white rounded px-2 flex items-center" style={{ left: '2%', top: '2%', height: '7%', fontSize: 'clamp(10px,1.5vw,20px)' }}>öğretmen</div>
                     {desks.map(d => {
@@ -3151,19 +3248,20 @@
                             <div key={d.id} onPointerDown={edit ? (e) => onDown(e, d) : undefined}
                                 className="absolute rounded-xl flex items-stretch overflow-hidden"
                                 style={{ left: `${d.x}%`, top: `${d.y}%`, width: '16%', height: '11%', touchAction: edit ? 'none' : 'auto', cursor: edit ? 'grab' : 'default', transition: 'all .15s',
-                                    background: dark ? (isLit ? '#fde047' : '#1e293b') : '#fff', border: `3px solid ${dark ? (isLit ? '#facc15' : '#475569') : '#1e293b'}`,
+                                    background: dark ? (isLit ? '#fde047' : '#1e293b') : '#fff', border: `3px solid ${dark ? (isLit ? '#facc15' : '#475569') : (edit && d.odd ? '#f59e0b' : '#1e293b')}`,
                                     boxShadow: isLit ? '0 0 24px 8px rgba(253,224,71,.85)' : undefined, color: dark ? (isLit ? '#1e293b' : '#e2e8f0') : '#1e293b' }}>
                                 {[0, 1].map(i => {
                                     const sid = d.s[i]; const nm = sid != null ? names[String(sid)] : null;
                                     const isSel = sel && sel.id === d.id && sel.i === i;
                                     return (
                                         <div key={i} onClick={edit ? (e) => { e.stopPropagation(); onSlot(d, i); } : undefined}
-                                            className="flex-1 flex items-center justify-center text-center font-black leading-tight px-0.5 overflow-hidden"
-                                            style={{ fontSize: 'clamp(9px,1.2vw,17px)', borderRight: i === 0 ? `2px solid ${dark ? '#475569' : '#cbd5e1'}` : undefined, background: isSel ? '#bfdbfe' : undefined, wordBreak: 'break-word' }}>
+                                            className="dm-slot flex-1 flex items-center justify-center text-center font-black leading-tight px-0.5 overflow-hidden"
+                                            style={{ '--fs': Math.min(1.6, 10 / Math.max(1, nm ? nm.length : 1)), whiteSpace: 'nowrap', borderRight: i === 0 ? `2px solid ${dark ? '#475569' : '#cbd5e1'}` : undefined, background: isSel ? '#bfdbfe' : undefined }}>
                                             {nm ? (hide && hide(d) ? '?' : nm) : ''}
                                         </div>
                                     );
                                 })}
+                                {edit && <button onPointerDown={(e) => e.stopPropagation()} onClick={() => onOdd(d.id)} title="Eşi olmayan sıra" className={`absolute bottom-0 right-0 rounded-tl-lg text-[10px] leading-none w-4 h-4 font-black ${d.odd ? 'bg-amber-500 text-white' : 'bg-slate-200 text-slate-500'}`}>⚑</button>}
                                 {edit && <button onPointerDown={(e) => e.stopPropagation()} onClick={() => onDel(d.id)} className="absolute top-0 right-0 bg-red-500 text-white rounded-bl-lg text-[10px] leading-none w-4 h-4 font-black">✕</button>}
                             </div>
                         );
@@ -3176,6 +3274,8 @@
             const [students, setStudents] = useState([]);
             const [desks, setDesks] = useState([]);
             const [hist, setHist] = useState({});
+            const [wait, setWait] = useState({});
+            const [stat, setStat] = useState({ r0: {}, rl: {} });
             const [pairMix, setPairMix] = useState(false);
             const [loaded, setLoaded] = useState(false);
             const [edit, setEdit] = useState(false);
@@ -3188,7 +3288,7 @@
             const [nd, setNd] = useState([]);
             const [revealed, setRevealed] = useState(0);
             const [confetti, setConfetti] = useState([]);
-            const mapRef = useRef(null); const dragRef = useRef(null); const saveT = useRef(null);
+            const mapRef = useRef(null); const dragRef = useRef(null); const saveT = useRef(null); const lastDraw = useRef(null);
             const ref = (name, d) => window.fb.doc(window.fb.db, 'artifacts', window.fb.appId, 'users', window.fb.auth.currentUser.uid, name, d);
 
             useEffect(() => {
@@ -3198,7 +3298,7 @@
                             const a = await window.fb.getDoc(ref('dinamikMotiveData', 'state'));
                             if (a.exists()) setStudents((a.data().students || []).map(x => ({ id: x.id, name: x.name })));
                             const b = await window.fb.getDoc(ref('sinifAraclari', 'yerlesim'));
-                            if (b.exists()) { const d = b.data(); setDesks(d.desks || []); setHist(d.hist || {}); setPairMix(!!d.pairMix); }
+                            if (b.exists()) { const d = b.data(); setDesks(d.desks || []); setHist(d.hist || {}); setWait(d.wait || {}); setStat(d.stat || { r0: {}, rl: {} }); setPairMix(!!d.pairMix); }
                         }
                     } catch (e) { console.error(e); }
                     setLoaded(true);
@@ -3207,8 +3307,8 @@
             useEffect(() => {
                 if (!loaded || !window.fb.auth.currentUser) return;
                 clearTimeout(saveT.current);
-                saveT.current = setTimeout(() => { window.fb.setDoc(ref('sinifAraclari', 'yerlesim'), { desks, hist, pairMix }).catch(console.error); }, 700);
-            }, [desks, hist, pairMix, loaded]);
+                saveT.current = setTimeout(() => { window.fb.setDoc(ref('sinifAraclari', 'yerlesim'), { desks, hist, wait, stat, pairMix }).catch(console.error); }, 700);
+            }, [desks, hist, wait, stat, pairMix, loaded]);
             useEffect(() => {
                 const mv = (e) => {
                     const dr = dragRef.current; if (!dr || !mapRef.current) return;
@@ -3226,6 +3326,15 @@
             const seated = new Set(); desks.forEach(d => d.s.forEach(x => { if (x != null) seated.add(String(x)); }));
             const unseated = students.filter(x => !seated.has(String(x.id))).sort((a, b) => a.name.localeCompare(b.name, 'tr'));
             const occupied = desks.filter(d => d.s.some(x => x != null)).length;
+            const align = () => {
+                const { rowOf } = dmDeskRows(desks); const ys = {}, yc = {};
+                desks.forEach(d => { const r = rowOf[d.id]; ys[r] = (ys[r] || 0) + d.y; yc[r] = (yc[r] || 0) + 1; });
+                const colOf = {}; let c = -1, prev = -100;
+                [...desks].sort((a, b) => a.x - b.x).forEach(d => { if (d.x - prev > 9) c++; colOf[d.id] = c; prev = d.x; });
+                const xs = {}, xc = {};
+                desks.forEach(d => { const k = colOf[d.id]; xs[k] = (xs[k] || 0) + d.x; xc[k] = (xc[k] || 0) + 1; });
+                setDesks(ds => ds.map(d => ({ ...d, y: ys[rowOf[d.id]] / yc[rowOf[d.id]], x: xs[colOf[d.id]] / xc[colOf[d.id]] })));
+            };
 
             const onDown = (e, d) => { const r = mapRef.current.getBoundingClientRect(); dragRef.current = { id: d.id, dx: (e.clientX - r.left) / r.width * 100 - d.x, dy: (e.clientY - r.top) / r.height * 100 - d.y }; };
             const addDesk = () => setDesks(ds => [...ds, { id: 'd' + Date.now(), x: 42, y: 45, s: [null, null] }]);
@@ -3253,7 +3362,7 @@
                 setDesks(ds => ds.map(d => ({ ...d, s: fill[d.id] })));
             };
 
-            const start = () => { setNd(dmComputeDraw(desks, hist, pairMix)); setRevealed(0); setLit([]); setCount(10); setConfetti([]); setPhase('anim'); };
+            const start = () => { const nd0 = dmComputeDraw(desks, hist, pairMix, wait, lastDraw.current, stat); const mp = {}; nd0.forEach(d => { const k = d.s.filter(x => x != null).join('|'); if (k) mp[k] = d.id; }); lastDraw.current = mp; setNd(nd0); setRevealed(0); setLit([]); setCount(10); setConfetti([]); setPhase('anim'); };
             useEffect(() => {
                 if (phase !== 'anim') return;
                 const t = setInterval(() => setCount(c => (c <= 1 ? 0 : c - 1)), 1000);
@@ -3280,7 +3389,15 @@
             const save = () => {
                 const h = { ...hist };
                 desks.forEach(d => d.s.forEach(sid => { if (sid != null) h[sid] = [d.id, ...(h[sid] || [])].slice(0, 2); }));
-                setHist(h); setDesks(nd); setPhase('idle');
+                const { rowOf, frontRows } = dmDeskRows(nd);
+                const w = { ...wait };
+                const oldRows = dmDeskRows(desks); const wasFront = {};
+                desks.forEach(d => d.s.forEach(sid => { if (sid != null) wasFront[sid] = oldRows.rowOf[d.id] < oldRows.frontRows; }));
+                nd.forEach(d => d.s.forEach(sid => { if (sid != null) w[sid] = rowOf[d.id] < frontRows ? 0 : (w[sid] != null ? w[sid] : (wasFront[sid] ? 0 : 1)) + 1; }));
+                const nr = dmDeskRows(nd), lastStart = Math.max(nr.frontRows, nr.R - 2);
+                const st2 = { r0: { ...stat.r0 }, rl: { ...stat.rl } };
+                nd.forEach(d => d.s.forEach(sid => { if (sid == null) return; if (nr.rowOf[d.id] === 0) st2.r0[sid] = (st2.r0[sid] || 0) + 1; if (nr.rowOf[d.id] >= lastStart) st2.rl[sid] = (st2.rl[sid] || 0) + 1; }));
+                lastDraw.current = null; setStat(st2); setWait(w); setHist(h); setDesks(nd); setPhase('idle');
             };
 
             if (!loaded) return <div className="p-10 text-center font-bold text-slate-500 animate-pulse">Yükleniyor...</div>;
@@ -3292,6 +3409,7 @@
                         {edit && (<>
                             <button onClick={addDesk} className="px-4 py-2 rounded-xl font-black bg-blue-500 text-white shadow">➕ Sıra Ekle</button>
                             <button onClick={autoFill} className="px-4 py-2 rounded-xl font-black bg-purple-500 text-white shadow">🪄 Boşlukları Doldur</button>
+                            <button onClick={align} className="px-4 py-2 rounded-xl font-black bg-teal-500 text-white shadow">📐 Hizala</button>
                             <span className="flex items-center gap-1 bg-white rounded-xl px-2 py-1 border-2 border-slate-200 font-bold text-sm">
                                 <input type="number" min="1" max="6" value={cols} onChange={e => setCols(parseInt(e.target.value) || 1)} className="w-12 border rounded px-1" /> sütun ×
                                 <input type="number" min="1" max="8" value={rows} onChange={e => setRows(parseInt(e.target.value) || 1)} className="w-12 border rounded px-1" /> sıra
@@ -3300,8 +3418,9 @@
                             <button onClick={() => { if (confirm('Tüm öğrenciler sıralardan kaldırılsın mı?')) setDesks(ds => ds.map(d => ({ ...d, s: [null, null] }))); }} className="px-4 py-2 rounded-xl font-black bg-red-100 text-red-600">🧹 Yerleşimi Temizle</button>
                         </>)}
                     </div>
+                    {edit && desks.length % 2 === 1 && <p className="text-sm font-black text-amber-700 bg-amber-50 border-2 border-amber-200 rounded-xl px-3 py-2 mb-2">Sıra sayınız tek ({desks.length}). Eşi olmayan sırayı sağ alttaki ⚑ ile işaretleyin; işaretlemezseniz en arkadaki sıra alınır. Bu sıra her kurada sütununun en ön sırasına geçer.</p>}
                     {edit && <p className="text-sm font-bold text-slate-500 mb-2">Sıraları sürükleyerek yerleştirin. Boş yere dokunup aşağıdan öğrenci seçin; dolu yere dokunursanız öğrenci sıradan kalkar. Sıra arkadaşlarınız aynı sırada kalır.</p>}
-                    <SeatMap desks={desks} names={names} edit={edit} sel={sel} onSlot={onSlot} onDown={onDown} onDel={(id) => setDesks(ds => ds.filter(d => d.id !== id))} mapRef={mapRef} />
+                    <SeatMap desks={desks} names={names} edit={edit} sel={sel} onSlot={onSlot} onDown={onDown} onDel={(id) => setDesks(ds => ds.filter(d => d.id !== id))} onOdd={(id) => setDesks(ds => ds.map(d => ({ ...d, odd: d.id === id ? !d.odd : false })))} mapRef={mapRef} />
                     {edit && (
                         <div className="mt-3 bg-white rounded-2xl p-3 border-2 border-slate-200">
                             <div className="font-black text-slate-600 text-sm mb-2">Sırası olmayan öğrenciler ({unseated.length}) {students.length === 0 && '— Dinamik Motive listesinde öğrenci bulunamadı.'}</div>
@@ -3328,7 +3447,7 @@
                                 <div className="flex flex-wrap justify-center gap-3 mt-4">
                                     <button onClick={save} className="px-6 py-3 rounded-2xl font-black text-xl bg-emerald-500 text-white shadow-lg active:scale-95">✅ Onayla ve Kaydet</button>
                                     <button onClick={start} className="px-6 py-3 rounded-2xl font-black text-xl bg-yellow-400 text-slate-900 shadow-lg active:scale-95">🎲 Yeniden Çek</button>
-                                    <button onClick={() => setPhase('idle')} className="px-6 py-3 rounded-2xl font-black text-xl bg-slate-600 text-white shadow-lg active:scale-95">✖ Vazgeç</button>
+                                    <button onClick={() => { lastDraw.current = null; setPhase('idle'); }} className="px-6 py-3 rounded-2xl font-black text-xl bg-slate-600 text-white shadow-lg active:scale-95">✖ Vazgeç</button>
                                 </div>
                             )}
                         </div>
