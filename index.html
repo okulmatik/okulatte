@@ -1422,8 +1422,11 @@
             const attendedDays = 5 - absentCount;
             if (attendedDays === 0) return { proportional: 0, actualScore, attendedDays, maxPossible: 0, absentCredit: 0 };
 
-            // Gelmediği (kilitlenen) her gün için sabit 5 puan eklenir
-            const absentCredit = absentCount * 5;
+            // Gelmediği (kilitlenen) günler: geldiği günlerdeki ortalamaya göre puan
+            //  ortalama >= 8 -> gelmediği her gün 3 puan | 6 <= ortalama < 8 -> 2 puan | ortalama < 6 -> 0 puan
+            const avg = actualScore / attendedDays;
+            const perAbsent = avg >= 8 ? 3 : (avg >= 6 ? 2 : 0);
+            const absentCredit = absentCount * perAbsent;
             let proportional = actualScore + absentCredit;
             if (proportional > 50) proportional = 50;
             if (proportional < -50) proportional = -50;
@@ -1545,8 +1548,8 @@
             { min: 20,    name: 'Büyüyor',          emoji: '🌱', range: '20-24', c1: '#dcfce7', c2: '#4ade80', c3: '#15803d', bar: '#22c55e' },
             { min: 25,    name: 'Güçleniyor',       emoji: '💪', range: '25-29', c1: '#e0f2fe', c2: '#38bdf8', c3: '#0369a1', bar: '#0ea5e9' },
             { min: 30,    name: 'Puantiyeler!',     emoji: '🎈', range: '30-34', c1: '#ffedd5', c2: '#fb923c', c3: '#c2410c', bar: '#f97316' },
-            { min: 35,    name: 'Çatlıyor!',        emoji: '🐣', range: '35-40', c1: '#fff6b0', c2: '#fbbf24', c3: '#a16207', bar: '#f59e0b' },
-            { min: 41,    name: 'EFSANE!',          emoji: '👑', range: '41+',   c1: '#f3e8ff', c2: '#a855f7', c3: '#581c87', bar: '#a855f7' }
+            { min: 35,    name: 'Çatlıyor!',        emoji: '🐣', range: '35-41', c1: '#fff6b0', c2: '#fbbf24', c3: '#a16207', bar: '#f59e0b' },
+            { min: 42,    name: 'EFSANE!',          emoji: '👑', range: '42+',   c1: '#f3e8ff', c2: '#a855f7', c3: '#581c87', bar: '#a855f7' }
         ];
         const dmGetEggStage = (score) => {
             let idx = 0;
@@ -1842,7 +1845,7 @@
                     const tier = stage <= 2 ? 'low' : stage <= 4 ? 'mid' : 'high';
                     const arr = DM_SUPPORT_MSGS[tier];
                     let stickerId = null;
-                    if (score >= 30 && score <= 40) {
+                    if (score >= 30 && score < 42) {
                         const ids = Array.from({ length: DM_STICKER_COUNT }, (_, i) => i + 1);
                         const ownedS = (st.stickers || []).map(x => x.id);
                         const usedS = students.filter(x => x.id !== id && x.hatchedWeek === nextReset && x.stickerId).map(x => x.stickerId);
@@ -1853,7 +1856,7 @@
                         stickerId = sp[Math.floor(Math.random() * sp.length)];
                     }
                     setStudents(prev => prev.map(x => x.id === id ? { ...x, hatchedWeek: nextReset, hatchedType: 'support', stickerId: stickerId, stickers: stickerId ? [...(x.stickers || []), { id: stickerId, date: Date.now() }] : (x.stickers || []) } : x));
-                    setHatchShow({ name: st.name, support: true, stage, left: 41 - score, sticker: stickerId, msg: arr[Math.floor(Math.random() * arr.length)], confetti });
+                    setHatchShow({ name: st.name, support: true, stage, left: 42 - score, sticker: stickerId, msg: arr[Math.floor(Math.random() * arr.length)], confetti });
                 }
             };
             const startHold = (id) => {
@@ -2846,7 +2849,7 @@
                             return (
                                 <div key={student.id} className={`dm-student-card ${colorClass} ${shakingCards[student.id] ? 'dm-shake-anim' : ''}`} onClick={(e) => openBehaviorModal(e, student.id)} onContextMenu={(e) => openBehaviorModal(e, student.id)}>
                                     
-                                    {scoreData.proportional >= 41 && scoreData.attendedDays >= 4 && <div className="dm-crown-icon">👑</div>}
+                                    {scoreData.proportional >= 42 && scoreData.attendedDays >= 4 && <div className="dm-crown-icon">👑</div>}
                                     
                                     <div className="text-xl font-extrabold tracking-wide mb-2 drop-shadow-md break-words w-full px-1">{student.name}</div>
                                     
