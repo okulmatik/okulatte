@@ -971,7 +971,9 @@
             return top10;
         };
 
+        const LEADERBOARD_MIN_SCORE = 150;
         const checkQualify = (grade, score) => {
+            if (score < LEADERBOARD_MIN_SCORE) return false;
             const currentBoard = getLeaderboard(grade);
             if (currentBoard.length < 10) return true;
             return score > currentBoard[currentBoard.length - 1].score;
@@ -1060,7 +1062,7 @@
                             )}
                         </div>
                         <div className="p-4 bg-slate-50 border-t border-slate-100 flex justify-between items-center">
-                            <span className="text-slate-400 text-xs md:text-sm font-bold">Sadece bu cihazda saklanır.</span>
+                            <span className="text-slate-400 text-xs md:text-sm font-bold">150 puan ve üzeri girer · Sadece bu cihazda saklanır.</span>
                             {!isResetting ? (
                                 <button onClick={() => setIsResetting(true)} className="text-red-400 hover:text-red-600 text-sm font-bold flex items-center gap-1"><Icons.Trash2 size={16} /> Sıfırla</button>
                             ) : (
@@ -1075,7 +1077,7 @@
             );
         };
 
-        const NameInputModal = ({ score, grade, onSave }) => {
+        const NameInputModal = ({ score, grade, team, onSave, onSkip }) => {
             const [name, setName] = React.useState(""); 
             const handleSubmit = (e) => { e.preventDefault(); if (name.trim().length > 0) onSave(name); };
             return (
@@ -1083,10 +1085,12 @@
                     <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-lg w-full text-center animate-in border-4 border-yellow-400">
                         <Icons.Trophy className="w-20 h-20 md:w-24 md:h-24 text-yellow-400 mx-auto mb-6 animate-bounce" />
                         <h2 className="text-3xl md:text-4xl font-black text-slate-800 mb-2">TEBRİKLER!</h2>
+                        {team && <p className={`text-lg md:text-xl font-black mb-1 ${team === 'red' ? 'text-red-500' : 'text-blue-500'}`}>{team === 'red' ? 'Kırmızı Takım' : 'Mavi Takım'}</p>}
                         <p className="text-slate-500 text-lg md:text-xl font-bold mb-6"><span className="text-yellow-500 font-black text-2xl">{score}</span> Puan ile Liderlik Tablosuna Girdin!</p>
                         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                             <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="İsminizi Giriniz" className="w-full bg-slate-100 border-2 border-slate-200 rounded-xl p-4 text-xl font-bold text-center focus:outline-none focus:border-yellow-400" maxLength={20} autoFocus />
                             <button type="submit" disabled={name.trim().length === 0} className="bg-yellow-400 text-white p-4 rounded-xl text-xl font-black hover:bg-yellow-500 border-b-4 border-yellow-600 active:border-b-0 active:translate-y-1 disabled:opacity-50 flex items-center justify-center gap-2"><Icons.Save />KAYDET</button>
+                            <button type="button" onClick={onSkip} className="text-slate-400 hover:text-slate-600 font-bold text-sm underline">Kaydetmeden geç</button>
                         </form>
                     </div>
                 </div>
@@ -1221,6 +1225,8 @@
             const [showLeaderboard, setShowLeaderboard] = useState(false);
             const [showNameInput, setShowNameInput] = useState(false);
             const [qualifyingScore, setQualifyingScore] = useState(0);
+            const [qualifyQueue, setQualifyQueue] = useState([]);
+            const savedAnyRef = useRef(false);
             
             const [showRestartConfirm, setShowRestartConfirm] = useState(false);
             const [showMenuConfirm, setShowMenuConfirm] = useState(false);
@@ -1239,15 +1245,29 @@
                 setGameActive(false);
                 const winTeam = redScore > blueScore ? 'red' : (blueScore > redScore ? 'blue' : 'draw');
                 setWinner(winTeam);
-                const winningScore = Math.max(redScore, blueScore);
-                if (winningScore > 0 && checkQualify(gradeLevel, winningScore)) {
-                    setQualifyingScore(winningScore);
-                    const t = setTimeout(() => setShowNameInput(true), 1000);
-                    return () => clearTimeout(t);
+                const queue = [];
+                if (checkQualify(gradeLevel, redScore)) queue.push({ team: 'red', score: redScore });
+                if (checkQualify(gradeLevel, blueScore)) queue.push({ team: 'blue', score: blueScore });
+                if (queue.length > 0) {
+                    setQualifyQueue(queue);
+                    savedAnyRef.current = false;
+                    setShowNameInput(true);
                 }
             }, [gameActive, timeLeft, redScore, blueScore, gradeLevel]);
 
-            const handleSaveScore = (name) => { saveScoreToLeaderboard(gradeLevel, name, qualifyingScore); setShowNameInput(false); setShowLeaderboard(true); };
+            const nextInQueue = (savedAny) => {
+                const rest = qualifyQueue.slice(1);
+                setQualifyQueue(rest);
+                if (rest.length === 0) { setShowNameInput(false); if (savedAny || savedAnyRef.current) setShowLeaderboard(true); }
+            };
+            const handleSaveScore = (name) => {
+                const cur = qualifyQueue[0];
+                if (!cur) { setShowNameInput(false); return; }
+                saveScoreToLeaderboard(gradeLevel, name, cur.score);
+                savedAnyRef.current = true;
+                nextInQueue(true);
+            };
+            const handleSkipScore = () => { nextInQueue(false); };
             const handleStartClick = () => { if (gameActive) setShowRestartConfirm(true); else startGame(); };
             const startGame = () => { setGameActive(true); setRedScore(0); setBlueScore(0); setTimeLeft(60); setWinner(null); setRedFrozen(false); setBlueFrozen(false); setGameKey(k => k + 1); setShowRestartConfirm(false); };
             const prepareNewGame = () => { setWinner(null); setGameActive(false); setRedScore(0); setBlueScore(0); setTimeLeft(60); setRedFrozen(false); setBlueFrozen(false); setGameKey(k => k + 1); };
@@ -1287,7 +1307,7 @@
 
             return (
                 <div className="w-full h-full bg-slate-50 flex flex-col font-['Nunito'] select-none overflow-hidden relative py-2 md:py-4 animate-in">
-                    {showNameInput && (<NameInputModal score={qualifyingScore} grade={gradeLevel} onSave={handleSaveScore} />)}
+                    {showNameInput && qualifyQueue.length > 0 && (<NameInputModal key={qualifyQueue[0].team} score={qualifyQueue[0].score} team={qualifyQueue[0].team} grade={gradeLevel} onSave={handleSaveScore} onSkip={handleSkipScore} />)}
                     {showLeaderboard && (<LeaderboardModal grade={gradeLevel} onClose={() => setShowLeaderboard(false)} />)}
                     {showRestartConfirm && (<ConfirmModal message="Yarışma yeniden başlatılsın mı?" onConfirm={startGame} onCancel={() => setShowRestartConfirm(false)} />)}
                     {showMenuConfirm && (<ConfirmModal message="Devam eden yarışma iptal edilecek. Ana menüye dönmek istiyor musun?" onConfirm={goToMainMenu} onCancel={() => setShowMenuConfirm(false)} />)}
@@ -1870,6 +1890,9 @@
             const stopHold = () => { clearTimeout(holdTimer.current); setHoldingEgg(null); };
             
             const [bulkSelections, setBulkSelections] = useState([]);
+            const [selectMode, setSelectMode] = useState(false);
+            const [selectedIds, setSelectedIds] = useState([]);
+            const [bulkTarget, setBulkTarget] = useState('all');
 
             const isRemoteUpdate = useRef(false);
             const localStateString = useRef("");
@@ -2157,7 +2180,8 @@
                     const isAbsent = student.absentDays?.[dayToEdit];
                     const currentDailyScore = student.daily?.[dayToEdit] || 0;
 
-                    if (isAbsent || currentDailyScore < 0) {
+                    const isTargeted = bulkTarget === 'selected' ? selectedIds.includes(student.id) : true;
+                    if (!isTargeted || isAbsent || (bulkTarget !== 'selected' && currentDailyScore < 0)) {
                         return student;
                     }
 
@@ -2206,6 +2230,13 @@
                 setBulkSelections([]);
                 setActiveModal(null);
             };
+
+            const toggleSelect = (id) => {
+                const st = students.find(x => x.id === id);
+                if (st && st.absentDays && st.absentDays[viewDay]) { shakeCard(id); return; }
+                setSelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+            };
+            const selectAllPresent = () => setSelectedIds(students.filter(x => !(x.absentDays && x.absentDays[viewDay])).map(x => x.id));
 
             const handleAddStudent = () => {
                 const val = newStudentName.trim();
@@ -2483,8 +2514,8 @@
                             <div className="bg-white rounded-[2rem] w-full max-w-lg shadow-2xl flex flex-col overflow-hidden animate-in max-h-[90vh]">
                                 <div className="p-6 pb-4 border-b-2 border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
                                     <div>
-                                        <h2 className="text-2xl font-black text-slate-800 uppercase tracking-wide flex items-center gap-2"><Icons.Users className="text-purple-500"/> Toplu Puan Ver</h2>
-                                        <p className="text-slate-500 font-bold text-xs sm:text-sm mt-1">Eksi (-) puanda olanlar <strong className="text-red-500">hariç</strong> tüm sınıfa uygulanır.</p>
+                                        <h2 className="text-2xl font-black text-slate-800 uppercase tracking-wide flex items-center gap-2"><Icons.Users className="text-purple-500"/> {bulkTarget === 'selected' ? 'Seçili Öğrencilere Puan Ver' : 'Toplu Puan Ver'}</h2>
+                                        <p className="text-slate-500 font-bold text-xs sm:text-sm mt-1">{bulkTarget === 'selected' ? <>Sadece <strong className="text-purple-600">{selectedIds.length} seçili öğrenciye</strong> uygulanır.</> : <>Eksi (-) puanda olanlar <strong className="text-red-500">hariç</strong> tüm sınıfa uygulanır.</>}</p>
                                     </div>
                                     <button onClick={() => { setActiveModal(null); setBulkSelections([]); }} className="bg-slate-200 hover:bg-slate-300 text-slate-700 p-2.5 rounded-xl active:scale-95 transition-transform"><Icons.X size={20}/></button>
                                 </div>
@@ -2531,11 +2562,11 @@
 
                                 <div className="p-4 bg-white border-t-2 border-slate-100 shrink-0">
                                     <button 
-                                        onClick={handleApplyBulk}
+                                        onClick={() => { handleApplyBulk(); if (bulkTarget === 'selected') { setSelectedIds([]); setSelectMode(false); setBulkTarget('all'); } }}
                                         disabled={bulkSelections.length === 0}
                                         className="w-full py-3 rounded-2xl font-black text-lg transition-all bg-purple-600 hover:bg-purple-700 text-white active:scale-95 disabled:opacity-50 disabled:active:scale-100 shadow-md"
                                     >
-                                        Seçili Davranışları Sınıfa Uygula
+                                        {bulkTarget === 'selected' ? 'Davranışları Seçili Öğrencilere Uygula' : 'Seçili Davranışları Sınıfa Uygula'}
                                     </button>
                                 </div>
                             </div>
@@ -2825,8 +2856,11 @@
                             <button onClick={() => setIsAlarmPlaying(!isAlarmPlaying)} className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-white shadow-md transition-transform active:scale-95 ${isAlarmPlaying ? 'bg-red-700 animate-pulse ring-4 ring-red-300' : 'bg-gradient-to-r from-red-500 to-red-600'}`}>
                                 <Icons.Bell size={20} className={isAlarmPlaying ? "animate-shake" : ""} /> {isAlarmPlaying ? 'DURDUR' : 'ACİL'}
                             </button>
-                            <button onClick={() => { setBulkSelections([]); setActiveModal('bulkBehavior'); }} className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-white shadow-md transition-transform active:scale-95 bg-gradient-to-r from-purple-500 to-fuchsia-600">
+                            <button onClick={() => { setBulkSelections([]); setBulkTarget('all'); setActiveModal('bulkBehavior'); }} className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-white shadow-md transition-transform active:scale-95 bg-gradient-to-r from-purple-500 to-fuchsia-600">
                                 <Icons.Users size={20}/> Toplu Puan
+                            </button>
+                            <button id="selectBtn" onClick={() => { if (isLocked) { shakeCard('selectBtn'); return; } setSelectMode(m => !m); setSelectedIds([]); }} className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-white shadow-md transition-transform active:scale-95 ${selectMode ? 'bg-gradient-to-r from-pink-500 to-rose-600 ring-4 ring-pink-200' : 'bg-gradient-to-r from-teal-500 to-cyan-600'} ${shakingCards['selectBtn'] ? 'dm-shake-anim' : ''}`}>
+                                <Icons.CheckCircle size={20}/> {selectMode ? 'Seçimi Kapat' : 'Öğrenci Seç'}
                             </button>
                             <button onClick={() => setActiveModal('eggs')} className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-white shadow-md transition-transform active:scale-95 bg-gradient-to-r from-amber-400 to-orange-500 hover:scale-105">
                                 <span className="text-xl">🥚</span> Yumurtalar
@@ -2834,7 +2868,16 @@
                         </div>
                     </div>
 
-                    <div className="dm-student-grid">
+                    {selectMode && (
+                        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[90] bg-white rounded-2xl shadow-2xl border-2 border-teal-300 px-4 py-3 flex flex-wrap items-center justify-center gap-2 max-w-[95vw] animate-in">
+                            <span className="font-black text-slate-700 text-sm md:text-base">✅ {selectedIds.length} öğrenci seçildi</span>
+                            <button onClick={selectAllPresent} className="px-3 py-2 rounded-xl font-bold text-sm bg-slate-100 text-slate-700 hover:bg-slate-200 active:scale-95">Tümünü Seç</button>
+                            <button onClick={() => setSelectedIds([])} className="px-3 py-2 rounded-xl font-bold text-sm bg-slate-100 text-slate-700 hover:bg-slate-200 active:scale-95">Temizle</button>
+                            <button disabled={selectedIds.length === 0} onClick={() => { setBulkSelections([]); setBulkTarget('selected'); setActiveModal('bulkBehavior'); }} className="px-4 py-2 rounded-xl font-black text-sm bg-purple-600 text-white hover:bg-purple-700 active:scale-95 disabled:opacity-40">⭐ Puan Ver</button>
+                            <button onClick={() => { setSelectMode(false); setSelectedIds([]); }} className="px-3 py-2 rounded-xl font-bold text-sm bg-red-100 text-red-600 hover:bg-red-200 active:scale-95">İptal</button>
+                        </div>
+                    )}
+                    <div className="dm-student-grid" style={selectMode ? { marginBottom: 120 } : undefined}>
                         {students.map(student => {
                             const dayToView = viewDay;
                             
@@ -2850,9 +2893,10 @@
                             const scoreData = dmCalculateProportionalScore(student);
                             
                             return (
-                                <div key={student.id} className={`dm-student-card ${colorClass} ${shakingCards[student.id] ? 'dm-shake-anim' : ''}`} onClick={(e) => openBehaviorModal(e, student.id)} onContextMenu={(e) => openBehaviorModal(e, student.id)}>
+                                <div key={student.id} className={`dm-student-card ${colorClass} ${shakingCards[student.id] ? 'dm-shake-anim' : ''} ${selectMode ? (selectedIds.includes(student.id) ? 'ring-4 ring-yellow-300 scale-105' : 'opacity-40 grayscale') : ''}`} onClick={(e) => selectMode ? toggleSelect(student.id) : openBehaviorModal(e, student.id)} onContextMenu={(e) => selectMode ? (e.preventDefault(), toggleSelect(student.id)) : openBehaviorModal(e, student.id)}>
                                     
                                     {scoreData.proportional >= 42 && scoreData.attendedDays >= 4 && <div className="dm-crown-icon">👑</div>}
+                                    {selectMode && selectedIds.includes(student.id) && <div className="absolute top-1.5 left-1.5 bg-yellow-300 text-slate-900 rounded-full w-7 h-7 flex items-center justify-center shadow-md"><Icons.Check size={18}/></div>}
                                     
                                     <div className="text-xl font-extrabold tracking-wide mb-2 drop-shadow-md break-words w-full px-1">{student.name}</div>
                                     
