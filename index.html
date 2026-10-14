@@ -227,6 +227,46 @@
         @keyframes dmPop { 0%{transform:scale(0) rotate(-25deg)} 100%{transform:scale(1) rotate(0)} }
         @keyframes dmFlash { 0%{opacity:1} 100%{opacity:0} }
         .dm-face { transform: translate(var(--ex,0px), var(--ey,0px)); transition: transform .18s ease-out; }
+        /* ===== KURT ===== */
+        .dm-wolf-layer { position:fixed; inset:0; z-index:120; pointer-events:none; overflow:hidden; }
+        .dm-wolf { position:absolute; left:0; top:0; width:130px; height:91px; will-change:transform; }
+        .dm-wolf-flip { width:100%; height:100%; transition:transform .25s ease; }
+        .dm-wolf svg { width:100%; height:100%; overflow:visible; display:block; filter:drop-shadow(0 4px 4px rgba(15,23,42,.30)); }
+        .dm-wolf-say { position:absolute; left:50%; top:-26px; transform:translateX(-50%); background:#fff; color:#1e293b; font-weight:900; font-size:13px; padding:3px 11px; border-radius:12px; white-space:nowrap; box-shadow:0 3px 8px rgba(0,0,0,.25); opacity:0; transition:opacity .2s; }
+        .dm-wolf-say.on { opacity:1; }
+        .wl-leg, .wl-tail, .wl-head, .wl-all { transform-box:fill-box; }
+        .wl-leg { transform-origin:50% 6%; }
+        .wl-tail { transform-origin:92% 85%; animation:wlTail 1.2s ease-in-out infinite; }
+        .wl-head { transform-origin:12% 82%; }
+        .wl-jaw { display:none; }
+        .dm-wolf.walk .wl-leg-a, .dm-wolf.run .wl-leg-a { animation:wlLeg .56s ease-in-out infinite; }
+        .dm-wolf.walk .wl-leg-b, .dm-wolf.run .wl-leg-b { animation:wlLeg .56s ease-in-out infinite; animation-delay:-.28s; }
+        .dm-wolf.run .wl-leg-a, .dm-wolf.run .wl-leg-b { animation-duration:.3s; }
+        .dm-wolf.run .wl-leg-b { animation-delay:-.15s; }
+        .dm-wolf.walk .wl-all { animation:wlBob .56s ease-in-out infinite; }
+        .dm-wolf.run .wl-all { animation:wlBob .3s ease-in-out infinite; }
+        .dm-wolf.sniff .wl-head { animation:wlSniff .6s ease-in-out infinite; }
+        .dm-wolf.growl .wl-head { animation:wlGrowl .12s linear infinite; }
+        .dm-wolf.growl .wl-all { transform:translateY(3px); }
+        .dm-wolf.chomp .wl-head { animation:wlChomp .5s ease-in-out 2; }
+        .dm-wolf.chomp .wl-jaw, .dm-wolf.growl .wl-jaw { display:inline; }
+        .dm-wolf.chomp .wl-closed-mouth, .dm-wolf.growl .wl-closed-mouth { display:none; }
+        @keyframes wlLeg { 0%,100% { transform:rotate(-22deg); } 50% { transform:rotate(22deg); } }
+        @keyframes wlTail { 0%,100% { transform:rotate(-9deg); } 50% { transform:rotate(11deg); } }
+        @keyframes wlBob { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-3px); } }
+        @keyframes wlSniff { 0%,100% { transform:rotate(15deg) translateY(2px); } 50% { transform:rotate(22deg) translateY(5px); } }
+        @keyframes wlGrowl { 0%,100% { transform:rotate(5deg) translate(0,0); } 50% { transform:rotate(5deg) translate(1.5px,1px); } }
+        @keyframes wlChomp { 0%,100% { transform:rotate(0) translateX(0); } 35% { transform:rotate(-4deg) translateX(14px); } 60% { transform:rotate(3deg) translateX(2px); } }
+        /* yumurtaların korkma tepkisi */
+        .dm-face-scared { display:none; transform:translate(var(--ex,0px), var(--ey,0px)); transition:transform .18s ease-out; }
+        .dm-egg-scared .dm-face { display:none; }
+        .dm-egg-scared .dm-face-scared { display:block; }
+        .dm-egg-back .dm-face, .dm-egg-back .dm-face-scared { display:none !important; }
+        .dm-egg-scared .dm-egg-svg, .dm-egg-scared .dm-creature-svg { animation:dmShiver .16s linear infinite !important; }
+        .dm-egg-back .dm-egg-svg, .dm-egg-back .dm-creature-svg { animation:dmShiverBack .14s linear infinite !important; }
+        .dm-egg-card.dm-egg-bounce .dm-egg-svg { animation:dmEggBounce .7s ease-out !important; }
+        @keyframes dmShiver { 0%,100% { transform:translateX(-1.2px); } 50% { transform:translateX(1.2px); } }
+        @keyframes dmShiverBack { 0%,100% { transform:translateX(-1.8px) rotate(var(--lean,0deg)) scale(.95); } 50% { transform:translateX(1.8px) rotate(var(--lean,0deg)) scale(.95); } }
         .dm-seatmap { container-type: inline-size; }
         .dm-slot { font-size: max(8px, min(calc(var(--fs) * 0.76vw), 20px)); }
         @supports (width: 1cqw) { .dm-slot { font-size: max(8px, min(calc(var(--fs) * 1cqw), 20px)); } }
@@ -1666,6 +1706,13 @@
                         <path d="M40 97 Q50 110 60 97 Z" fill="#3b0764" stroke="#1e1b4b" strokeWidth="2" strokeLinejoin="round" />
                     </g>)}
                     </g>
+                    <g className="dm-face-scared">
+                        <ellipse cx="40" cy="83" rx="6.5" ry="8" fill="#fff" stroke={eye} strokeWidth="2" /><circle cx="41" cy="85" r="2.4" fill={eye} />
+                        <ellipse cx="60" cy="83" rx="6.5" ry="8" fill="#fff" stroke={eye} strokeWidth="2" /><circle cx="59" cy="85" r="2.4" fill={eye} />
+                        <path d="M32 77 L45 71" fill="none" stroke={eye} strokeWidth="2.5" strokeLinecap="round" /><path d="M55 71 L68 77" fill="none" stroke={eye} strokeWidth="2.5" strokeLinecap="round" />
+                        <ellipse cx="50" cy="99" rx="4" ry="5" fill="#7f1d1d" stroke={eye} strokeWidth="2" />
+                        <path d="M72 66 Q76 73 72 77 Q68 73 72 66 Z" fill="#7dd3fc" stroke="#0ea5e9" strokeWidth="1" />
+                    </g>
                 </svg>
             );
         };
@@ -1788,7 +1835,151 @@
                    'Kabuğunda çatlaklar ve ışık var, efsane olmak için hemen kapıdasın! Biraz daha güzel davranış ve o mor yumurta senin olacak! 👑']
         };
 
+        /* ===== KURT: yumurta bahçesinde gezen sevimli ama ürkütücü kurt =====
+           Düz DOM motoru (React dışı): kurt ekranı yavaşça dolaşır, yumurtaları koklar, ara sıra hırlar.
+           Yakınından geçtiği yumurtalar önce korkmuş yüz yapar, çok yaklaşınca arkasını döner.
+           Bir yumurtaya dokunulursa (ses çıkarırsa) kurt oraya koşar ve "AM!" diye (oyun olarak) ısırır. */
+        const DM_WOLF_SVG = `<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><ellipse cx="96" cy="128" rx="62" ry="6" fill="rgba(0,0,0,.2)"/><g class="wl-all"><g class="wl-tail"><path d="M46 86 C14 90 2 58 18 32 C22 52 36 62 58 70 Z" fill="#6b7587" stroke="#1f2937" stroke-width="3" stroke-linejoin="round"/><path d="M18 32 C12 44 12 54 19 62 C20 52 24 44 30 40 Z" fill="#e2e8f0" stroke="#1f2937" stroke-width="2" stroke-linejoin="round"/></g><g class="wl-leg wl-leg-b"><rect x="64" y="92" width="15" height="31" rx="7.5" fill="#4b5563" stroke="#1f2937" stroke-width="2.5"/><ellipse cx="72" cy="124" rx="10" ry="5" fill="#374151" stroke="#1f2937" stroke-width="2.5"/></g><g class="wl-leg wl-leg-a"><rect x="126" y="92" width="15" height="31" rx="7.5" fill="#4b5563" stroke="#1f2937" stroke-width="2.5"/><ellipse cx="134" cy="124" rx="10" ry="5" fill="#374151" stroke="#1f2937" stroke-width="2.5"/></g><ellipse cx="94" cy="86" rx="54" ry="32" fill="#7b8494" stroke="#1f2937" stroke-width="3"/><ellipse cx="98" cy="104" rx="36" ry="12" fill="#cbd5e1"/><path d="M46 72 L50 54 L58 67 L66 49 L75 64 L85 47 L94 63 L104 48 L112 64 L122 51 L130 70 Z" fill="#5b6475" stroke="#1f2937" stroke-width="2.5" stroke-linejoin="round"/><g class="wl-leg wl-leg-a"><rect x="46" y="94" width="16" height="30" rx="8" fill="#7b8494" stroke="#1f2937" stroke-width="2.5"/><ellipse cx="54" cy="125" rx="11" ry="5.5" fill="#4b5563" stroke="#1f2937" stroke-width="2.5"/></g><g class="wl-leg wl-leg-b"><rect x="108" y="94" width="16" height="30" rx="8" fill="#7b8494" stroke="#1f2937" stroke-width="2.5"/><ellipse cx="116" cy="125" rx="11" ry="5.5" fill="#4b5563" stroke="#1f2937" stroke-width="2.5"/></g><g class="wl-head"><path d="M120 50 L104 62 L117 65 L106 80 L126 76 L132 88 L140 72 Z" fill="#5b6475" stroke="#1f2937" stroke-width="2.5" stroke-linejoin="round"/><path d="M134 42 L131 12 L153 33 Z" fill="#4b5563" stroke="#1f2937" stroke-width="2.5" stroke-linejoin="round"/><ellipse cx="146" cy="62" rx="26" ry="24" fill="#7b8494" stroke="#1f2937" stroke-width="3"/><path d="M149 41 L164 8 L176 43 Z" fill="#6b7587" stroke="#1f2937" stroke-width="2.5" stroke-linejoin="round"/><path d="M157 38 L164 20 L170 38 Z" fill="#c4a6b4"/><path d="M158 57 C172 50 192 56 197 67 C199 76 190 83 178 83 C166 83 158 77 158 69 Z" fill="#cbd5e1" stroke="#1f2937" stroke-width="3" stroke-linejoin="round"/><g class="wl-closed-mouth"><path d="M195 73 Q182 81 164 75" fill="none" stroke="#1f2937" stroke-width="2.5" stroke-linecap="round"/><path d="M185 78 L188 87 L191 76 Z" fill="#fff" stroke="#1f2937" stroke-width="1.6" stroke-linejoin="round"/><path d="M173 78 L176 86 L179 77 Z" fill="#fff" stroke="#1f2937" stroke-width="1.6" stroke-linejoin="round"/></g><g class="wl-jaw"><path d="M195 73 Q182 77 164 73 L168 93 Q182 101 193 88 Z" fill="#7f1d1d" stroke="#1f2937" stroke-width="2.5" stroke-linejoin="round"/><ellipse cx="180" cy="92" rx="8" ry="4" fill="#fb7185"/><path d="M186 74 L190 87 L194 73 Z" fill="#fff" stroke="#1f2937" stroke-width="1.6" stroke-linejoin="round"/><path d="M172 74 L176 86 L180 73 Z" fill="#fff" stroke="#1f2937" stroke-width="1.6" stroke-linejoin="round"/><path d="M181 91 L184 82 L187 92 Z" fill="#fff" stroke="#1f2937" stroke-width="1.4" stroke-linejoin="round"/></g><ellipse cx="196" cy="66" rx="5.5" ry="4.6" fill="#111827"/><circle cx="194.5" cy="64.4" r="1.3" fill="#fff"/><ellipse cx="141" cy="57" rx="6.5" ry="6" fill="#fde047" stroke="#1f2937" stroke-width="2"/><ellipse cx="143" cy="57" rx="1.8" ry="5" fill="#111827"/><ellipse cx="160" cy="55" rx="8" ry="7" fill="#fde047" stroke="#1f2937" stroke-width="2"/><ellipse cx="162" cy="55" rx="2" ry="6" fill="#111827"/><circle cx="158" cy="52" r="1.8" fill="#fff"/><path d="M149 45 L171 53" stroke="#1f2937" stroke-width="4.5" stroke-linecap="round"/><path d="M132 50 L148 55" stroke="#1f2937" stroke-width="4" stroke-linecap="round"/></g></g></svg>`;
+        const dmWolfStart = ({ getHome, onGone }) => {
+            const W = 130, H = 91, NOSE = 59;
+            const rand = (a, b) => a + Math.random() * (b - a);
+            const vw = () => window.innerWidth, vh = () => window.innerHeight;
+            const layer = document.createElement('div');
+            layer.className = 'dm-wolf-layer';
+            layer.innerHTML = `<div class="dm-wolf walk"><div class="dm-wolf-flip">${DM_WOLF_SVG}</div><div class="dm-wolf-say"></div></div>`;
+            document.body.appendChild(layer);
+            const wolf = layer.firstChild, flip = wolf.querySelector('.dm-wolf-flip'), say = wolf.querySelector('.dm-wolf-say');
+            window.__dmWolfOn = true;
+            const h0 = getHome();
+            const S = { x: h0.x, y: h0.y, dir: h0.x > vw() / 2 ? -1 : 1, mode: 'intro', t: 0, scale: 0, speed: 70, wait: 0, card: null, side: 1, target: null, charge: false, lastCard: null, nextGrowl: performance.now() + rand(7000, 12000) };
+            let dead = false, raf = 0, last = performance.now(), lastReact = 0, lastCards = 0, sayT = 0, cards = [];
+            const setCls = (c) => { wolf.className = 'dm-wolf ' + c; };
+            const talk = (txt, ms) => { say.textContent = txt; say.classList.add('on'); clearTimeout(sayT); sayT = setTimeout(() => say.classList.remove('on'), ms || 1600); };
+            const refreshCards = () => { cards = [...document.querySelectorAll('.dm-egg-grid .dm-egg-card')]; lastCards = performance.now(); };
+            const cardPoint = (card) => { const r = card.getBoundingClientRect(); const gap = Math.max(36, r.width * 0.24); return { x: r.left + r.width / 2 - S.side * (gap + NOSE), y: r.top + r.height * 0.6 }; };
+            const clampP = (p) => ({ x: Math.max(W / 2, Math.min(vw() - W / 2, p.x)), y: Math.max(H / 2 + 6, Math.min(vh() - H / 2 - 6, p.y)) });
+            const targetPoint = () => {
+                if (S.mode === 'out') return getHome();
+                if (S.card && S.card.isConnected) return clampP(cardPoint(S.card));
+                return S.target || { x: S.x, y: S.y };
+            };
+            const pickTarget = () => {
+                if (performance.now() - lastCards > 2000) refreshCards();
+                const pool = cards.filter(c => c !== S.lastCard && c.isConnected);
+                S.charge = false; S.speed = 70;
+                if (pool.length && Math.random() < 0.72) {
+                    const c = pool[Math.floor(Math.random() * pool.length)];
+                    const r = c.getBoundingClientRect();
+                    S.card = c; S.lastCard = c;
+                    S.side = S.x < r.left + r.width / 2 ? 1 : -1;
+                    const p = cardPoint(c);
+                    if (p.x < W / 2 || p.x > vw() - W / 2) S.side = -S.side;   // ekran dışına taşarsa diğer taraftan yaklaş
+                } else {
+                    S.card = null;
+                    S.target = { x: rand(W / 2 + 8, vw() - W / 2 - 8), y: rand(H / 2 + 8, vh() - H / 2 - 8) };
+                }
+                S.mode = 'walk'; setCls('walk');
+            };
+            const startGrowl = (now) => { S.mode = 'growl'; S.wait = 1.3; setCls('growl'); talk('grrr…', 1200); S.nextGrowl = now + rand(8000, 14000); };
+            const arrive = () => {
+                if (S.mode === 'out') { S.mode = 'vanish'; S.t = 0; setCls('walk'); return; }
+                if (S.card) {
+                    const r = S.card.getBoundingClientRect(); S.dir = (r.left + r.width / 2 > S.x) ? 1 : -1;
+                    if (S.charge) {
+                        const c = S.card;
+                        S.mode = 'chomp'; S.wait = 1.0; setCls('chomp'); talk('AM!', 900);
+                        c.classList.add('dm-egg-bounce'); setTimeout(() => c.classList.remove('dm-egg-bounce'), 800);
+                        S.charge = false; S.speed = 70;
+                    } else {
+                        S.mode = 'sniff'; S.wait = rand(1.8, 3.2); setCls('sniff');
+                        if (Math.random() < 0.6) talk('hım hım…', 1800);
+                    }
+                } else { S.mode = 'sniff'; S.wait = rand(0.8, 1.5); setCls('sniff'); }
+            };
+            const update = (dt, now) => {
+                if (S.mode === 'intro') {
+                    S.t += dt; S.scale = Math.min(1, S.t / 0.55);
+                    if (S.t >= 0.55) { S.scale = 1; talk('grrr…', 1200); pickTarget(); }
+                } else if (S.mode === 'walk' || S.mode === 'out') {
+                    const tp = targetPoint(); const dx = tp.x - S.x, dy = tp.y - S.y, d = Math.hypot(dx, dy), step = S.speed * dt;
+                    if (d <= step + 1) { S.x = tp.x; S.y = tp.y; arrive(); }
+                    else { S.x += dx / d * step; S.y += dy / d * step; if (Math.abs(dx) > 6) S.dir = dx > 0 ? 1 : -1; }
+                    if (S.mode === 'walk' && !S.charge && now > S.nextGrowl) startGrowl(now);
+                } else if (S.mode === 'sniff' || S.mode === 'growl' || S.mode === 'chomp') {
+                    S.wait -= dt;
+                    if (S.wait <= 0) { if (S.mode === 'sniff' && now > S.nextGrowl) startGrowl(now); else pickTarget(); }
+                } else if (S.mode === 'vanish') {
+                    S.t += dt; S.scale = Math.max(0, 1 - S.t / 0.35);
+                    if (S.scale <= 0) finish();
+                }
+            };
+            const react = (now) => {
+                if (now - lastReact < 90) return; lastReact = now;
+                if (now - lastCards > 2000 || !cards.length) refreshCards();
+                const hx = S.x + S.dir * 34, hy = S.y, alive = S.scale > 0.5 && S.mode !== 'vanish';
+                cards.forEach(card => {
+                    const r = card.getBoundingClientRect();
+                    const dx = hx - (r.left + r.width / 2), dy = hy - (r.top + r.height / 2), len = Math.hypot(dx, dy) || 1, d = len / r.width;
+                    const back = alive && d < 0.62, scared = alive && !back && d < 1.25, look = alive && d < 2.2;
+                    card.classList.toggle('dm-egg-back', back); card.classList.toggle('dm-egg-scared', scared);
+                    if (back || scared) card.style.setProperty('--lean', (dx > 0 ? -6 : 6) + 'deg');
+                    let ex = 0, ey = 0;
+                    if (look) { const k = Math.min(1, d * 1.5); ex = dx / len * k * 6; ey = dy / len * k * 4; }
+                    card.querySelectorAll('.dm-face, .dm-face-scared').forEach(f => { f.style.setProperty('--ex', ex.toFixed(1) + 'px'); f.style.setProperty('--ey', ey.toFixed(1) + 'px'); });
+                });
+            };
+            const render = () => {
+                wolf.style.transform = `translate3d(${(S.x - W / 2).toFixed(1)}px, ${(S.y - H / 2).toFixed(1)}px, 0) scale(${S.scale.toFixed(3)})`;
+                flip.style.transform = `scaleX(${S.dir})`;
+                say.style.top = S.y < 70 ? '88px' : '-26px';
+            };
+            const frame = (ts) => {
+                if (dead) return;
+                const dt = Math.min(0.05, (ts - last) / 1000); last = ts;
+                update(dt, ts); react(ts); render();
+                if (!dead) raf = requestAnimationFrame(frame);
+            };
+            // Yumurtaya dokunan (ses çıkaran) olursa kurt oraya koşar
+            const onDown = (e) => {
+                if (S.mode === 'out' || S.mode === 'vanish' || S.mode === 'intro') return;
+                const card = e.target && e.target.closest ? e.target.closest('.dm-egg-card') : null;
+                if (!card) return;
+                if (!cards.includes(card)) refreshCards();
+                const r = card.getBoundingClientRect();
+                S.card = card; S.lastCard = card; S.charge = true; S.speed = 270;
+                S.side = S.x < r.left + r.width / 2 ? 1 : -1;
+                const p = cardPoint(card); if (p.x < W / 2 || p.x > vw() - W / 2) S.side = -S.side;
+                S.mode = 'walk'; setCls('run'); talk('kim ses yaptı?!', 1300);
+            };
+            document.addEventListener('pointerdown', onDown, true);
+            const cleanup = () => {
+                dead = true; cancelAnimationFrame(raf); clearTimeout(sayT);
+                document.removeEventListener('pointerdown', onDown, true);
+                layer.remove(); window.__dmWolfOn = false;
+                document.querySelectorAll('.dm-egg-card').forEach(c => {
+                    c.classList.remove('dm-egg-back', 'dm-egg-scared'); c.style.removeProperty('--lean');
+                    c.querySelectorAll('.dm-face, .dm-face-scared').forEach(f => { f.style.setProperty('--ex', '0px'); f.style.setProperty('--ey', '0px'); });
+                });
+            };
+            const finish = () => {
+                if (dead) return;
+                const all = [...document.querySelectorAll('.dm-egg-grid .dm-egg-card')];
+                cleanup();
+                all.forEach(c => c.classList.add('dm-egg-bounce'));            // kurt gitti: yumurtalar rahatlayıp sevinir
+                setTimeout(() => all.forEach(c => c.classList.remove('dm-egg-bounce')), 800);
+                if (onGone) onGone();
+            };
+            const callBack = () => {
+                if (dead || S.mode === 'out' || S.mode === 'vanish') return;
+                S.mode = 'out'; S.card = null; S.charge = false; S.speed = 320; setCls('run'); talk('Geliyorum! 🐺', 1400);
+            };
+            refreshCards(); render();
+            raf = requestAnimationFrame(frame);
+            return { callBack, stop: cleanup, state: () => S };
+        };
+
         const dmEggLook = (e) => {
+            if (window.__dmWolfOn) return;   // kurt varken yumurtalar kurda bakar
             document.querySelectorAll('.dm-egg-grid .dm-egg-card').forEach(card => {
                 const face = card.querySelector('.dm-face');
                 if (!face) return;
@@ -1806,8 +1997,28 @@
             });
         };
         const dmEggLookReset = () => {
+            if (window.__dmWolfOn) return;
             document.querySelectorAll('.dm-egg-grid .dm-face').forEach(f => { f.style.setProperty('--ex', '0px'); f.style.setProperty('--ey', '0px'); });
         };
+
+        /* ===== KIRMIZI ALAN (30 dk) KURALI =====
+           Günlük puanı eksiye düşen (kırmızı alana geçen) öğrenci 30 dk hiçbir puan alamaz (bireysel + toplu).
+           Süre dolunca toplu puanlardan ve diğer puanlardan yeniden yararlanır. Kural sadece "bugün" için geçerlidir. */
+        const DM_RED_LOCK_MS = 30 * 60 * 1000;
+        const dmRealToday = () => { let d = new Date().getDay(); return (d === 0 || d === 6) ? 5 : d; };
+        const dmRedLockLeft = (student, day, now) => {
+            if (!student || !student.redUntil || student.redDay !== day || day !== dmRealToday()) return 0;
+            if (((student.daily || {})[day] || 0) >= 0) return 0;
+            return Math.max(0, student.redUntil - now);
+        };
+        // Puan değişince kilidi başlatır (yeni eksi puanla kırmızıya geçiş) veya kaldırır (puan 0'a / artıya dönünce).
+        const dmRedPatch = (student, day, before, after, addedNegative) => {
+            if (day !== dmRealToday()) return {};
+            if (addedNegative && before >= 0 && after < 0) return { redUntil: Date.now() + DM_RED_LOCK_MS, redDay: day };
+            if (after >= 0 && student.redUntil) return { redUntil: null, redDay: null };
+            return {};
+        };
+        const dmFmtLeft = (ms) => `${Math.max(1, Math.ceil(ms / 60000))} dk`;
 
         const DinamikMotiveApp = ({ onExit }) => {
             const [view, setView] = useState('loading'); 
@@ -1841,6 +2052,23 @@
             const [hatchShow, setHatchShow] = useState(null);
             const [showLegends, setShowLegends] = useState(false);
             const holdTimer = useRef(null);
+            const [toastMsg, setToastMsg] = useState(null);
+            const toastT = useRef(null);
+            const [wolfState, setWolfState] = useState('off');   // off | roam | back
+            const wolfCtl = useRef(null);
+            const wolfStartNow = () => {
+                if (wolfCtl.current) return;
+                wolfCtl.current = dmWolfStart({
+                    getHome: () => { const b = document.getElementById('dm-wolf-btn'); if (!b) return { x: window.innerWidth - 120, y: 40 }; const r = b.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; },
+                    onGone: () => { wolfCtl.current = null; setWolfState('off'); }
+                });
+                setWolfState('roam');
+            };
+            const wolfCall = () => { if (wolfCtl.current) { wolfCtl.current.callBack(); setWolfState('back'); } };
+            const wolfStopHard = () => { if (wolfCtl.current) { wolfCtl.current.stop(); wolfCtl.current = null; } setWolfState('off'); };
+            useEffect(() => { if (activeModal !== 'eggs' && wolfCtl.current) wolfStopHard(); }, [activeModal]);
+            useEffect(() => () => { if (wolfCtl.current) wolfCtl.current.stop(); }, []);
+            const showToast = (m) => { setToastMsg(m); clearTimeout(toastT.current); toastT.current = setTimeout(() => setToastMsg(null), 5000); };
 
             const [, setEggTick] = useState(0);
             useEffect(() => { const t = setInterval(() => setEggTick(x => x + 1), 10000); return () => clearInterval(t); }, []);
@@ -2105,6 +2333,16 @@
 
             const toggleBehaviorAndSave = (bId, forceDecrease = false) => {
                 let limitReached = false;
+                const stPre = students.find(s => s.id === activeBehaviorStudentId);
+                const defPre = DM_BEHAVIORS.pos.find(b => b.id === bId);
+                if (!forceDecrease && stPre && defPre) {
+                    const left = dmRedLockLeft(stPre, viewDay, Date.now());
+                    if (left > 0) {
+                        setShakeButtonId(bId); setTimeout(() => setShakeButtonId(null), 400);
+                        showToast(`⏳ ${stPre.name} kırmızı alanda. ${dmFmtLeft(left)} sonra puan alabilir.`);
+                        return;
+                    }
+                }
                 setStudents(prev => prev.map(student => {
                     if (student.id === activeBehaviorStudentId) {
                         const dayToEdit = viewDay;
@@ -2130,6 +2368,7 @@
                                 newBehaviors[bId] = Math.max(0, (newBehaviors[bId] || 0) - 1);
                             }
                         } else {
+                            if (isPositive && dmRedLockLeft(student, dayToEdit, Date.now()) > 0) return student;
                             if (isPositive && currentDailyScore + points > 10) { limitReached = true; return student; }
                             if (!isPositive && currentDailyScore + points < -10) { limitReached = true; return student; }
 
@@ -2157,7 +2396,8 @@
                             behaviors: newBehaviors,
                             positive: newPositive,
                             negative: newNegative,
-                            netScore: (student.netScore || 0) + scoreChange
+                            netScore: (student.netScore || 0) + scoreChange,
+                            ...dmRedPatch(student, dayToEdit, currentDailyScore, newDailyScore, !forceDecrease && !isPositive)
                         };
                     }
                     return student;
@@ -2175,13 +2415,19 @@
                     return;
                 }
 
+                const nowMs = Date.now();
+                const lockedNames = students
+                    .filter(st => (bulkTarget === 'selected' ? selectedIds.includes(st.id) : true) && !st.absentDays?.[viewDay] && dmRedLockLeft(st, viewDay, nowMs) > 0)
+                    .map(st => `${st.name} (${dmFmtLeft(dmRedLockLeft(st, viewDay, nowMs))})`);
+                if (lockedNames.length) showToast(`⏳ Kırmızı alan süresindeki öğrencilere puan verilmedi: ${lockedNames.slice(0, 4).join(', ')}${lockedNames.length > 4 ? ` +${lockedNames.length - 4} kişi` : ''}`);
+
                 setStudents(prev => prev.map(student => {
                     const dayToEdit = viewDay;
                     const isAbsent = student.absentDays?.[dayToEdit];
                     const currentDailyScore = student.daily?.[dayToEdit] || 0;
 
                     const isTargeted = bulkTarget === 'selected' ? selectedIds.includes(student.id) : true;
-                    if (!isTargeted || isAbsent || (bulkTarget !== 'selected' && currentDailyScore < 0)) {
+                    if (!isTargeted || isAbsent || dmRedLockLeft(student, dayToEdit, nowMs) > 0) {
                         return student;
                     }
 
@@ -2220,7 +2466,8 @@
                             behaviors: newBehaviors,
                             positive: Math.max(0, newPositive),
                             negative: Math.max(0, newNegative),
-                            netScore: (student.netScore || 0) + scoreChange
+                            netScore: (student.netScore || 0) + scoreChange,
+                            ...dmRedPatch(student, dayToEdit, currentDailyScore, tempDailyScore, newNegative > (student.negative || 0))
                         };
                     }
 
@@ -2515,7 +2762,7 @@
                                 <div className="p-6 pb-4 border-b-2 border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
                                     <div>
                                         <h2 className="text-2xl font-black text-slate-800 uppercase tracking-wide flex items-center gap-2"><Icons.Users className="text-purple-500"/> {bulkTarget === 'selected' ? 'Seçili Öğrencilere Puan Ver' : 'Toplu Puan Ver'}</h2>
-                                        <p className="text-slate-500 font-bold text-xs sm:text-sm mt-1">{bulkTarget === 'selected' ? <>Sadece <strong className="text-purple-600">{selectedIds.length} seçili öğrenciye</strong> uygulanır.</> : <>Eksi (-) puanda olanlar <strong className="text-red-500">hariç</strong> tüm sınıfa uygulanır.</>}</p>
+                                        <p className="text-slate-500 font-bold text-xs sm:text-sm mt-1">{bulkTarget === 'selected' ? <>Sadece <strong className="text-purple-600">{selectedIds.length} seçili öğrenciye</strong> uygulanır (kırmızı alan süresindekiler hariç).</> : <>Kırmızı alana yeni geçip <strong className="text-red-500">30 dk süresi dolmamış</strong> öğrenciler hariç tüm sınıfa uygulanır.</>}</p>
                                     </div>
                                     <button onClick={() => { setActiveModal(null); setBulkSelections([]); }} className="bg-slate-200 hover:bg-slate-300 text-slate-700 p-2.5 rounded-xl active:scale-95 transition-transform"><Icons.X size={20}/></button>
                                 </div>
@@ -2583,6 +2830,7 @@
                                     const safeDaily = student.daily || {};
                                     const dailyScore = safeDaily[viewDay] || 0;
                                     const currentDayBehaviors = student.dailyBehaviors?.[viewDay] || [];
+                                    const lockLeft = dmRedLockLeft(student, viewDay, Date.now());
                                     
                                     return (
                                         <>
@@ -2590,6 +2838,7 @@
                                                 <div>
                                                     <h2 className="text-2xl font-black text-slate-800 uppercase tracking-wide">{student.name}</h2>
                                                     <p className="text-slate-500 font-bold text-sm mt-1">{dayNames[viewDay]} Puanı: <span className={dailyScore > 0 ? 'text-green-600' : dailyScore < 0 ? 'text-red-600' : ''}>{dailyScore > 0 ? `+${dailyScore}` : dailyScore}</span></p>
+                                                    {lockLeft > 0 && <p className="text-red-600 font-black text-sm mt-1">⏳ Kırmızı alan: {dmFmtLeft(lockLeft)} sonra puan alabilir</p>}
                                                 </div>
                                                 <button onClick={() => setActiveBehaviorStudentId(null)} className="bg-slate-200 hover:bg-slate-300 text-slate-700 p-2.5 rounded-xl active:scale-95 transition-transform"><Icons.X size={20}/></button>
                                             </div>
@@ -2597,7 +2846,7 @@
                                             <div className="flex-1 overflow-y-auto dm-modal-content p-4 sm:p-6 bg-[#f8fafc]">
                                                 
                                                 <h3 className="text-green-600 font-black mb-3 flex items-center gap-2"><Icons.Star size={20} /> OLUMLU DAVRANIŞLAR (+ PUAN)</h3>
-                                                <div className="flex flex-col gap-2 mb-6">
+                                                <div className={`flex flex-col gap-2 mb-6 ${lockLeft > 0 ? 'opacity-50' : ''}`}>
                                                     {DM_BEHAVIORS.pos.map(b => {
                                                         const bCount = currentDayBehaviors.filter(id => id === b.id).length;
                                                         const isSelected = bCount > 0;
@@ -2694,6 +2943,7 @@
                                     </div>
                                     <div className="flex gap-2 shrink-0">
                                         <button onClick={() => setShowLegends(true)} className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 md:px-5 md:py-2.5 rounded-2xl font-black shadow-lg active:scale-95 text-sm md:text-base">🏆 Efsane Hayvanlar ({totalLegends})</button>
+                                        <button id="dm-wolf-btn" onClick={wolfState === 'off' ? wolfStartNow : wolfCall} disabled={wolfState === 'back'} className={`text-white px-3 py-2 md:px-5 md:py-2.5 rounded-2xl font-black shadow-lg active:scale-95 text-sm md:text-base disabled:opacity-60 ${wolfState === 'roam' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-slate-700 hover:bg-slate-800'}`}>{wolfState === 'off' ? '🐺 Kurt' : wolfState === 'roam' ? '📣 Gel' : '🐺 Geliyor…'}</button>
                                         <button onClick={() => { setShowLegends(false); setActiveModal(null); }} className="bg-red-500 hover:bg-red-600 text-white px-3 py-2 md:px-4 md:py-2.5 rounded-2xl font-black shadow-lg active:scale-95 flex items-center gap-1"><Icons.X size={18}/> <span className="hidden sm:inline">Kapat</span></button>
                                     </div>
                                 </div>
@@ -2908,6 +3158,7 @@
                                         </div>
                                     )}
                                     
+                                    {(() => { const lk = isAbsentToday ? 0 : dmRedLockLeft(student, dayToView, Date.now()); return lk > 0 ? <div className="absolute top-1.5 right-1.5 text-[11px] font-black text-white bg-black/30 rounded-lg px-1.5 py-0.5 pointer-events-none">⏳ {dmFmtLeft(lk)}</div> : null; })()}
                                     {(() => {
                                         const eggScore = scoreData.proportional;
                                         const hatchedNow = student.hatchedWeek === nextReset && student.hatchedType !== 'support' && (student.legends || []).length > 0;
@@ -2924,6 +3175,7 @@
                             );
                         })}
                     </div>
+                    {toastMsg && <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[300] bg-slate-900 text-white font-bold text-sm md:text-base rounded-2xl shadow-2xl px-5 py-3 max-w-[92vw] text-center animate-in" onClick={() => setToastMsg(null)}>{toastMsg}</div>}
                 </div>
             );
         };
@@ -3187,13 +3439,13 @@
             return out;
         };
 
-        // Sıraları satırlara ayırır (y konumuna göre). Ön bölge = satırların ilk yarısı.
+        // Sıraları satırlara ayırır (y konumuna göre). Ön grup = satırların ilk yarısı; satır sayısı tekse orta satır da ön gruptadır.
         const dmDeskRows = (desks) => {
             const sorted = [...desks].sort((a, b) => a.y - b.y);
             const rowOf = {}; let r = -1, prev = -100;
             sorted.forEach(d => { if (d.y - prev > 7) r++; rowOf[d.id] = r; prev = d.y; });
             const R = r + 1;
-            return { rowOf, R, frontRows: Math.max(1, Math.floor(R / 2)) };
+            return { rowOf, R, frontRows: Math.max(1, Math.ceil(R / 2)) };
         };
 
         const dmColOf = (desks) => {
@@ -3202,15 +3454,36 @@
             return colOf;
         };
 
-        // Yer değiştirme: ön yarı arka yarıya, arka yarı ön yarıya; herkes başka sütuna gider.
+        // Yer değiştirme: ön grup <-> arka grup; herkes başka sütuna gider.
+        // Ön grup = satırların ilk yarısı (satır sayısı tekse ORTA SATIR da ön gruba dahildir).
+        // Grup boyutları eşit değilse (ör. 5 satır: ön 3, arka 2) arka gruptakilerin hepsi öne geçer,
+        // ön gruptan sadece arka grup boyu kadar ikili arkaya gider; kalanlar ön grupta farklı bir sıraya geçer.
         // Sıra sayısı tekse işaretli "eşi olmayan" sıra, sütununun en ön sırasına geçer ve o sıra kilitlenir.
-        const dmComputeDraw = (desks, hist, pairMix, wait, avoid, stat) => {
+
+        // Listedeki sıraların verilen koltuklarındaki öğrencileri aralarında karıştırır (her sıranın o koltuğu mutlaka değişir).
+        // Mümkünse kimse eski sütununa / eski sırasına dönmez.
+        const dmMixSeats = (list, seats, prevCol, prevDesk, colOf) => {
+            const k = list.length; if (k < 2) return;
+            const ms = list.map((d, i) => d.s[seats[i]]);
+            const cost = (sid, d) => (colOf[d.id] === prevCol[sid] ? 1 : 0) + (d.id === prevDesk[sid] ? 3 : 0) + Math.random() * 0.2;
+            let best = null, bs = Infinity;
+            for (let t = 0; t < 80; t++) {
+                const p = list.map((_, i) => i);
+                for (let i = k - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [p[i], p[j]] = [p[j], p[i]]; }
+                if (p.some((v, i) => v === i)) continue;
+                const sc = p.reduce((a, v, i) => a + cost(ms[v], list[i]), 0);
+                if (sc < bs) { bs = sc; best = p; }
+            }
+            if (!best) best = list.map((_, i) => (i + 1) % k);
+            list.forEach((d, i) => { d.s[seats[i]] = ms[best[i]]; });
+        };
+
+        const dmComputeDrawCore = (desks, hist, pairMix, wait, avoid, stat) => {
             const n = desks.length;
             const { rowOf, R, frontRows } = dmDeskRows(desks);
             if (n < 4 || R < 2) return dmComputeDrawBasic(desks, hist, pairMix);
             const colOf = dmColOf(desks);
             const shuffle = (a) => { const b = [...a]; for (let i = b.length - 1; i > 0; i--) { const k = Math.floor(Math.random() * (i + 1)); [b[i], b[k]] = [b[k], b[i]]; } return b; };
-            const byRow = (arr) => arr.map(d => ({ d, r: Math.random() })).sort((a, b) => (rowOf[a.d.id] - rowOf[b.d.id]) || (a.r - b.r)).map(x => x.d);
             let U = null, F = null;
             if (n % 2 === 1) {
                 U = desks.find(d => d.odd) || [...desks].sort((a, b) => (rowOf[b.id] - rowOf[a.id]) || (b.x - a.x))[0];
@@ -3219,21 +3492,29 @@
             }
             const G = desks.filter(d => !U || d.id !== U.id);                 // kuraya giren ikililer (evleri)
             const T = desks.filter(d => !F || d.id !== F.id);                 // hedef sıralar
-            const half = G.length / 2;
-            const gSorted = byRow(G), typeF = gSorted.slice(0, half), typeB = gSorted.slice(half);
-            const tSorted = byRow(T), FHt = tSorted.slice(0, half), BHt = tSorted.slice(half);
-            const isFt = {}; typeF.forEach(d => { isFt[d.id] = true; });
+            const FG = G.filter(d => rowOf[d.id] < frontRows), BG = G.filter(d => rowOf[d.id] >= frontRows);   // ön / arka gruptaki ikililer
+            const FT = T.filter(t => rowOf[t.id] < frontRows), BT = T.filter(t => rowOf[t.id] >= frontRows);   // ön / arka hedef sıralar
+            if (!FG.length || !BG.length || !FT.length || !BT.length) return dmComputeDrawBasic(desks, hist, pairMix);
+            const nUp = Math.min(BG.length, FT.length);                        // arka gruptan öne geçecek ikili sayısı
+            const nDown = Math.max(0, BT.length - (BG.length - nUp));          // ön gruptan arkaya geçecek ikili sayısı
             const wOf = (d) => Math.max(0, ...d.s.filter(x => x != null).map(x => (wait && wait[x] != null) ? wait[x] : (rowOf[d.id] < frontRows ? 0 : 1)));
             const gkey = (d) => d.s.filter(x => x != null).join('|');
-            const maxBH = Math.max(...BHt.map(d => rowOf[d.id]));
+            const maxBH = Math.max(...BT.map(d => rowOf[d.id]));
             const lastStart = Math.max(frontRows, R - 2);
             const statR0 = (stat && stat.r0) || {}, statRL = (stat && stat.rl) || {};
             const cnt = (d, m) => Math.max(0, ...d.s.filter(x => x != null).map(x => m[x] || 0));
-            // Adalet: en ön satırı (1. satır) en az oturmuş ikililer, en arka iki satırı en az oturmuş ikililer alır.
-            const row0T = FHt.filter(t => rowOf[t.id] === 0), lastT = BHt.filter(t => rowOf[t.id] >= lastStart);
             const rank = (arr, key) => arr.map(d => ({ d, k: key(d) + Math.random() * 1.3 })).sort((x, y) => x.k - y.k).map(x => x.d);
-            const S0 = rank(typeB, d => (wOf(d) >= 2 ? -100 : 0) + cnt(d, statR0)).slice(0, row0T.length);
-            const SL = rank(typeF, d => cnt(d, statRL)).slice(0, lastT.length);
+            // Arkaya gidecek ön-grup ikilileri: en az arka satırda oturmuş olanlar (en çok arkada oturanlar önde kalır).
+            const goDown = rank(FG, d => cnt(d, statRL)).slice(0, nDown);
+            const downSet = new Set(goDown.map(d => d.id));
+            const stayF = FG.filter(d => !downSet.has(d.id));
+            // Öne geçecek arka-grup ikilileri: uzun süredir önde oturmamış ve en az 1. satırda oturmuş olanlar önce.
+            const goUp = rank(BG, d => (wOf(d) >= 2 ? -100 : 0) + cnt(d, statR0)).slice(0, nUp);
+            const destFront = {}; goUp.concat(stayF).forEach(d => { destFront[d.id] = true; });
+            // Adalet: en ön satırı (1. satır) öne geçenler arasında en az oturmuş ikililer, en arka iki satırı arkaya gidenler arasında en az oturmuş ikililer alır.
+            const row0T = FT.filter(t => rowOf[t.id] === 0), lastT = BT.filter(t => rowOf[t.id] >= lastStart);
+            const S0 = goUp.slice(0, row0T.length);
+            const SL = rank(goDown, d => cnt(d, statRL)).slice(0, lastT.length);
             const inS0 = new Set(S0.map(d => d.id)), inSL = new Set(SL.map(d => d.id));
             const sample = (strict) => {
                 const asg = {}; const free = new Set(T.map(d => d.id));
@@ -3245,8 +3526,9 @@
                 for (const g of shuffle(S0)) if (!put(g, row0T)) return null;
                 for (const g of shuffle(SL)) if (!put(g, lastT)) return null;
                 for (const g of shuffle(G.filter(d => !inS0.has(d.id) && !inSL.has(d.id)))) {
-                    const base = isFt[g.id] ? BHt : FHt;
-                    const keep = base.filter(t => !(isFt[g.id] ? (lastT.includes(t) && SL.length === lastT.length) : (row0T.includes(t) && S0.length === row0T.length)));
+                    const toFront = !!destFront[g.id];
+                    const base = toFront ? FT : BT;
+                    const keep = base.filter(t => !(toFront ? (row0T.includes(t) && S0.length === row0T.length) : (lastT.includes(t) && SL.length === lastT.length)));
                     if (!put(g, keep)) return null;
                 }
                 return asg;
@@ -3255,7 +3537,7 @@
                 const t = asg[g.id]; let m = 0;
                 g.s.forEach(sid => { if (sid == null) return; const h = hist[sid] || []; if (h[0] === t) m = Math.max(m, 3); else if (h[1] === t) m = Math.max(m, 1.5); });
                 if (avoid && avoid[gkey(g)] === t) m += 2;
-                if (isFt[g.id] && rowOf[g.id] === 0 && rowOf[t] < maxBH - 1) m += 0.8;       // en öndekiler mümkünse arkaya (hafif tercih)
+                if (downSet.has(g.id) && rowOf[g.id] === 0 && rowOf[t] < maxBH - 1) m += 0.8;       // en öndekiler mümkünse arkaya (hafif tercih)
                 if (!strict && colOf[t] === colOf[g.id]) m += 5;
                 return sum + m;
             }, 0);
@@ -3267,32 +3549,120 @@
             if (!pool.length) return dmComputeDrawBasic(desks, hist, pairMix);
             const ok = pool.filter(x => x.pn <= best + 1.2);
             const asg = ok[Math.floor(Math.random() * ok.length)].a;
-            const byId = {}; desks.forEach(d => { byId[d.id] = d; });
             const out = desks.map(d => ({ ...d, s: [null, null] }));
             const outOf = {}; out.forEach(d => { outOf[d.id] = d; });
             G.forEach(g => { outOf[asg[g.id]].s = [...g.s]; });
             if (U) outOf[F.id].s = [...U.s];
             if (pairMix) {
+                const prevDesk = {}, prevCol = {};
+                desks.forEach(d => d.s.forEach(s => { if (s != null) { prevDesk[s] = d.id; prevCol[s] = colOf[d.id]; } }));
                 for (let r = 0; r < R; r++) {
                     const two = out.filter(d => rowOf[d.id] === r && (!F || d.id !== F.id) && d.s[0] != null && d.s[1] != null);
-                    if (two.length > 1) { const sec = two.map(d => d.s[1]); const sh = 1 + Math.floor(Math.random() * (two.length - 1)); two.forEach((d, k) => { d.s[1] = sec[(k + sh) % two.length]; }); }
+                    dmMixSeats(two, two.map(() => 1), prevCol, prevDesk, colOf);
                 }
             }
             return out;
         };
 
-        const SeatMap = ({ desks, names, dark, edit, sel, onSlot, onDown, onDel, lit = [], hide, mapRef, onOdd }) => (
+        // İşaretlenen sıraların ikililerini ayırır: aynı satırdaki işaretliler kendi aralarında, tek kalanlar aynı bölgedeki
+        // (ön/arka) diğer işaretlilerle, hâlâ tek kalan varsa aynı satırdaki başka bir ikiliyle yer değiştirir.
+        const dmMarkedPairs = (desks, split) => desks.filter(d => split && split.has(d.id) && d.s[0] != null && d.s[1] != null).map(d => [d.s[0], d.s[1]]);
+        const dmIntactCount = (out, desks, split) => {
+            const pairs = dmMarkedPairs(desks, split);
+            return out.filter(d => d.s[0] != null && d.s[1] != null && pairs.some(p => p.includes(d.s[0]) && p.includes(d.s[1]))).length;
+        };
+        const dmSplitMarked = (out, desks, split) => {
+            const pairs = dmMarkedPairs(desks, split);
+            if (!pairs.length) return out;
+            const colOf = dmColOf(desks);
+            const { rowOf, frontRows } = dmDeskRows(desks);
+            const prevDesk = {}, prevCol = {};
+            desks.forEach(d => d.s.forEach(s => { if (s != null) { prevDesk[s] = d.id; prevCol[s] = colOf[d.id]; } }));
+            const res = out.map(d => ({ ...d, s: [...d.s] }));
+            const intact = () => res.filter(d => d.s[0] != null && d.s[1] != null && pairs.some(p => p.includes(d.s[0]) && p.includes(d.s[1])));
+            const zoneOf = (d) => (rowOf[d.id] < frontRows ? 0 : 1);
+            const mix = (list) => { if (list.length >= 2) dmMixSeats(list, list.map(() => (Math.random() < 0.5 ? 0 : 1)), prevCol, prevDesk, colOf); };
+            const byRow = {}; intact().forEach(d => { (byRow[rowOf[d.id]] = byRow[rowOf[d.id]] || []).push(d); });
+            Object.values(byRow).forEach(mix);
+            const left = intact();
+            [0, 1].forEach(z => mix(left.filter(d => zoneOf(d) === z)));
+            const cost = (sid, dd) => (colOf[dd.id] === prevCol[sid] ? 1 : 0) + (dd.id === prevDesk[sid] ? 3 : 0) + Math.random() * 0.2;
+            for (let guard = 0; guard < 50; guard++) {
+                const marked = intact(); const d = marked[0]; if (!d) break;
+                const mIds = new Set(marked.map(x => x.id));
+                const two = res.filter(x => !mIds.has(x.id) && x.s[0] != null && x.s[1] != null);
+                const tiers = [two.filter(x => rowOf[x.id] === rowOf[d.id]), two.filter(x => zoneOf(x) === zoneOf(d)), two];
+                const cand = tiers.find(t => t.length);
+                if (!cand) break;
+                let pick = null, pc = Infinity, pi = 0, pj = 0;
+                cand.forEach(x => [0, 1].forEach(i => [0, 1].forEach(j => { const c = cost(d.s[i], x) + cost(x.s[j], d); if (c < pc) { pc = c; pick = x; pi = i; pj = j; } })));
+                if (!pick) break;
+                const t = d.s[pi]; d.s[pi] = pick.s[pj]; pick.s[pj] = t;
+            }
+            return res;
+        };
+
+        const dmComputeDraw = (desks, hist, pairMix, wait, avoid, stat, split) => dmSplitMarked(dmComputeDrawCore(desks, hist, pairMix, wait, avoid, stat), desks, split);
+
+        // Yerleşim planını PNG resmi olarak indirir (sınıf panosuna asmak / yazdırmak için). Dış kütüphane gerektirmez.
+        const dmExportPlanPng = async (desks, names, title) => {
+            try { if (document.fonts && document.fonts.load) await document.fonts.load("900 24px Nunito"); if (document.fonts && document.fonts.ready) await document.fonts.ready; } catch (e) {}
+            const FONT = "'Nunito', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif";
+            const W = 2000, HEAD = 130, mw = W - 40, mh = Math.round(mw * 0.56), H = HEAD + mh + 40, ox = 20, oy = HEAD;
+            const c = document.createElement('canvas'); c.width = W; c.height = H;
+            const g = c.getContext('2d');
+            const rr = (x, y, w, h, r) => { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); };
+            g.fillStyle = '#ffffff'; g.fillRect(0, 0, W, H);
+            g.textBaseline = 'middle';
+            g.fillStyle = '#1e293b'; g.font = `900 60px ${FONT}`; g.textAlign = 'left'; g.fillText(title || 'Sınıf Oturma Planı', 40, 62);
+            g.fillStyle = '#64748b'; g.font = `700 32px ${FONT}`; g.textAlign = 'right';
+            g.fillText(new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', weekday: 'long' }), W - 40, 62);
+            g.lineWidth = 8; g.strokeStyle = '#1e293b'; rr(ox, oy, mw, mh, 28); g.stroke();
+            const bx = ox + mw * 0.35, bw = mw * 0.30, bh = mh * 0.07;
+            g.lineWidth = 6; rr(bx, oy + 4, bw, bh, 10); g.stroke();
+            g.fillStyle = '#1e293b'; g.font = `900 ${Math.round(bh * 0.5)}px ${FONT}`; g.textAlign = 'center'; g.fillText('tahta', bx + bw / 2, oy + 4 + bh / 2);
+            g.font = `900 ${Math.round(mh * 0.032)}px ${FONT}`;
+            const tw = g.measureText('öğretmen').width + 36, th = mh * 0.07;
+            g.fillStyle = '#0f172a'; rr(ox + mw * 0.02, oy + mh * 0.02, tw, th, 10); g.fill();
+            g.fillStyle = '#ffffff'; g.textAlign = 'center'; g.fillText('öğretmen', ox + mw * 0.02 + tw / 2, oy + mh * 0.02 + th / 2);
+            const dw = mw * 0.16, dh = mh * 0.11;
+            desks.forEach(d => {
+                const x = ox + d.x / 100 * mw, y = oy + d.y / 100 * mh;
+                g.fillStyle = '#ffffff'; rr(x, y, dw, dh, 16); g.fill();
+                g.lineWidth = 5; g.strokeStyle = '#1e293b'; rr(x, y, dw, dh, 16); g.stroke();
+                g.lineWidth = 3; g.strokeStyle = '#cbd5e1'; g.beginPath(); g.moveTo(x + dw / 2, y + 8); g.lineTo(x + dw / 2, y + dh - 8); g.stroke();
+                [0, 1].forEach(i => {
+                    const nm = d.s[i] != null ? names[String(d.s[i])] : null; if (!nm) return;
+                    const maxW = dw / 2 - 26; let fs = Math.round(dh * 0.32);
+                    g.font = `900 ${fs}px ${FONT}`;
+                    while (fs > 12 && g.measureText(nm).width > maxW) { fs -= 1; g.font = `900 ${fs}px ${FONT}`; }
+                    g.fillStyle = '#1e293b'; g.textAlign = 'center'; g.fillText(nm, x + dw * (i === 0 ? 0.25 : 0.75), y + dh / 2 + 2);
+                });
+            });
+            const stamp = new Date().toLocaleDateString('sv-SE');
+            const fallback = () => window.open(c.toDataURL('image/png'), '_blank');
+            if (!c.toBlob) { fallback(); return; }
+            c.toBlob(blob => {
+                if (!blob) { fallback(); return; }
+                const url = URL.createObjectURL(blob); const a = document.createElement('a');
+                a.href = url; a.download = `oturma-plani-${stamp}.png`; document.body.appendChild(a); a.click(); a.remove();
+                setTimeout(() => URL.revokeObjectURL(url), 4000);
+            }, 'image/png');
+        };
+
+        const SeatMap = ({ desks, names, dark, edit, sel, onSlot, onDown, onDel, lit = [], hide, mapRef, onOdd, marked = [], onDeskClick }) => (
             <div className="relative w-full select-none" style={{ paddingTop: '56%' }}>
                 <div ref={mapRef} className="dm-seatmap absolute inset-0 rounded-2xl overflow-hidden" style={{ background: dark ? '#0f172a' : '#fff', border: `4px solid ${dark ? '#334155' : '#1e293b'}` }}>
                     <div className="absolute font-black text-center rounded-md border-4 flex items-center justify-center" style={{ left: '35%', width: '30%', top: 0, height: '7%', borderColor: dark ? '#64748b' : '#1e293b', color: dark ? '#cbd5e1' : '#1e293b', fontSize: 'clamp(10px,1.6vw,22px)' }}>tahta</div>
                     <div className="absolute font-black bg-slate-900 text-white rounded px-2 flex items-center" style={{ left: '2%', top: '2%', height: '7%', fontSize: 'clamp(10px,1.5vw,20px)' }}>öğretmen</div>
                     {desks.map(d => {
                         const isLit = lit.includes(d.id);
+                        const isMarked = !dark && marked.includes(d.id);
                         return (
-                            <div key={d.id} onPointerDown={edit ? (e) => onDown(e, d) : undefined}
+                            <div key={d.id} onPointerDown={edit ? (e) => onDown(e, d) : undefined} onClick={!edit && onDeskClick ? () => onDeskClick(d) : undefined}
                                 className="absolute rounded-xl flex items-stretch overflow-hidden"
-                                style={{ left: `${d.x}%`, top: `${d.y}%`, width: '16%', height: '11%', touchAction: edit ? 'none' : 'auto', cursor: edit ? 'grab' : 'default', transition: 'all .15s',
-                                    background: dark ? (isLit ? '#fde047' : '#1e293b') : '#fff', border: `3px solid ${dark ? (isLit ? '#facc15' : '#475569') : (edit && d.odd ? '#f59e0b' : '#1e293b')}`,
+                                style={{ left: `${d.x}%`, top: `${d.y}%`, width: '16%', height: '11%', touchAction: edit ? 'none' : 'auto', cursor: edit ? 'grab' : (onDeskClick ? 'pointer' : 'default'), transition: 'all .15s',
+                                    background: dark ? (isLit ? '#fde047' : '#1e293b') : (isMarked ? '#fee2e2' : '#fff'), border: `3px solid ${dark ? (isLit ? '#facc15' : '#475569') : (isMarked ? '#ef4444' : (edit && d.odd ? '#f59e0b' : '#1e293b'))}`,
                                     boxShadow: isLit ? '0 0 24px 8px rgba(253,224,71,.85)' : undefined, color: dark ? (isLit ? '#1e293b' : '#e2e8f0') : '#1e293b' }}>
                                 {[0, 1].map(i => {
                                     const sid = d.s[i]; const nm = sid != null ? names[String(sid)] : null;
@@ -3305,6 +3675,7 @@
                                         </div>
                                     );
                                 })}
+                                {isMarked && !edit && <span className="absolute top-0 left-0 text-[11px] leading-none bg-red-500 text-white rounded-br-lg px-1 py-0.5 font-black pointer-events-none">✂️</span>}
                                 {edit && <button onPointerDown={(e) => e.stopPropagation()} onClick={() => onOdd(d.id)} title="Eşi olmayan sıra" className={`absolute bottom-0 right-0 rounded-tl-lg text-[10px] leading-none w-4 h-4 font-black ${d.odd ? 'bg-amber-500 text-white' : 'bg-slate-200 text-slate-500'}`}>⚑</button>}
                                 {edit && <button onPointerDown={(e) => e.stopPropagation()} onClick={() => onDel(d.id)} className="absolute top-0 right-0 bg-red-500 text-white rounded-bl-lg text-[10px] leading-none w-4 h-4 font-black">✕</button>}
                             </div>
@@ -3321,6 +3692,10 @@
             const [wait, setWait] = useState({});
             const [stat, setStat] = useState({ r0: {}, rl: {} });
             const [pairMix, setPairMix] = useState(false);
+            const [split, setSplit] = useState([]);          // ikilisi ayrılacak (işaretli) sıraların id'leri
+            const [markMode, setMarkMode] = useState(false);
+            const [undo, setUndo] = useState([]);              // onaylanan önceki yerleşimler (en yeni başta, en çok 5)
+            const [splitWarn, setSplitWarn] = useState(0);
             const [loaded, setLoaded] = useState(false);
             const [edit, setEdit] = useState(false);
             const [sel, setSel] = useState(null);
@@ -3342,7 +3717,7 @@
                             const a = await window.fb.getDoc(ref('dinamikMotiveData', 'state'));
                             if (a.exists()) setStudents((a.data().students || []).map(x => ({ id: x.id, name: x.name })));
                             const b = await window.fb.getDoc(ref('sinifAraclari', 'yerlesim'));
-                            if (b.exists()) { const d = b.data(); setDesks(d.desks || []); setHist(d.hist || {}); setWait(d.wait || {}); setStat(d.stat || { r0: {}, rl: {} }); setPairMix(!!d.pairMix); }
+                            if (b.exists()) { const d = b.data(); setDesks(d.desks || []); setHist(d.hist || {}); setWait(d.wait || {}); setStat(d.stat || { r0: {}, rl: {} }); setPairMix(!!d.pairMix); setSplit(d.split || []); setUndo(d.undo || []); }
                         }
                     } catch (e) { console.error(e); }
                     setLoaded(true);
@@ -3351,8 +3726,8 @@
             useEffect(() => {
                 if (!loaded || !window.fb.auth.currentUser) return;
                 clearTimeout(saveT.current);
-                saveT.current = setTimeout(() => { window.fb.setDoc(ref('sinifAraclari', 'yerlesim'), { desks, hist, wait, stat, pairMix }).catch(console.error); }, 700);
-            }, [desks, hist, wait, stat, pairMix, loaded]);
+                saveT.current = setTimeout(() => { window.fb.setDoc(ref('sinifAraclari', 'yerlesim'), { desks, hist, wait, stat, pairMix, split, undo }).catch(console.error); }, 700);
+            }, [desks, hist, wait, stat, pairMix, split, undo, loaded]);
             useEffect(() => {
                 const mv = (e) => {
                     const dr = dragRef.current; if (!dr || !mapRef.current) return;
@@ -3406,7 +3781,7 @@
                 setDesks(ds => ds.map(d => ({ ...d, s: fill[d.id] })));
             };
 
-            const start = () => { const nd0 = dmComputeDraw(desks, hist, pairMix, wait, lastDraw.current, stat); const mp = {}; nd0.forEach(d => { const k = d.s.filter(x => x != null).join('|'); if (k) mp[k] = d.id; }); lastDraw.current = mp; setNd(nd0); setRevealed(0); setLit([]); setCount(10); setConfetti([]); setPhase('anim'); };
+            const start = () => { const splitSet = new Set(split.filter(id => desks.some(d => d.id === id))); const nd0 = dmComputeDraw(desks, hist, pairMix, wait, lastDraw.current, stat, splitSet); setSplitWarn(dmIntactCount(nd0, desks, splitSet)); const mp = {}; nd0.forEach(d => { const k = d.s.filter(x => x != null).join('|'); if (k) mp[k] = d.id; }); lastDraw.current = mp; setNd(nd0); setRevealed(0); setLit([]); setCount(10); setConfetti([]); setPhase('anim'); };
             useEffect(() => {
                 if (phase !== 'anim') return;
                 const t = setInterval(() => setCount(c => (c <= 1 ? 0 : c - 1)), 1000);
@@ -3431,6 +3806,7 @@
             const revealOrder = [...nd].sort((a, b) => (a.y - b.y) || (a.x - b.x)).map(d => d.id);
             const revealedIds = new Set(revealOrder.slice(0, revealed));
             const save = () => {
+                const snap = JSON.parse(JSON.stringify({ desks, hist, wait, stat, split }));
                 const h = { ...hist };
                 desks.forEach(d => d.s.forEach(sid => { if (sid != null) h[sid] = [d.id, ...(h[sid] || [])].slice(0, 2); }));
                 const { rowOf, frontRows } = dmDeskRows(nd);
@@ -3441,15 +3817,25 @@
                 const nr = dmDeskRows(nd), lastStart = Math.max(nr.frontRows, nr.R - 2);
                 const st2 = { r0: { ...stat.r0 }, rl: { ...stat.rl } };
                 nd.forEach(d => d.s.forEach(sid => { if (sid == null) return; if (nr.rowOf[d.id] === 0) st2.r0[sid] = (st2.r0[sid] || 0) + 1; if (nr.rowOf[d.id] >= lastStart) st2.rl[sid] = (st2.rl[sid] || 0) + 1; }));
-                lastDraw.current = null; setStat(st2); setWait(w); setHist(h); setDesks(nd); setPhase('idle');
+                lastDraw.current = null; setUndo(u => [snap, ...u].slice(0, 5)); setSplit([]); setMarkMode(false); setStat(st2); setWait(w); setHist(h); setDesks(nd); setPhase('idle');
             };
+
+            const toggleSplit = (d) => { if (d.s[0] == null || d.s[1] == null) return; setSplit(sp => sp.includes(d.id) ? sp.filter(x => x !== d.id) : [...sp, d.id]); };
+            const splitCount = split.filter(id => desks.some(d => d.id === id && d.s[0] != null && d.s[1] != null)).length;
+            const undoLast = () => {
+                if (!undo.length) return;
+                if (!confirm('Son onaylanan yerleşim geri alınsın mı? Öğrenciler bir önceki yerlerine döner.')) return;
+                const [sn, ...rest] = undo;
+                setDesks(sn.desks || []); setHist(sn.hist || {}); setWait(sn.wait || {}); setStat(sn.stat || { r0: {}, rl: {} }); setSplit(sn.split || []); setUndo(rest);
+            };
+            const exportPng = (ds) => { dmExportPlanPng(ds, names, 'Sınıf Oturma Planı').catch(() => alert('Resim oluşturulamadı.')); };
 
             if (!loaded) return <div className="p-10 text-center font-bold text-slate-500 animate-pulse">Yükleniyor...</div>;
             const overlay = phase !== 'idle';
             return (
                 <div className="px-3 md:px-6 pb-8 max-w-[1200px] mx-auto">
                     <div className="flex flex-wrap items-center gap-2 mb-3">
-                        <button onClick={() => { setEdit(!edit); setSel(null); }} className={`px-4 py-2 rounded-xl font-black shadow ${edit ? 'bg-emerald-500 text-white' : 'bg-white text-slate-700 border-2 border-slate-200'}`}>{edit ? '✅ Düzenlemeyi Bitir' : '✏️ Planı Düzenle'}</button>
+                        <button onClick={() => { setEdit(!edit); setSel(null); setMarkMode(false); }} className={`px-4 py-2 rounded-xl font-black shadow ${edit ? 'bg-emerald-500 text-white' : 'bg-white text-slate-700 border-2 border-slate-200'}`}>{edit ? '✅ Düzenlemeyi Bitir' : '✏️ Planı Düzenle'}</button>
                         {edit && (<>
                             <button onClick={addDesk} className="px-4 py-2 rounded-xl font-black bg-blue-500 text-white shadow">➕ Sıra Ekle</button>
                             <button onClick={autoFill} className="px-4 py-2 rounded-xl font-black bg-purple-500 text-white shadow">🪄 Boşlukları Doldur</button>
@@ -3464,7 +3850,7 @@
                     </div>
                     {edit && desks.length % 2 === 1 && <p className="text-sm font-black text-amber-700 bg-amber-50 border-2 border-amber-200 rounded-xl px-3 py-2 mb-2">Sıra sayınız tek ({desks.length}). Eşi olmayan sırayı sağ alttaki ⚑ ile işaretleyin; işaretlemezseniz en arkadaki sıra alınır. Bu sıra her kurada sütununun en ön sırasına geçer.</p>}
                     {edit && <p className="text-sm font-bold text-slate-500 mb-2">Sıraları sürükleyerek yerleştirin. Boş yere dokunup aşağıdan öğrenci seçin; dolu yere dokunursanız öğrenci sıradan kalkar. Sıra arkadaşlarınız aynı sırada kalır.</p>}
-                    <SeatMap desks={desks} names={names} edit={edit} sel={sel} onSlot={onSlot} onDown={onDown} onDel={(id) => setDesks(ds => ds.filter(d => d.id !== id))} onOdd={(id) => setDesks(ds => ds.map(d => ({ ...d, odd: d.id === id ? !d.odd : false })))} mapRef={mapRef} />
+                    <SeatMap desks={desks} names={names} edit={edit} sel={sel} onSlot={onSlot} onDown={onDown} onDel={(id) => setDesks(ds => ds.filter(d => d.id !== id))} onOdd={(id) => setDesks(ds => ds.map(d => ({ ...d, odd: d.id === id ? !d.odd : false })))} mapRef={mapRef} marked={split} onDeskClick={!edit && markMode ? toggleSplit : undefined} />
                     {edit && (
                         <div className="mt-3 bg-white rounded-2xl p-3 border-2 border-slate-200">
                             <div className="font-black text-slate-600 text-sm mb-2">Sırası olmayan öğrenciler ({unseated.length}) {students.length === 0 && '— Dinamik Motive listesinde öğrenci bulunamadı.'}</div>
@@ -3474,6 +3860,13 @@
                     {!edit && (
                         <div className="mt-5 flex flex-col items-center gap-3">
                             <label className="flex items-center gap-2 font-bold text-slate-600"><input type="checkbox" checked={pairMix} onChange={e => setPairMix(e.target.checked)} className="w-5 h-5" /> Sıra arkadaşları da karışsın</label>
+                            <div className="flex flex-wrap items-center justify-center gap-2">
+                                <button onClick={() => setMarkMode(m => !m)} className={`px-4 py-2 rounded-xl font-black shadow border-2 active:scale-95 ${markMode ? 'bg-red-500 text-white border-red-600' : 'bg-white text-slate-700 border-slate-200'}`}>✂️ {markMode ? 'İşaretlemeyi Bitir' : 'Ayrılacak Sıraları İşaretle'}{splitCount > 0 ? ` (${splitCount})` : ''}</button>
+                                {splitCount > 0 && <button onClick={() => setSplit([])} className="px-4 py-2 rounded-xl font-black bg-red-100 text-red-600 active:scale-95">İşaretleri Temizle</button>}
+                                <button disabled={occupied < 1} onClick={() => exportPng(desks)} className="px-4 py-2 rounded-xl font-black bg-white text-slate-700 border-2 border-slate-200 shadow active:scale-95 disabled:opacity-40">📷 Resim Olarak Kaydet</button>
+                                {undo.length > 0 && <button onClick={undoLast} className="px-4 py-2 rounded-xl font-black bg-amber-100 text-amber-800 border-2 border-amber-300 shadow active:scale-95">↩️ Önceki Yerleşime Dön ({undo.length})</button>}
+                            </div>
+                            {markMode && <p className="text-sm font-bold text-red-700 bg-red-50 border-2 border-red-200 rounded-xl px-3 py-2 text-center max-w-xl">Birlikte oturmaması gereken öğrencilerin sırasına dokunun (tekrar dokunursanız işaret kalkar). Yerleşim yapılırken işaretli sıraların arkadaşları değişir. İşaretler yerleşimi onayladığınızda temizlenir.</p>}
                             <button disabled={occupied < 2} onClick={start} className="px-10 py-4 rounded-3xl font-black text-2xl md:text-4xl text-white shadow-xl bg-gradient-to-r from-orange-500 to-pink-500 active:scale-95 disabled:opacity-40">🎲 YERLEŞİM YAP</button>
                             {occupied < 2 && <p className="text-slate-500 font-bold text-sm">Önce "Planı Düzenle" ile sıraları ve öğrencileri yerleştirin.</p>}
                         </div>
@@ -3483,6 +3876,7 @@
                         <div className="fixed inset-0 z-[200] bg-slate-900 flex flex-col items-center justify-center p-3 overflow-hidden">
                             {phase !== 'anim' && confetti.map((k, i) => <span key={i} className="dm-confetti text-2xl" style={{ left: `${k.l}%`, animationDelay: `${k.d}s`, animationDuration: `${k.t}s` }}>{k.e}</span>)}
                             <h2 className="text-white font-black text-2xl md:text-4xl mb-3">{phase === 'anim' ? 'Yeni yerler belirleniyor...' : phase === 'reveal' ? '🎉 Yeni yerler!' : '🎉 Yeni yerleşim hazır!'}</h2>
+                            {phase === 'done' && splitCount > 0 && <p className={`font-bold text-sm md:text-base mb-2 ${splitWarn > 0 ? 'text-amber-300' : 'text-emerald-300'}`}>{splitWarn > 0 ? `⚠️ ${splitWarn} işaretli sıranın arkadaşları değiştirilemedi.` : '✂️ İşaretli sıraların arkadaşları değiştirildi.'}</p>}
                             <div className="relative w-full" style={{ maxWidth: 1100 }}>
                                 <SeatMap dark desks={phase === 'anim' ? desks : nd} names={names} lit={lit} hide={phase === 'anim' ? () => true : (d) => !revealedIds.has(d.id)} />
                                 {phase === 'anim' && <div className="absolute inset-0 flex items-center justify-center pointer-events-none font-black text-yellow-300" style={{ fontSize: '22vw', textShadow: '0 0 40px #facc15' }}>{count}</div>}
@@ -3491,6 +3885,7 @@
                                 <div className="flex flex-wrap justify-center gap-3 mt-4">
                                     <button onClick={save} className="px-6 py-3 rounded-2xl font-black text-xl bg-emerald-500 text-white shadow-lg active:scale-95">✅ Onayla ve Kaydet</button>
                                     <button onClick={start} className="px-6 py-3 rounded-2xl font-black text-xl bg-yellow-400 text-slate-900 shadow-lg active:scale-95">🎲 Yeniden Çek</button>
+                                    <button onClick={() => exportPng(nd)} className="px-6 py-3 rounded-2xl font-black text-xl bg-sky-500 text-white shadow-lg active:scale-95">📷 Resmi Kaydet</button>
                                     <button onClick={() => { lastDraw.current = null; setPhase('idle'); }} className="px-6 py-3 rounded-2xl font-black text-xl bg-slate-600 text-white shadow-lg active:scale-95">✖ Vazgeç</button>
                                 </div>
                             )}
