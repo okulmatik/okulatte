@@ -236,7 +236,7 @@
         .dm-wolf-say.on { opacity:1; }
         .wl-leg, .wl-tail, .wl-head, .wl-all { transform-box:fill-box; }
         .wl-leg { transform-origin:50% 6%; }
-        .wl-tail { transform-origin:92% 85%; animation:wlTail 1.2s ease-in-out infinite; }
+        .wl-tail { transform-origin:96% 22%; animation:wlTail 1.2s ease-in-out infinite; }
         .wl-head { transform-origin:12% 82%; }
         .wl-jaw { display:none; }
         .dm-wolf.walk .wl-leg-a, .dm-wolf.run .wl-leg-a { animation:wlLeg .56s ease-in-out infinite; }
@@ -251,6 +251,13 @@
         .dm-wolf.chomp .wl-head { animation:wlChomp .5s ease-in-out 2; }
         .dm-wolf.chomp .wl-jaw, .dm-wolf.growl .wl-jaw { display:inline; }
         .dm-wolf.chomp .wl-closed-mouth, .dm-wolf.growl .wl-closed-mouth { display:none; }
+        .dm-wolf.dig .wl-head { animation:wlDig .5s ease-in-out infinite; }
+        .dm-wolf.dig .wl-leg-a { animation:wlPaw .25s ease-in-out infinite; }
+        .dm-wolf.dig .wl-leg-b { animation:wlPaw .25s ease-in-out infinite; animation-delay:-.125s; }
+        .dm-wolf.dig .wl-all { transform:translateY(2px); }
+        @keyframes wlDig { 0%,100% { transform:rotate(26deg) translate(4px,8px); } 50% { transform:rotate(34deg) translate(8px,13px); } }
+        @keyframes wlPaw { 0%,100% { transform:rotate(-30deg); } 50% { transform:rotate(18deg); } }
+        .dm-dust { position:absolute; left:0; top:0; width:9px; height:9px; border-radius:50%; background:rgba(148,128,100,.65); pointer-events:none; will-change:transform,opacity; }
         @keyframes wlLeg { 0%,100% { transform:rotate(-22deg); } 50% { transform:rotate(22deg); } }
         @keyframes wlTail { 0%,100% { transform:rotate(-9deg); } 50% { transform:rotate(11deg); } }
         @keyframes wlBob { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-3px); } }
@@ -1838,8 +1845,8 @@
         /* ===== KURT: yumurta bahçesinde gezen sevimli ama ürkütücü kurt =====
            Düz DOM motoru (React dışı): kurt ekranı yavaşça dolaşır, yumurtaları koklar, ara sıra hırlar.
            Yakınından geçtiği yumurtalar önce korkmuş yüz yapar, çok yaklaşınca arkasını döner.
-           Bir yumurtaya dokunulursa (ses çıkarırsa) kurt oraya koşar ve "AM!" diye (oyun olarak) ısırır. */
-        const DM_WOLF_SVG = `<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><ellipse cx="96" cy="128" rx="62" ry="6" fill="rgba(0,0,0,.2)"/><g class="wl-all"><g class="wl-tail"><path d="M46 86 C14 90 2 58 18 32 C22 52 36 62 58 70 Z" fill="#6b7587" stroke="#1f2937" stroke-width="3" stroke-linejoin="round"/><path d="M18 32 C12 44 12 54 19 62 C20 52 24 44 30 40 Z" fill="#e2e8f0" stroke="#1f2937" stroke-width="2" stroke-linejoin="round"/></g><g class="wl-leg wl-leg-b"><rect x="64" y="92" width="15" height="31" rx="7.5" fill="#4b5563" stroke="#1f2937" stroke-width="2.5"/><ellipse cx="72" cy="124" rx="10" ry="5" fill="#374151" stroke="#1f2937" stroke-width="2.5"/></g><g class="wl-leg wl-leg-a"><rect x="126" y="92" width="15" height="31" rx="7.5" fill="#4b5563" stroke="#1f2937" stroke-width="2.5"/><ellipse cx="134" cy="124" rx="10" ry="5" fill="#374151" stroke="#1f2937" stroke-width="2.5"/></g><ellipse cx="94" cy="86" rx="54" ry="32" fill="#7b8494" stroke="#1f2937" stroke-width="3"/><ellipse cx="98" cy="104" rx="36" ry="12" fill="#cbd5e1"/><path d="M46 72 L50 54 L58 67 L66 49 L75 64 L85 47 L94 63 L104 48 L112 64 L122 51 L130 70 Z" fill="#5b6475" stroke="#1f2937" stroke-width="2.5" stroke-linejoin="round"/><g class="wl-leg wl-leg-a"><rect x="46" y="94" width="16" height="30" rx="8" fill="#7b8494" stroke="#1f2937" stroke-width="2.5"/><ellipse cx="54" cy="125" rx="11" ry="5.5" fill="#4b5563" stroke="#1f2937" stroke-width="2.5"/></g><g class="wl-leg wl-leg-b"><rect x="108" y="94" width="16" height="30" rx="8" fill="#7b8494" stroke="#1f2937" stroke-width="2.5"/><ellipse cx="116" cy="125" rx="11" ry="5.5" fill="#4b5563" stroke="#1f2937" stroke-width="2.5"/></g><g class="wl-head"><path d="M120 50 L104 62 L117 65 L106 80 L126 76 L132 88 L140 72 Z" fill="#5b6475" stroke="#1f2937" stroke-width="2.5" stroke-linejoin="round"/><path d="M134 42 L131 12 L153 33 Z" fill="#4b5563" stroke="#1f2937" stroke-width="2.5" stroke-linejoin="round"/><ellipse cx="146" cy="62" rx="26" ry="24" fill="#7b8494" stroke="#1f2937" stroke-width="3"/><path d="M149 41 L164 8 L176 43 Z" fill="#6b7587" stroke="#1f2937" stroke-width="2.5" stroke-linejoin="round"/><path d="M157 38 L164 20 L170 38 Z" fill="#c4a6b4"/><path d="M158 57 C172 50 192 56 197 67 C199 76 190 83 178 83 C166 83 158 77 158 69 Z" fill="#cbd5e1" stroke="#1f2937" stroke-width="3" stroke-linejoin="round"/><g class="wl-closed-mouth"><path d="M195 73 Q182 81 164 75" fill="none" stroke="#1f2937" stroke-width="2.5" stroke-linecap="round"/><path d="M185 78 L188 87 L191 76 Z" fill="#fff" stroke="#1f2937" stroke-width="1.6" stroke-linejoin="round"/><path d="M173 78 L176 86 L179 77 Z" fill="#fff" stroke="#1f2937" stroke-width="1.6" stroke-linejoin="round"/></g><g class="wl-jaw"><path d="M195 73 Q182 77 164 73 L168 93 Q182 101 193 88 Z" fill="#7f1d1d" stroke="#1f2937" stroke-width="2.5" stroke-linejoin="round"/><ellipse cx="180" cy="92" rx="8" ry="4" fill="#fb7185"/><path d="M186 74 L190 87 L194 73 Z" fill="#fff" stroke="#1f2937" stroke-width="1.6" stroke-linejoin="round"/><path d="M172 74 L176 86 L180 73 Z" fill="#fff" stroke="#1f2937" stroke-width="1.6" stroke-linejoin="round"/><path d="M181 91 L184 82 L187 92 Z" fill="#fff" stroke="#1f2937" stroke-width="1.4" stroke-linejoin="round"/></g><ellipse cx="196" cy="66" rx="5.5" ry="4.6" fill="#111827"/><circle cx="194.5" cy="64.4" r="1.3" fill="#fff"/><ellipse cx="141" cy="57" rx="6.5" ry="6" fill="#fde047" stroke="#1f2937" stroke-width="2"/><ellipse cx="143" cy="57" rx="1.8" ry="5" fill="#111827"/><ellipse cx="160" cy="55" rx="8" ry="7" fill="#fde047" stroke="#1f2937" stroke-width="2"/><ellipse cx="162" cy="55" rx="2" ry="6" fill="#111827"/><circle cx="158" cy="52" r="1.8" fill="#fff"/><path d="M149 45 L171 53" stroke="#1f2937" stroke-width="4.5" stroke-linecap="round"/><path d="M132 50 L148 55" stroke="#1f2937" stroke-width="4" stroke-linecap="round"/></g></g></svg>`;
+           Bir yumurtaya dokunulursa (ses çıkarırsa) kurt oraya koşar , "HIRR!" diye dibini eşeler ama yiyemez. */
+        const DM_WOLF_SVG = `<svg viewBox=\"0 0 200 140\" xmlns=\"http://www.w3.org/2000/svg\" aria-hidden=\"true\"><ellipse cx=\"98\" cy=\"128\" rx=\"64\" ry=\"6\" fill=\"rgba(0,0,0,.22)\"/><g class=\"wl-all\"><g class=\"wl-tail\"><path d=\"M58 76 C34 70 12 80 6 106 C5 114 12 116 17 109 C24 98 38 96 60 94 Z\" fill=\"#5b6577\" stroke=\"#1f2937\" stroke-width=\"3\" stroke-linejoin=\"round\"/><path d=\"M6 106 C5 114 12 116 17 109 C19 105 22 102 25 100 C16 98 9 100 6 106 Z\" fill=\"#e2e8f0\" stroke=\"#1f2937\" stroke-width=\"2\" stroke-linejoin=\"round\"/></g><g class=\"wl-leg wl-leg-b\"><path d=\"M120 84 L142 84 C144 98 140 106 139 114 L138 123 L123 123 L124 114 C123 106 119 98 120 84 Z\" fill=\"#3f4859\" stroke=\"#1f2937\" stroke-width=\"2.5\" stroke-linejoin=\"round\"/><ellipse cx=\"131\" cy=\"124\" rx=\"11\" ry=\"4.8\" fill=\"#2b3342\" stroke=\"#1f2937\" stroke-width=\"2.5\"/></g><g class=\"wl-leg wl-leg-a\"><path d=\"M52 80 L80 80 C82 92 72 100 72 108 L71 123 L57 123 L58 110 C59 102 48 94 52 80 Z\" fill=\"#3f4859\" stroke=\"#1f2937\" stroke-width=\"2.5\" stroke-linejoin=\"round\"/><ellipse cx=\"64\" cy=\"124\" rx=\"11\" ry=\"4.8\" fill=\"#2b3342\" stroke=\"#1f2937\" stroke-width=\"2.5\"/></g><path d=\"M44 72 L48 56 L57 66 L65 51 L74 63 L84 48 L93 61 L104 47 L113 61 L124 50 L132 63 L142 54 L150 70 Z\" fill=\"#3f4859\" stroke=\"#1f2937\" stroke-width=\"2.5\" stroke-linejoin=\"round\"/><path d=\"M38 80 C41 64 68 59 100 60 C126 58 146 62 152 76 C158 90 150 102 138 105 C118 111 80 109 58 105 C44 101 35 92 38 80 Z\" fill=\"#6b7587\" stroke=\"#1f2937\" stroke-width=\"3\" stroke-linejoin=\"round\"/><path d=\"M42 74 C54 62 80 60 100 62 C122 60 142 64 150 74 C128 70 100 68 74 70 C60 70 50 72 42 74 Z\" fill=\"#4b5563\"/><path d=\"M60 100 C82 108 122 108 142 98 C134 92 70 92 60 100 Z\" fill=\"#cbd5e1\"/><path d=\"M52 84 C58 90 58 98 52 102 M62 80 C66 86 66 92 62 96\" fill=\"none\" stroke=\"#4b5563\" stroke-width=\"2\" stroke-linecap=\"round\"/><g class=\"wl-leg wl-leg-a\"><path d=\"M44 82 L72 82 C75 94 64 102 64 110 L63 123 L48 123 L49 112 C50 104 40 96 44 82 Z\" fill=\"#7b8494\" stroke=\"#1f2937\" stroke-width=\"2.5\" stroke-linejoin=\"round\"/><ellipse cx=\"56\" cy=\"124\" rx=\"12\" ry=\"5\" fill=\"#4b5563\" stroke=\"#1f2937\" stroke-width=\"2.5\"/><path d=\"M48 127 L48 130 M56 128 L56 131 M63 127 L64 130\" stroke=\"#f1f5f9\" stroke-width=\"2\" stroke-linecap=\"round\"/></g><g class=\"wl-leg wl-leg-b\"><path d=\"M112 84 L136 84 C138 98 134 106 133 114 L132 123 L116 123 L117 114 C116 106 111 98 112 84 Z\" fill=\"#7b8494\" stroke=\"#1f2937\" stroke-width=\"2.5\" stroke-linejoin=\"round\"/><ellipse cx=\"124\" cy=\"124\" rx=\"11.5\" ry=\"5\" fill=\"#4b5563\" stroke=\"#1f2937\" stroke-width=\"2.5\"/><path d=\"M116 127 L116 130 M124 128 L124 131 M131 127 L132 130\" stroke=\"#f1f5f9\" stroke-width=\"2\" stroke-linecap=\"round\"/></g><g class=\"wl-head\"><path d=\"M118 58 L112 64 L122 66 L114 76 L126 74 L122 88 L134 82 L140 96 L148 84 L160 94 L162 74 L150 50 Z\" fill=\"#5b6577\" stroke=\"#1f2937\" stroke-width=\"2.5\" stroke-linejoin=\"round\"/><path d=\"M136 40 L133 12 L154 32 Z\" fill=\"#4b5563\" stroke=\"#1f2937\" stroke-width=\"2.5\" stroke-linejoin=\"round\"/><path d=\"M130 82 L138 98 L146 90 L154 102 L160 90 L170 96 L168 80 Z\" fill=\"#cbd5e1\" stroke=\"#1f2937\" stroke-width=\"2.2\" stroke-linejoin=\"round\"/><ellipse cx=\"152\" cy=\"62\" rx=\"24\" ry=\"22\" fill=\"#6b7587\" stroke=\"#1f2937\" stroke-width=\"3\"/><path d=\"M150 42 L163 8 L179 40 Z\" fill=\"#6b7587\" stroke=\"#1f2937\" stroke-width=\"2.5\" stroke-linejoin=\"round\"/><path d=\"M158 38 L164 20 L172 38 Z\" fill=\"#c4a6b4\"/><path d=\"M164 52 C176 50 192 56 198 65 C200 72 196 77 188 77 L166 77 C161 72 160 58 164 52 Z\" fill=\"#cbd5e1\" stroke=\"#1f2937\" stroke-width=\"3\" stroke-linejoin=\"round\"/><path d=\"M176 56 L186 59 M174 62 L184 64\" stroke=\"#94a3b8\" stroke-width=\"1.6\" stroke-linecap=\"round\"/><g class=\"wl-closed-mouth\"><path d=\"M193 75 Q180 83 164 76\" fill=\"none\" stroke=\"#1f2937\" stroke-width=\"2.6\" stroke-linecap=\"round\"/><path d=\"M186 78 L189 88 L192 76 Z\" fill=\"#fff\" stroke=\"#1f2937\" stroke-width=\"1.6\" stroke-linejoin=\"round\"/><path d=\"M174 80 L177 89 L180 78 Z\" fill=\"#fff\" stroke=\"#1f2937\" stroke-width=\"1.6\" stroke-linejoin=\"round\"/></g><g class=\"wl-jaw\"><path d=\"M193 75 Q180 79 164 75 L168 96 Q181 104 193 90 Z\" fill=\"#7f1d1d\" stroke=\"#1f2937\" stroke-width=\"2.5\" stroke-linejoin=\"round\"/><ellipse cx=\"180\" cy=\"95\" rx=\"8\" ry=\"4\" fill=\"#fb7185\"/><path d=\"M186 76 L190 90 L194 75 Z\" fill=\"#fff\" stroke=\"#1f2937\" stroke-width=\"1.6\" stroke-linejoin=\"round\"/><path d=\"M172 76 L176 89 L180 75 Z\" fill=\"#fff\" stroke=\"#1f2937\" stroke-width=\"1.6\" stroke-linejoin=\"round\"/><path d=\"M180 94 L183 84 L187 95 Z\" fill=\"#fff\" stroke=\"#1f2937\" stroke-width=\"1.4\" stroke-linejoin=\"round\"/></g><ellipse cx=\"196.5\" cy=\"65\" rx=\"5.5\" ry=\"4.4\" fill=\"#111827\"/><circle cx=\"195\" cy=\"63.4\" r=\"1.3\" fill=\"#fff\"/><path d=\"M148 58 C152 52 160 52 165 57 C164 63 155 65 148 61 Z\" fill=\"#fde047\" stroke=\"#1f2937\" stroke-width=\"2\"/><ellipse cx=\"157\" cy=\"58.5\" rx=\"2\" ry=\"3.6\" fill=\"#b91c1c\"/><circle cx=\"155.6\" cy=\"56.5\" r=\"1.1\" fill=\"#fff\"/><path d=\"M144 50 L168 57\" stroke=\"#1f2937\" stroke-width=\"4.5\" stroke-linecap=\"round\"/><path d=\"M169 70 L173 82\" stroke=\"#1f2937\" stroke-width=\"1.8\" stroke-linecap=\"round\" opacity=\".55\"/></g></g></svg>`;
         const dmWolfStart = ({ getHome, onGone }) => {
             const W = 130, H = 91, NOSE = 59;
             const rand = (a, b) => a + Math.random() * (b - a);
@@ -1850,8 +1857,11 @@
             document.body.appendChild(layer);
             const wolf = layer.firstChild, flip = wolf.querySelector('.dm-wolf-flip'), say = wolf.querySelector('.dm-wolf-say');
             window.__dmWolfOn = true;
+            // Kurt butonuna basılınca ulama sesi + kurt birlikte başlar
+            let howl = null;
+            try { howl = new Audio('assets/ulama.mp3'); howl.currentTime = 0; const pr = howl.play(); if (pr && pr.catch) pr.catch(() => {}); } catch (e) {}
             const h0 = getHome();
-            const S = { x: h0.x, y: h0.y, dir: h0.x > vw() / 2 ? -1 : 1, mode: 'intro', t: 0, scale: 0, speed: 70, wait: 0, card: null, side: 1, target: null, charge: false, lastCard: null, nextGrowl: performance.now() + rand(7000, 12000) };
+            const S = { x: h0.x, y: h0.y, dir: h0.x > vw() / 2 ? -1 : 1, mode: 'intro', t: 0, scale: 0, speed: 70, wait: 0, card: null, side: 1, target: null, charge: false, digNext: false, digsLeft: 0, dustT: 0, lastCard: null, nextGrowl: performance.now() + rand(7000, 12000) };
             let dead = false, raf = 0, last = performance.now(), lastReact = 0, lastCards = 0, sayT = 0, cards = [];
             const setCls = (c) => { wolf.className = 'dm-wolf ' + c; };
             const talk = (txt, ms) => { say.textContent = txt; say.classList.add('on'); clearTimeout(sayT); sayT = setTimeout(() => say.classList.remove('on'), ms || 1600); };
@@ -1866,7 +1876,7 @@
             const pickTarget = () => {
                 if (performance.now() - lastCards > 2000) refreshCards();
                 const pool = cards.filter(c => c !== S.lastCard && c.isConnected);
-                S.charge = false; S.speed = 70;
+                S.charge = false; S.digNext = false; S.speed = 70;
                 if (pool.length && Math.random() < 0.72) {
                     const c = pool[Math.floor(Math.random() * pool.length)];
                     const r = c.getBoundingClientRect();
@@ -1881,15 +1891,39 @@
                 S.mode = 'walk'; setCls('walk');
             };
             const startGrowl = (now) => { S.mode = 'growl'; S.wait = 1.3; setCls('growl'); talk('grrr…', 1200); S.nextGrowl = now + rand(8000, 14000); };
+            const isHigh = (c) => !!c && (parseFloat(c.dataset.score) || 0) >= 25;
+            // Toz bulutu (eşeleme sırasında burun/pati hizasından)
+            const puff = () => {
+                for (let i = 0; i < 5; i++) {
+                    const d = document.createElement('div'); d.className = 'dm-dust';
+                    const x = S.x + S.dir * (NOSE - 2) + rand(-9, 9), y = S.y + H / 2 - 30 + rand(-3, 3);
+                    layer.appendChild(d);
+                    const dx = rand(-28, 28), dy = rand(-36, -12), sc = rand(.9, 1.9);
+                    const a = d.animate([
+                        { transform: `translate(${x}px,${y}px) scale(.5)`, opacity: .85 },
+                        { transform: `translate(${x + dx}px,${y + dy}px) scale(${sc})`, opacity: 0 }
+                    ], { duration: rand(450, 800), easing: 'ease-out' });
+                    a.onfinish = () => d.remove();
+                }
+            };
+            // 2-3 kez eşele, yumurtayı yiyemeden vazgeç
+            const startDig = (angry) => {
+                S.digsLeft = Math.random() < 0.5 ? 2 : 3;
+                S.mode = 'dig'; S.wait = S.digsLeft * 0.5 + 0.1; S.dustT = 0.05; setCls('dig');
+                talk(angry ? 'HIRR!' : 'hırr…', 1200);
+            };
             const arrive = () => {
                 if (S.mode === 'out') { S.mode = 'vanish'; S.t = 0; setCls('walk'); return; }
                 if (S.card) {
                     const r = S.card.getBoundingClientRect(); S.dir = (r.left + r.width / 2 > S.x) ? 1 : -1;
                     if (S.charge) {
-                        const c = S.card;
-                        S.mode = 'chomp'; S.wait = 1.0; setCls('chomp'); talk('AM!', 900);
-                        c.classList.add('dm-egg-bounce'); setTimeout(() => c.classList.remove('dm-egg-bounce'), 800);
+                        // Ses çıkaran öğrencinin yumurtası: dibini eşele, puanını almak ister gibi
                         S.charge = false; S.speed = 70;
+                        startDig(true);
+                    } else if (isHigh(S.card)) {
+                        // 25+ puanlı yumurta: önce kokla, sonra dibini eşele
+                        S.mode = 'sniff'; S.wait = rand(1.0, 1.6); S.digNext = true; setCls('sniff');
+                        talk('hım hım…', 1400);
                     } else {
                         S.mode = 'sniff'; S.wait = rand(1.8, 3.2); setCls('sniff');
                         if (Math.random() < 0.6) talk('hım hım…', 1800);
@@ -1905,9 +1939,15 @@
                     if (d <= step + 1) { S.x = tp.x; S.y = tp.y; arrive(); }
                     else { S.x += dx / d * step; S.y += dy / d * step; if (Math.abs(dx) > 6) S.dir = dx > 0 ? 1 : -1; }
                     if (S.mode === 'walk' && !S.charge && now > S.nextGrowl) startGrowl(now);
-                } else if (S.mode === 'sniff' || S.mode === 'growl' || S.mode === 'chomp') {
+                } else if (S.mode === 'sniff' || S.mode === 'growl' || S.mode === 'dig') {
                     S.wait -= dt;
-                    if (S.wait <= 0) { if (S.mode === 'sniff' && now > S.nextGrowl) startGrowl(now); else pickTarget(); }
+                    if (S.mode === 'dig') { S.dustT -= dt; if (S.dustT <= 0) { S.dustT = 0.25; puff(); } }
+                    if (S.wait <= 0) {
+                        if (S.mode === 'dig') { talk('hmpf… neyse', 1300); pickTarget(); }
+                        else if (S.mode === 'sniff' && S.digNext) { S.digNext = false; startDig(false); }
+                        else if (S.mode === 'sniff' && now > S.nextGrowl) startGrowl(now);
+                        else pickTarget();
+                    }
                 } else if (S.mode === 'vanish') {
                     S.t += dt; S.scale = Math.max(0, 1 - S.t / 0.35);
                     if (S.scale <= 0) finish();
@@ -1954,6 +1994,7 @@
             document.addEventListener('pointerdown', onDown, true);
             const cleanup = () => {
                 dead = true; cancelAnimationFrame(raf); clearTimeout(sayT);
+                try { if (howl) { howl.pause(); howl = null; } } catch (e) {}
                 document.removeEventListener('pointerdown', onDown, true);
                 layer.remove(); window.__dmWolfOn = false;
                 document.querySelectorAll('.dm-egg-card').forEach(c => {
@@ -2960,7 +3001,7 @@
                                             const lastKind = hatched && !isSupport ? (st.legends || []).slice(-1)[0]?.kind : null;
                                             const legCount = (st.legends || []).length;
                                             return (
-                                                <div key={st.id}
+                                                <div key={st.id} data-score={score}
                                                     onPointerDown={canHatch ? () => startHold(st.id) : undefined}
                                                     onPointerUp={canHatch ? stopHold : undefined}
                                                     onPointerLeave={canHatch ? stopHold : undefined}
