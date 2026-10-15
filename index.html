@@ -1733,13 +1733,31 @@
             { key: 'wolf', name: 'Efsane Kurt' },        { key: 'fox', name: 'Efsane Tilki' },
             { key: 'penguin', name: 'Efsane Penguen' },  { key: 'dragon', name: 'Efsane Ejderha' },
             { key: 'owl', name: 'Efsane Baykuş' },       { key: 'unicorn', name: 'Efsane Tek Boynuzlu' },
-            { key: 'bear', name: 'Efsane Ayı' }
+            { key: 'bear', name: 'Efsane Ayı' },
+            // Yeni efsane hayvanlar: görseller assets/efsane/ klasöründen yüklenir (assets/efsane/bee.png vb.)
+            { key: 'bee', name: 'Efsane Arı', emoji: '🐝' },
+            { key: 'hippo', name: 'Efsane Su Aygırı', emoji: '🦛' },
+            { key: 'lion', name: 'Efsane Aslan', emoji: '🦁' },
+            { key: 'monkey', name: 'Efsane Maymun', emoji: '🐒' },
+            { key: 'duck', name: 'Efsane Ördek', emoji: '🦆' },
+            { key: 'elephant', name: 'Efsane Fil', emoji: '🐘' },
+            { key: 'koala', name: 'Efsane Koala', emoji: '🐨' },
+            { key: 'raccoon', name: 'Efsane Rakun', emoji: '🦝' }
         ];
         const dmImgFail = {};
         const DmCreature = ({ kind, uid }) => {
             // İsterseniz assets/efsane/<kind>.png dosyası koyun; varsa o görsel kullanılır, yoksa çizim görünür.
             const [imgOk, setImgOk] = useState(!dmImgFail[kind]);
-            if (imgOk) return <img src={`assets/efsane/${kind}.png`} alt="" className="dm-creature-svg" style={{ objectFit: 'contain' }} onError={() => { dmImgFail[kind] = true; setImgOk(false); }} />;
+            const crDef = DM_CREATURES.find(c => c.key === kind);
+            if (imgOk) return <img src={(crDef && crDef.img) || `assets/efsane/${kind}.png`} alt="" className="dm-creature-svg" style={{ objectFit: 'contain' }} onError={() => { dmImgFail[kind] = true; setImgOk(false); }} />;
+            // Görsel dosyası henüz yoksa yeni hayvanlar için geçici emoji rozeti
+            if (crDef && crDef.emoji) return (
+                <svg viewBox="0 0 100 100" className="dm-creature-svg" aria-hidden="true">
+                    <defs><radialGradient id={`cr-${uid}`} cx="35%" cy="30%" r="85%"><stop offset="0" stopColor="#f3e8ff" /><stop offset=".55" stopColor="#a855f7" /><stop offset="1" stopColor="#6b21a8" /></radialGradient></defs>
+                    <circle cx="50" cy="52" r="42" fill={`url(#cr-${uid})`} stroke="#581c87" strokeWidth="2.5" />
+                    <text x="50" y="52" fontSize="52" textAnchor="middle" dominantBaseline="central">{crDef.emoji}</text>
+                </svg>
+            );
             const D = '#581c87', eye = '#1f2937', V = '#a855f7', grad = `url(#cr-${uid})`;
             const st = { stroke: D, strokeWidth: 2.5, strokeLinejoin: 'round' };
             const tri = (d, f = V) => <path d={d} fill={f} {...st} />;
